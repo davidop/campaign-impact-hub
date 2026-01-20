@@ -6,6 +6,22 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { ChatCircle, PaperPlaneRight } from '@phosphor-icons/react'
 import { useTranslation, type Language } from '@/lib/i18n'
+import { AgentClient } from '@/lib/agentClient'
+
+const client = new AgentClient({
+  baseUrl: import.meta.env.VITE_AGENT_BASE_URL, // tu proxy
+  debug: true,
+  getAuthHeader: async () => `Bearer ${import.meta.env.VITE_AGENT_TOKEN}`, // opcional
+});
+
+client.onMessage((m) => console.log("assistant:", m.text));
+client.onState((s) => console.log("state:", s));
+
+await client.connect();
+await client.sendMessage("Crea una campaña para un smartwatch fitness", {
+  context: { channels: ["Instagram", "TikTok"], target: "25-40" },
+});
+
 
 interface Message {
   id: string
