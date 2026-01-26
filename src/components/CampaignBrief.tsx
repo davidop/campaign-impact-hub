@@ -18,8 +18,10 @@ interface CampaignBriefProps {
 
 const AVAILABLE_CHANNELS = [
   { value: 'instagram', label: 'Instagram' },
-  { value: 'google', label: 'Google' },
+  { value: 'facebook', label: 'Facebook' },
+  { value: 'twitter', label: 'Twitter' },
   { value: 'linkedin', label: 'LinkedIn' },
+  { value: 'google', label: 'Google' },
   { value: 'whatsapp', label: 'WhatsApp' },
   { value: 'telegram', label: 'Telegram' },
   { value: 'email', label: 'Email' }
