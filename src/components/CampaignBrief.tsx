@@ -27,10 +27,10 @@ export function CampaignBrief({ onGenerate, isGenerating, language }: CampaignBr
   const t = useTranslation(language)
   
   const [formData, setFormData] = useState({
-    product: '',
-    audience: '',
-    goals: '',
-    budget: '',
+    product: language === 'es' ? 'Perfume femenino de lujo "Essence"' : 'Luxury women\'s perfume "Essence"',
+    audience: language === 'es' ? 'Mujeres 25-45 años, profesionales urbanas, ingresos medios-altos' : 'Women 25-45 years old, urban professionals, medium-high income',
+    goals: language === 'es' ? 'Lanzamiento de producto, generar awareness de marca, alcanzar 10,000 ventas en los primeros 3 meses' : 'Product launch, generate brand awareness, achieve 10,000 sales in the first 3 months',
+    budget: '€15,000',
     channels: ''
   })
   
