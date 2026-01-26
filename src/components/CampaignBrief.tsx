@@ -20,21 +20,22 @@ const AVAILABLE_CHANNELS = [
   { value: 'instagram', label: 'Instagram' },
   { value: 'google', label: 'Google' },
   { value: 'whatsapp', label: 'WhatsApp' },
-  { value: 'telegram', label: 'Telegram' }
+  { value: 'telegram', label: 'Telegram' },
+  { value: 'email', label: 'Email' }
 ]
 
 export function CampaignBrief({ onGenerate, isGenerating, language }: CampaignBriefProps) {
   const t = useTranslation(language)
   
   const [formData, setFormData] = useState({
-    product: 'Perfume femenino de lujo "Essence"',
-    audience: 'Mujeres 25-45 años, profesionales urbanas, ingresos medios-altos',
-    goals: 'Lanzamiento de producto, generar awareness de marca, alcanzar 10,000 ventas en los primeros 3 meses',
-    budget: '€15,000',
+    product: 'Azure ARC',
+    audience: 'CEO, CTO, Responsables de IT',
+    goals: 'Implementación de Azure ARC en OnPremise y aumentar el ACR',
+    budget: '€3,000',
     channels: ''
   })
   
-  const [selectedChannels, setSelectedChannels] = useState<string[]>(['telegram'])
+  const [selectedChannels, setSelectedChannels] = useState<string[]>(['email'])
   const [isChannelOpen, setIsChannelOpen] = useState(false)
 
   const handleSubmit = (e: React.FormEvent) => {
