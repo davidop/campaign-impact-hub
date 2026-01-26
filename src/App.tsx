@@ -16,7 +16,7 @@ interface CampaignOutputs {
 
 function App() {
   const [theme, setTheme] = useKV<string>('theme', 'light')
-  const [language, setLanguage] = useKV<Language>('language', 'en')
+  const [language, setLanguage] = useKV<Language>('language', 'es')
   const [isConnected, setIsConnected] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [outputs, setOutputs] = useKV<CampaignOutputs>('campaign-outputs', {
@@ -52,7 +52,7 @@ function App() {
   }
 
   const handleLanguageToggle = () => {
-    setLanguage((current) => current === 'en' ? 'es' : 'en')
+    setLanguage((current) => current === 'es' ? 'en' : 'es')
   }
 
   const handleGenerateCampaign = async (briefData: any) => {
@@ -169,7 +169,7 @@ ${isSpanish ? 'Formatea claramente con un KPI por sección. Responde en español
         theme={theme || 'light'}
         onThemeToggle={handleThemeToggle}
         isConnected={isConnected}
-        language={language || 'en'}
+        language={language || 'es'}
         onLanguageToggle={handleLanguageToggle}
       />
       
@@ -179,7 +179,7 @@ ${isSpanish ? 'Formatea claramente con un KPI por sección. Responde en español
             <CampaignBrief 
               onGenerate={handleGenerateCampaign}
               isGenerating={isGenerating}
-              language={language || 'en'}
+              language={language || 'es'}
             />
           </div>
           
@@ -193,12 +193,12 @@ ${isSpanish ? 'Formatea claramente con un KPI por sección. Responde en español
                 kpis: ''
               }}
               isGenerating={isGenerating}
-              language={language || 'en'}
+              language={language || 'es'}
             />
           </div>
           
           <div className="lg:col-span-3">
-            <LiveChat language={language || 'en'} />
+            <LiveChat language={language || 'es'} />
           </div>
         </div>
       </main>

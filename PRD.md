@@ -1,9 +1,10 @@
 # Planning Guide
 
-A comprehensive Marketing Agent Command Center that empowers marketers to generate AI-powered campaign strategies, copy variations, content calendars, and KPI insights while collaborating with a live AI agent through an integrated chat interface.
+Un Centro de Comando de Marketing integral que permite a los especialistas en marketing generar estrategias de campaña impulsadas por IA, variaciones de copy, calendarios de contenido e insights de KPIs mientras colaboran con un agente de IA en vivo a través de una interfaz de chat integrada.
 
+**Idioma por defecto**: Español (castellano) con posibilidad de cambiar a inglés mediante el botón de traducción en el header.
 
-This is a multi-panel dashboard with real-time AI generation, persistent chat history, live status indicators, theme switching, and coordinate
+This is a multi-panel dashboard with real-time AI generation, persistent chat history, live status indicators, theme switching, language toggle (Spanish/English), and multi-channel campaign coordination
 ## Essential Features
 ### Campaign Brief Form
 

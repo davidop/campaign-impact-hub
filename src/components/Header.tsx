@@ -50,7 +50,7 @@ export function Header({ theme, onThemeToggle, isConnected, language, onLanguage
               className="glass-panel px-3 py-2 rounded-lg gap-2 font-semibold uppercase tracking-wide"
             >
               <Translate size={16} weight="fill" />
-              <span className="text-xs">{language === 'en' ? 'ES' : 'EN'}</span>
+              <span className="text-xs">{language === 'es' ? 'EN' : 'ES'}</span>
             </Button>
             
             <div className="flex items-center gap-2 glass-panel px-3 py-2 rounded-lg">
