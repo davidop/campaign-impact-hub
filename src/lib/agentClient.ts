@@ -144,7 +144,7 @@ class Emitter<T> {
   }
 }
 
-export class AgentClientClass {
+export class AgentClient {
   private cfg: Required<
     Pick<
       AgentClientConfig,
