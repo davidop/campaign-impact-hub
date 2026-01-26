@@ -146,7 +146,7 @@ ${isSpanish ? 'Formatea claramente con un KPI por sección. Responde en español
       const versionASeparator = isSpanish ? 'VERSIÓN A:' : 'VERSION A:'
       
       const copyParts = copy.split(versionBSeparator)
-      const copyA = copyParts[0].replace(versionASeparator, '').trim()
+      const copyA = copyParts[0] ? copyParts[0].replace(versionASeparator, '').trim() : ''
       const copyB = copyParts[1] ? copyParts[1].trim() : ''
 
       setOutputs(() => ({
