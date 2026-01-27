@@ -22,32 +22,34 @@ export function OutputsPanel({ outputs, isGenerating, language }: OutputsPanelPr
   const t = useTranslation(language)
   
   return (
-    <Card className="glass-panel p-6">
+    <Card className="glass-panel p-6 border-2 marketing-shine">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
-          <Sparkle size={24} weight="fill" className="text-accent" />
-          {t.outputs.title}
+          <Sparkle size={28} weight="fill" className="text-accent sparkle-animate" />
+          <span className="bg-gradient-to-r from-accent via-secondary to-accent bg-clip-text text-transparent">
+            {t.outputs.title}
+          </span>
         </h2>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-sm text-muted-foreground mt-2 font-medium">
           {t.outputs.subtitle}
         </p>
       </div>
 
       <Tabs defaultValue="strategy" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 glass-panel mb-4">
-          <TabsTrigger value="strategy" className="text-xs">
-            <ChartBar size={16} className="mr-1" />
+        <TabsList className="grid w-full grid-cols-4 glass-panel mb-4 border-2 rounded-xl p-1">
+          <TabsTrigger value="strategy" className="text-xs rounded-lg font-bold data-[state=active]:neon-glow">
+            <ChartBar size={18} className="mr-1" />
             {t.outputs.strategy}
           </TabsTrigger>
-          <TabsTrigger value="copy" className="text-xs">
+          <TabsTrigger value="copy" className="text-xs rounded-lg font-bold data-[state=active]:neon-glow">
             {t.outputs.copy}
           </TabsTrigger>
-          <TabsTrigger value="calendar" className="text-xs">
-            <Calendar size={16} className="mr-1" />
+          <TabsTrigger value="calendar" className="text-xs rounded-lg font-bold data-[state=active]:neon-glow">
+            <Calendar size={18} className="mr-1" />
             {t.outputs.calendar}
           </TabsTrigger>
-          <TabsTrigger value="kpis" className="text-xs">
-            <TrendUp size={16} className="mr-1" />
+          <TabsTrigger value="kpis" className="text-xs rounded-lg font-bold data-[state=active]:neon-glow">
+            <TrendUp size={18} className="mr-1" />
             {t.outputs.kpis}
           </TabsTrigger>
         </TabsList>
@@ -56,25 +58,25 @@ export function OutputsPanel({ outputs, isGenerating, language }: OutputsPanelPr
           <ScrollArea className="h-[600px] pr-4">
             {isGenerating && !outputs.strategy ? (
               <div className="space-y-3">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-5/6" />
-                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-4 w-full rounded-xl" />
+                <Skeleton className="h-4 w-3/4 rounded-xl" />
+                <Skeleton className="h-4 w-5/6 rounded-xl" />
+                <Skeleton className="h-4 w-2/3 rounded-xl" />
                 <div className="pt-4">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-4/5" />
+                  <Skeleton className="h-4 w-full rounded-xl" />
+                  <Skeleton className="h-4 w-4/5 rounded-xl" />
                 </div>
               </div>
             ) : outputs.strategy ? (
               <div className="prose prose-sm dark:prose-invert max-w-none">
-                <div className="whitespace-pre-wrap text-foreground leading-relaxed">
+                <div className="whitespace-pre-wrap text-foreground leading-relaxed font-medium">
                   {outputs.strategy}
                 </div>
               </div>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
-                <ChartBar size={48} className="mx-auto mb-4 opacity-50" />
-                <p>{t.outputs.strategyEmpty}</p>
+                <ChartBar size={56} className="mx-auto mb-4 opacity-40 float-animate" />
+                <p className="font-semibold">{t.outputs.strategyEmpty}</p>
               </div>
             )}
           </ScrollArea>
@@ -85,43 +87,45 @@ export function OutputsPanel({ outputs, isGenerating, language }: OutputsPanelPr
             {isGenerating && !outputs.copyA ? (
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <Skeleton className="h-6 w-24" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-5/6" />
+                  <Skeleton className="h-6 w-24 rounded-xl" />
+                  <Skeleton className="h-4 w-full rounded-xl" />
+                  <Skeleton className="h-4 w-5/6 rounded-xl" />
                 </div>
                 <Separator />
                 <div className="space-y-3">
-                  <Skeleton className="h-6 w-24" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-5/6" />
+                  <Skeleton className="h-6 w-24 rounded-xl" />
+                  <Skeleton className="h-4 w-full rounded-xl" />
+                  <Skeleton className="h-4 w-5/6 rounded-xl" />
                 </div>
               </div>
             ) : outputs.copyA ? (
               <div className="space-y-6">
-                <div className="glass-panel p-4 rounded-lg neon-border">
-                  <h3 className="text-sm font-bold uppercase tracking-wide text-primary mb-3">
+                <div className="glass-panel p-5 rounded-2xl neon-border border-primary/60 hover:scale-105 transition-transform">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-3 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
                     {t.outputs.versionA}
                   </h3>
-                  <div className="whitespace-pre-wrap text-foreground leading-relaxed">
+                  <div className="whitespace-pre-wrap text-foreground leading-relaxed font-medium">
                     {outputs.copyA}
                   </div>
                 </div>
 
-                <Separator />
+                <Separator className="my-6" />
 
-                <div className="glass-panel p-4 rounded-lg neon-border">
-                  <h3 className="text-sm font-bold uppercase tracking-wide text-accent mb-3">
+                <div className="glass-panel p-5 rounded-2xl neon-border border-accent/60 hover:scale-105 transition-transform">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-accent mb-3 flex items-center gap-2">
+                    <span className="w-2 h-2 bg-accent rounded-full animate-pulse"></span>
                     {t.outputs.versionB}
                   </h3>
-                  <div className="whitespace-pre-wrap text-foreground leading-relaxed">
+                  <div className="whitespace-pre-wrap text-foreground leading-relaxed font-medium">
                     {outputs.copyB}
                   </div>
                 </div>
               </div>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
-                <Sparkle size={48} className="mx-auto mb-4 opacity-50" />
-                <p>{t.outputs.copyEmpty}</p>
+                <Sparkle size={56} className="mx-auto mb-4 opacity-40 sparkle-animate" />
+                <p className="font-semibold">{t.outputs.copyEmpty}</p>
               </div>
             )}
           </ScrollArea>
@@ -133,19 +137,19 @@ export function OutputsPanel({ outputs, isGenerating, language }: OutputsPanelPr
               <div className="space-y-3">
                 {[...Array(8)].map((_, i) => (
                   <div key={i} className="space-y-2">
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-32 rounded-xl" />
+                    <Skeleton className="h-4 w-full rounded-xl" />
                   </div>
                 ))}
               </div>
             ) : outputs.calendar ? (
-              <div className="whitespace-pre-wrap text-foreground leading-relaxed">
+              <div className="whitespace-pre-wrap text-foreground leading-relaxed font-medium">
                 {outputs.calendar}
               </div>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
-                <Calendar size={48} className="mx-auto mb-4 opacity-50" />
-                <p>{t.outputs.calendarEmpty}</p>
+                <Calendar size={56} className="mx-auto mb-4 opacity-40 float-animate" />
+                <p className="font-semibold">{t.outputs.calendarEmpty}</p>
               </div>
             )}
           </ScrollArea>
@@ -157,20 +161,20 @@ export function OutputsPanel({ outputs, isGenerating, language }: OutputsPanelPr
               <div className="space-y-4">
                 {[...Array(5)].map((_, i) => (
                   <div key={i} className="space-y-2">
-                    <Skeleton className="h-5 w-40" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-5 w-40 rounded-xl" />
+                    <Skeleton className="h-4 w-full rounded-xl" />
+                    <Skeleton className="h-4 w-32 rounded-xl" />
                   </div>
                 ))}
               </div>
             ) : outputs.kpis ? (
-              <div className="whitespace-pre-wrap text-foreground leading-relaxed mono">
+              <div className="whitespace-pre-wrap text-foreground leading-relaxed mono text-sm">
                 {outputs.kpis}
               </div>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
-                <TrendUp size={48} className="mx-auto mb-4 opacity-50" />
-                <p>{t.outputs.kpisEmpty}</p>
+                <TrendUp size={56} className="mx-auto mb-4 opacity-40 float-animate" />
+                <p className="font-semibold">{t.outputs.kpisEmpty}</p>
               </div>
             )}
           </ScrollArea>

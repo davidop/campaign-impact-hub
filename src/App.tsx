@@ -164,44 +164,53 @@ ${isSpanish ? 'Formatea claramente con un KPI por sección. Responde en español
   }
 
   return (
-    <div className="min-h-screen gradient-bg">
-      <Header 
-        theme={theme || 'light'}
-        onThemeToggle={handleThemeToggle}
-        isConnected={isConnected}
-        language={language || 'es'}
-        onLanguageToggle={handleLanguageToggle}
-      />
+    <div className="min-h-screen gradient-bg relative overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-96 h-96 bg-accent/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute bottom-20 left-1/3 w-80 h-80 bg-secondary/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/3 right-1/4 w-64 h-64 bg-primary/5 rounded-full blur-2xl float-animate"></div>
+      </div>
       
-      <main className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-3">
-            <CampaignBrief 
-              onGenerate={handleGenerateCampaign}
-              isGenerating={isGenerating}
-              language={language || 'es'}
-            />
+      <div className="relative z-10">
+        <Header 
+          theme={theme || 'light'}
+          onThemeToggle={handleThemeToggle}
+          isConnected={isConnected}
+          language={language || 'es'}
+          onLanguageToggle={handleLanguageToggle}
+        />
+        
+        <main className="container mx-auto px-4 py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-3">
+              <CampaignBrief 
+                onGenerate={handleGenerateCampaign}
+                isGenerating={isGenerating}
+                language={language || 'es'}
+              />
+            </div>
+            
+            <div className="lg:col-span-6">
+              <OutputsPanel 
+                outputs={outputs || {
+                  strategy: '',
+                  copyA: '',
+                  copyB: '',
+                  calendar: '',
+                  kpis: ''
+                }}
+                isGenerating={isGenerating}
+                language={language || 'es'}
+              />
+            </div>
+            
+            <div className="lg:col-span-3">
+              <LiveChat language={language || 'es'} />
+            </div>
           </div>
-          
-          <div className="lg:col-span-6">
-            <OutputsPanel 
-              outputs={outputs || {
-                strategy: '',
-                copyA: '',
-                copyB: '',
-                calendar: '',
-                kpis: ''
-              }}
-              isGenerating={isGenerating}
-              language={language || 'es'}
-            />
-          </div>
-          
-          <div className="lg:col-span-3">
-            <LiveChat language={language || 'es'} />
-          </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   )
 }

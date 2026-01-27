@@ -81,20 +81,22 @@ export function CampaignBrief({ onGenerate, isGenerating, language }: CampaignBr
   }
 
   return (
-    <Card className="glass-panel p-6">
+    <Card className="glass-panel p-6 border-2 marketing-shine">
       <div className="mb-6">
         <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
-          <Lightning size={24} weight="fill" className="text-primary" />
-          {t.campaignBrief.title}
+          <Lightning size={28} weight="fill" className="text-primary float-animate" />
+          <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+            {t.campaignBrief.title}
+          </span>
         </h2>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-sm text-muted-foreground mt-2 font-medium">
           {t.campaignBrief.subtitle}
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-2">
-          <Label htmlFor="product" className="text-xs uppercase font-medium tracking-wide">
+          <Label htmlFor="product" className="text-xs uppercase font-bold tracking-wider text-primary">
             {t.campaignBrief.product}
           </Label>
           <Input
@@ -102,13 +104,13 @@ export function CampaignBrief({ onGenerate, isGenerating, language }: CampaignBr
             value={formData.product}
             onChange={(e) => handleChange('product', e.target.value)}
             placeholder={t.campaignBrief.productPlaceholder}
-            className="glass-panel-hover"
+            className="glass-panel-hover border-2 rounded-xl"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="audience" className="text-xs uppercase font-medium tracking-wide">
+          <Label htmlFor="audience" className="text-xs uppercase font-bold tracking-wider text-primary">
             {t.campaignBrief.audience}
           </Label>
           <Input
@@ -116,13 +118,13 @@ export function CampaignBrief({ onGenerate, isGenerating, language }: CampaignBr
             value={formData.audience}
             onChange={(e) => handleChange('audience', e.target.value)}
             placeholder={t.campaignBrief.audiencePlaceholder}
-            className="glass-panel-hover"
+            className="glass-panel-hover border-2 rounded-xl"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="goals" className="text-xs uppercase font-medium tracking-wide">
+          <Label htmlFor="goals" className="text-xs uppercase font-bold tracking-wider text-primary">
             {t.campaignBrief.goals}
           </Label>
           <Textarea
@@ -130,14 +132,14 @@ export function CampaignBrief({ onGenerate, isGenerating, language }: CampaignBr
             value={formData.goals}
             onChange={(e) => handleChange('goals', e.target.value)}
             placeholder={t.campaignBrief.goalsPlaceholder}
-            className="glass-panel-hover resize-none"
+            className="glass-panel-hover resize-none border-2 rounded-xl"
             rows={3}
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="budget" className="text-xs uppercase font-medium tracking-wide">
+          <Label htmlFor="budget" className="text-xs uppercase font-bold tracking-wider text-primary">
             {t.campaignBrief.budget}
           </Label>
           <Input
@@ -145,13 +147,13 @@ export function CampaignBrief({ onGenerate, isGenerating, language }: CampaignBr
             value={formData.budget}
             onChange={(e) => handleChange('budget', e.target.value)}
             placeholder={t.campaignBrief.budgetPlaceholder}
-            className="glass-panel-hover"
+            className="glass-panel-hover border-2 rounded-xl"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="channels" className="text-xs uppercase font-medium tracking-wide">
+          <Label htmlFor="channels" className="text-xs uppercase font-bold tracking-wider text-primary">
             {t.campaignBrief.channels}
           </Label>
           <Popover open={isChannelOpen} onOpenChange={setIsChannelOpen}>
@@ -162,20 +164,20 @@ export function CampaignBrief({ onGenerate, isGenerating, language }: CampaignBr
                 role="combobox"
                 aria-expanded={isChannelOpen}
                 className={cn(
-                  "w-full justify-between font-normal glass-panel-hover",
+                  "w-full justify-between font-normal glass-panel-hover border-2 rounded-xl",
                   selectedChannels.length === 0 && "text-muted-foreground"
                 )}
               >
-                <span className="truncate">{getChannelDisplayText()}</span>
+                <span className="truncate font-medium">{getChannelDisplayText()}</span>
                 <CaretDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 glass-panel" align="start">
+            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 glass-panel border-2" align="start">
               <div className="p-2 space-y-1">
                 {AVAILABLE_CHANNELS.map((channel) => (
                   <div
                     key={channel.value}
-                    className="flex items-center space-x-2 rounded-md px-3 py-2 hover:bg-accent/50 cursor-pointer transition-colors"
+                    className="flex items-center space-x-2 rounded-xl px-3 py-2 hover:bg-accent/30 cursor-pointer transition-all hover:scale-105"
                     onClick={() => toggleChannel(channel.value)}
                   >
                     <Checkbox
@@ -185,7 +187,7 @@ export function CampaignBrief({ onGenerate, isGenerating, language }: CampaignBr
                     />
                     <label
                       htmlFor={channel.value}
-                      className="flex-1 text-sm font-medium cursor-pointer pointer-events-none"
+                      className="flex-1 text-sm font-semibold cursor-pointer pointer-events-none"
                     >
                       {channel.label}
                     </label>
@@ -198,7 +200,7 @@ export function CampaignBrief({ onGenerate, isGenerating, language }: CampaignBr
             </PopoverContent>
           </Popover>
           {selectedChannels.length > 0 && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground font-medium">
               {selectedChannels.length} {language === 'es' ? 'canal(es) seleccionado(s)' : 'channel(s) selected'}
             </p>
           )}
@@ -206,7 +208,7 @@ export function CampaignBrief({ onGenerate, isGenerating, language }: CampaignBr
 
         <Button 
           type="submit" 
-          className="w-full neon-glow font-semibold uppercase tracking-wide"
+          className="w-full neon-glow-accent font-bold uppercase tracking-wider rounded-xl py-6 text-base border-2 border-accent/50 hover:scale-105 transition-transform"
           disabled={isGenerating || selectedChannels.length === 0}
         >
           {isGenerating ? (
@@ -215,7 +217,7 @@ export function CampaignBrief({ onGenerate, isGenerating, language }: CampaignBr
             </>
           ) : (
             <>
-              <Lightning size={18} weight="fill" />
+              <Lightning size={20} weight="fill" className="sparkle-animate" />
               {t.campaignBrief.generate}
             </>
           )}
