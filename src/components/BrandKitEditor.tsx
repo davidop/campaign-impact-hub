@@ -2,64 +2,33 @@ import { useState } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Switch } from '@/components/ui/switch'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import { toast } from 'sonner'
-import { Palette, Plus, X, Check } from '@phosphor-icons/react'
-import type { BrandKit } from '@/lib/types'
+import { Textarea } from '@/components/ui/texta
+import { Badge } from '@/components/ui/badg
+import { Palette, Plus, X, Check } from '@phosp
 import type { Language } from '@/lib/i18n'
-
 interface BrandKitEditorProps {
-  language: Language
 }
-
-export function BrandKitEditor({ language }: BrandKitEditorProps) {
-  const [brandKit, setBrandKit] = useKV<BrandKit>('brand-kit', {
+export function BrandKitEditor({ language }: 
     voice: '',
-    tone: '',
     doList: [],
-    dontList: [],
     forbiddenWords: [],
-    allowedClaims: [],
     useEmojis: false,
-    formality: 'professional',
-    examples: []
-  })
 
-  const [doInput, setDoInput] = useState('')
-  const [dontInput, setDontInput] = useState('')
-  const [forbiddenInput, setForbiddenInput] = useState('')
-  const [claimInput, setClaimInput] = useState('')
-  const [exampleInput, setExampleInput] = useState('')
 
-  const defaultBrandKit: BrandKit = {
+  const [dontInput, 
+ 
+
     voice: '',
-    tone: '',
     doList: [],
-    dontList: [],
-    forbiddenWords: [],
-    allowedClaims: [],
-    useEmojis: false,
-    formality: 'professional',
-    examples: []
-  }
+    forbiddenW
+    useEmojis
+    examples: [
 
-  const handleUpdate = (field: keyof BrandKit, value: any) => {
-    setBrandKit((current) => {
-      const base = current || defaultBrandKit
+    setBrandKit((curren
       return {
-        ...base,
-        [field]: value
-      }
+        [field]: valu
     })
-  }
 
-  const addToList = (field: keyof BrandKit, value: string, setter: (v: string) => void) => {
     if (!value.trim()) return
     setBrandKit((current) => {
       const base = current || defaultBrandKit
@@ -129,6 +98,37 @@ export function BrandKitEditor({ language }: BrandKitEditorProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label className="text-xs uppercase font-bold tracking-wider text-primary">
+                {language === 'es' ? 'Nivel de Formalidad' : 'Formality Level'}
+              </Label>
+              <Select value={brandKit?.formality || 'professional'} onValueChange={(v: any) => handleUpdate('formality', v)}>
+                <SelectTrigger className="glass-panel-hover border-2 rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="glass-panel border-2">
+                  <SelectItem value="casual">{language === 'es' ? 'Casual' : 'Casual'}</SelectItem>
+                  <SelectItem value="professional">{language === 'es' ? 'Profesional' : 'Professional'}</SelectItem>
+                  <SelectItem value="formal">{language === 'es' ? 'Formal' : 'Formal'}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs uppercase font-bold tracking-wider text-primary">
+                {language === 'es' ? 'Usar Emojis' : 'Use Emojis'}
+              </Label>
+              <div className="flex items-center h-10 px-4 glass-panel-hover border-2 rounded-xl">
+                <Switch
+                  checked={brandKit?.useEmojis || false}
+                  onCheckedChange={(v) => handleUpdate('useEmojis', v)}
+                />
+                <span className="ml-3 text-sm font-medium">
+                  {brandKit?.useEmojis ? (language === 'es' ? 'Sí' : 'Yes') : (language === 'es' ? 'No' : 'No')}
+                </span>
+              </div>
+            </div>
+          </div>
+
               <Label className="text-xs uppercase font-bold tracking-wider text-primary">
                 {language === 'es' ? 'Nivel de Formalidad' : 'Formality Level'}
               </Label>
@@ -259,37 +259,6 @@ export function BrandKitEditor({ language }: BrandKitEditorProps) {
                 <Plus size={18} weight="bold" />
               </Button>
             </div>
-            {brandKit?.allowedClaims && brandKit.allowedClaims.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {brandKit.allowedClaims.map((item, idx) => (
-                  <Badge key={idx} variant="default" className="rounded-lg cursor-pointer bg-primary" onClick={() => removeFromList('allowedClaims', idx)}>
-                    {item} <X size={14} className="ml-1" weight="bold" />
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-xs uppercase font-bold tracking-wider text-primary">
-              {language === 'es' ? 'Ejemplos de Copy Aprobado' : 'Approved Copy Examples'}
-            </Label>
-            <div className="flex gap-2">
-              <Textarea
-                value={exampleInput}
-                onChange={(e) => setExampleInput(e.target.value)}
-                placeholder={language === 'es' ? 'ej., "Azure ARC: Control total de tu infraestructura híbrida"' : 'e.g., "Azure ARC: Total control of your hybrid infrastructure"'}
-                className="glass-panel-hover border-2 rounded-xl resize-none"
-                rows={2}
-                onKeyPress={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault()
-                    addToList('examples', exampleInput, setExampleInput)
-                  }
-                }}
-              />
-              <Button type="button" onClick={() => addToList('examples', exampleInput, setExampleInput)} variant="outline" className="rounded-xl self-start">
-                <Plus size={18} weight="bold" />
               </Button>
             </div>
             {brandKit?.examples && brandKit.examples.length > 0 && (
