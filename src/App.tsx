@@ -249,14 +249,110 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "phases" que contenga u
 ${isSpanish ? 'IMPORTANTE: Devuelve SOLO el JSON válido. No añadas texto adicional fuera del JSON.' : 'IMPORTANT: Return ONLY the valid JSON. Do not add additional text outside the JSON.'}`
 
       // @ts-expect-error - spark global is provided by runtime
-      const paidPackPrompt = spark.llmPrompt`${isSpanish ? 'Eres un especialista en paid media. Crea un pack completo de campañas pagadas:' : 'You are a paid media specialist. Create a complete paid campaigns pack:'}
+      const paidPackPrompt = spark.llmPrompt`${isSpanish ? 'Eres un especialista en paid media. Crea un pack completo de campañas pagadas en formato JSON estructurado.' : 'You are a paid media specialist. Create a complete paid campaigns pack in structured JSON format.'}
 ${brandGuidelines}
 
 Producto: ${briefData.product}
 Presupuesto: ${briefData.budget}
 Canales: ${briefData.channels.join(', ')}
+Audiencia: ${briefData.audience}
+Objetivo: ${briefData.goals}
+${briefData.price ? `Precio: ${briefData.price}` : ''}
+${briefData.mainPromise ? `Promesa Principal: ${briefData.mainPromise}` : ''}
 
-${isSpanish ? 'Incluye: Estructura de campañas, segmentación, ad copy (3 variaciones de headlines + descripciones), presupuesto por canal, y benchmarks esperados.' : 'Include: Campaign structure, segmentation, ad copy (3 headline variations + descriptions), budget per channel, and expected benchmarks.'}`
+${isSpanish ? 'IMPORTANTE: NO inventes claims sin prueba. Si no hay evidencia, marca como "Por validar" o usa lenguaje conservador.' : 'IMPORTANT: DO NOT invent unproven claims. If there is no evidence, mark as "To be validated" or use conservative language.'}
+
+${isSpanish ? 'Devuelve un objeto JSON con esta estructura EXACTA:' : 'Return a JSON object with this EXACT structure:'}
+
+{
+  "campaignStructure": [
+    {
+      "objective": "${isSpanish ? '(Objetivo: Awareness/Consideration/Conversion/Retention)' : '(Objective: Awareness/Consideration/Conversion/Retention)'}",
+      "adsets": [
+        {
+          "name": "${isSpanish ? '(Nombre descriptivo del adset)' : '(Descriptive adset name)'}",
+          "audience": "${isSpanish ? '(Tipo de audiencia: fría/lookalike/retargeting)' : '(Audience type: cold/lookalike/retargeting)'}",
+          "bidStrategy": "${isSpanish ? '(Estrategia: CPC/CPM/CPA automático)' : '(Strategy: CPC/CPM/Automated CPA)'}",
+          "budget": "${isSpanish ? '(Presupuesto diario en euros)' : '(Daily budget in euros)'}"
+        }
+      ]
+    }
+  ],
+  "audiences": [
+    {
+      "type": "cold" | "lookalike" | "retargeting",
+      "name": "${isSpanish ? '(Nombre de la audiencia)' : '(Audience name)'}",
+      "size": "${isSpanish ? '(Tamaño estimado: 50K-200K, etc.)' : '(Estimated size: 50K-200K, etc.)'}",
+      "description": "${isSpanish ? '(Descripción de la audiencia)' : '(Audience description)'}",
+      "criteria": [
+        "${isSpanish ? '(Criterio 1 de segmentación)' : '(Targeting criterion 1)'}",
+        "${isSpanish ? '(Criterio 2)' : '(Criterion 2)'}",
+        "${isSpanish ? '(Criterio 3)' : '(Criterion 3)'}"
+      ]
+    }
+  ],
+  "copyVariants": {
+    "hooks": [
+      "${isSpanish ? '(Hook 1: apertura impactante, max 10 palabras)' : '(Hook 1: impactful opening, max 10 words)'}",
+      "${isSpanish ? '...9 hooks más (total 10)' : '...9 more hooks (total 10)'}"
+    ],
+    "headlines": [
+      "${isSpanish ? '(Headline 1: titular claro y específico, max 60 caracteres)' : '(Headline 1: clear and specific title, max 60 chars)'}",
+      "${isSpanish ? '...9 headlines más (total 10)' : '...9 more headlines (total 10)'}"
+    ],
+    "descriptions": [
+      "${isSpanish ? '(Descripción 1: explica beneficio y CTA, 2-3 frases, max 150 caracteres)' : '(Description 1: explain benefit and CTA, 2-3 sentences, max 150 chars)'}",
+      "${isSpanish ? '...4 descripciones más (total 5)' : '...4 more descriptions (total 5)'}"
+    ]
+  },
+  "creativeAngles": [
+    {
+      "angle": "beneficio" | "urgencia" | "autoridad" | "emocion" | "objeciones",
+      "description": "${isSpanish ? '(Descripción del ángulo en 1-2 frases)' : '(Angle description in 1-2 sentences)'}",
+      "whenToUse": "${isSpanish ? '(Cuándo usar este ángulo: contexto y audiencia)' : '(When to use this angle: context and audience)'}",
+      "examples": [
+        "${isSpanish ? '(Ejemplo 1 de copy con este ángulo)' : '(Example 1 of copy with this angle)'}",
+        "${isSpanish ? '(Ejemplo 2)' : '(Example 2)'}",
+        "${isSpanish ? '(Ejemplo 3)' : '(Example 3)'}"
+      ]
+    }
+  ],
+  "budgetDistribution": [
+    {
+      "phase": "${isSpanish ? '(Fase: Testing/Escalado/Optimización/Retargeting)' : '(Phase: Testing/Scaling/Optimization/Retargeting)'}",
+      "percentage": ${isSpanish ? '(número del 0-100)' : '(number from 0-100)'},
+      "allocation": "${isSpanish ? '(Cantidad en euros)' : '(Amount in euros)'}",
+      "reasoning": "${isSpanish ? '(Por qué esta distribución para esta fase)' : '(Why this distribution for this phase)'}"
+    }
+  ],
+  "testPlan": [
+    {
+      "priority": ${isSpanish ? '(número de prioridad 1, 2, 3...)' : '(priority number 1, 2, 3...)'},
+      "testName": "${isSpanish ? '(Nombre del test)' : '(Test name)'}",
+      "hypothesis": "${isSpanish ? '(Hipótesis: creemos que X resultará en Y porque Z)' : '(Hypothesis: we believe X will result in Y because Z)'}",
+      "variants": [
+        "${isSpanish ? '(Variante A)' : '(Variant A)'}",
+        "${isSpanish ? '(Variante B)' : '(Variant B)'}"
+      ],
+      "metric": "${isSpanish ? '(Métrica principal: CTR/CPC/CPA/ROAS)' : '(Main metric: CTR/CPC/CPA/ROAS)'}",
+      "duration": "${isSpanish ? '(Duración: 7 días, 14 días, etc.)' : '(Duration: 7 days, 14 days, etc.)'}",
+      "reasoning": "${isSpanish ? '(Por qué testear esto primero: impacto potencial y facilidad)' : '(Why test this first: potential impact and ease)'}"
+    }
+  ],
+  "warnings": [
+    "${isSpanish ? '(Advertencia si falta información crítica: precio, margen, prueba social, etc.)' : '(Warning if critical info is missing: price, margin, social proof, etc.)'}"
+  ]
+}
+
+${isSpanish ? 'Genera:' : 'Generate:'}
+- ${isSpanish ? '2-3 estructuras de campaña (por objetivo)' : '2-3 campaign structures (by objective)'}
+- ${isSpanish ? '3-5 audiencias (al menos 1 fría, 1 lookalike, 1 retargeting)' : '3-5 audiences (at least 1 cold, 1 lookalike, 1 retargeting)'}
+- ${isSpanish ? '10 hooks + 10 headlines + 5 descripciones (todos diferentes y específicos para el producto)' : '10 hooks + 10 headlines + 5 descriptions (all different and specific to product)'}
+- ${isSpanish ? '5 ángulos creativos (1 para cada tipo: beneficio, urgencia, autoridad, emoción, objeciones)' : '5 creative angles (1 for each type: benefit, urgency, authority, emotion, objections)'}
+- ${isSpanish ? '4-5 fases de presupuesto con porcentajes que sumen 100%' : '4-5 budget phases with percentages adding up to 100%'}
+- ${isSpanish ? '3-5 tests iniciales priorizados' : '3-5 prioritized initial tests'}
+
+${isSpanish ? 'IMPORTANTE: Devuelve SOLO el JSON válido. No añadas texto adicional fuera del JSON.' : 'IMPORTANT: Return ONLY valid JSON. Do not add additional text outside the JSON.'}`
 
       // @ts-expect-error - spark global is provided by runtime
       const landingKitPrompt = spark.llmPrompt`${isSpanish ? 'Eres un experto en landing pages. Crea un kit completo para landing:' : 'You are a landing page expert. Create a complete landing kit:'}
@@ -344,7 +440,7 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         strategy,
         creativeRoutesJson,
         funnelBlueprintJson,
-        paidPack,
+        paidPackJson,
         landingKit,
         emailFlow,
         whatsappFlow,
@@ -358,7 +454,7 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         spark.llm(strategyPrompt),
         spark.llm(creativeRoutesPrompt, 'gpt-4o', true),
         spark.llm(funnelPrompt, 'gpt-4o', true),
-        spark.llm(paidPackPrompt),
+        spark.llm(paidPackPrompt, 'gpt-4o', true),
         spark.llm(landingKitPrompt),
         spark.llm(emailFlowPrompt),
         spark.llm(whatsappFlowPrompt),
@@ -387,6 +483,15 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         }
       } catch (e) {
         console.error('Failed to parse funnel blueprint JSON, using text fallback', e)
+      }
+
+      let parsedPaidPack: any = paidPackJson
+      try {
+        const parsed = JSON.parse(paidPackJson)
+        parsedPaidPack = parsed
+      } catch (e) {
+        console.error('Failed to parse paid pack JSON, using text fallback', e)
+        parsedPaidPack = paidPackJson
       }
 
       let parsedVariations: CopyVariation[] = []
@@ -545,7 +650,7 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         strategy,
         creativeRoutes: parsedCreativeRoutes,
         funnelBlueprint: parsedFunnelBlueprint,
-        paidPack,
+        paidPack: parsedPaidPack,
         landingKit,
         contentCalendar: mockCalendar,
         emailFlow,

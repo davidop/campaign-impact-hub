@@ -96,6 +96,52 @@ export interface FunnelPhase {
   }[]
 }
 
+export interface PaidPackData {
+  campaignStructure: Array<{
+    objective: string
+    adsets: Array<{
+      name: string
+      audience: string
+      bidStrategy: string
+      budget: string
+    }>
+  }>
+  audiences: Array<{
+    type: 'cold' | 'lookalike' | 'retargeting'
+    name: string
+    size: string
+    description: string
+    criteria: string[]
+  }>
+  copyVariants: {
+    hooks: string[]
+    headlines: string[]
+    descriptions: string[]
+  }
+  creativeAngles: Array<{
+    angle: 'beneficio' | 'urgencia' | 'autoridad' | 'emocion' | 'objeciones'
+    description: string
+    whenToUse: string
+    examples: string[]
+  }>
+  budgetDistribution: Array<{
+    phase: string
+    percentage: number
+    allocation: string
+    reasoning: string
+  }>
+  testPlan: Array<{
+    priority: number
+    testName: string
+    hypothesis: string
+    variants: string[]
+    metric: string
+    duration: string
+    reasoning: string
+  }>
+  warnings: string[]
+}
+
 export interface CampaignOutput {
   overview?: {
     objective: string
@@ -114,7 +160,7 @@ export interface CampaignOutput {
   strategy: string
   creativeRoutes: string | CreativeRoute[]
   funnelBlueprint: string | FunnelPhase[]
-  paidPack: string
+  paidPack: string | PaidPackData
   landingKit: string
   contentCalendar: ContentCalendarItem[]
   emailFlow: string

@@ -8,6 +8,7 @@ import { OutputCard } from '@/components/OutputCard'
 import { CampaignOverview } from '@/components/CampaignOverview'
 import { CreativeRoutesDisplay } from '@/components/CreativeRoutesDisplay'
 import FunnelBlueprint from '@/components/FunnelBlueprint'
+import { PaidPack } from '@/components/PaidPack'
 import { 
   Eye,
   Target,
@@ -22,7 +23,7 @@ import {
   Warning,
   CheckSquare
 } from '@phosphor-icons/react'
-import type { CampaignOutput, ContentCalendarItem, CreativeRoute, FunnelPhase } from '@/lib/types'
+import type { CampaignOutput, ContentCalendarItem, CreativeRoute, FunnelPhase, PaidPackData } from '@/lib/types'
 
 interface CampaignDashboardProps {
   outputs: Partial<CampaignOutput>
@@ -184,17 +185,26 @@ export function CampaignDashboard({
         </TabsContent>
 
         <TabsContent value="paid" className="mt-0">
-          <OutputCard
-            title={t('Pack de Paid Media', 'Paid Media Pack')}
-            icon={<CurrencyDollar size={20} weight="fill" />}
-            content={outputs.paidPack || ''}
-            isLoading={isGenerating}
-            emptyMessage={t('El pack de paid media se generará aquí', 'Paid media pack will be generated here')}
-            language={language}
-            onRegenerate={() => onRegenerateBlock?.('paidPack')}
-            onSaveVersion={(content) => handleSaveVersion('paidPack', content)}
-            blockName="paidPack"
-          />
+          {typeof outputs.paidPack === 'object' && outputs.paidPack !== null ? (
+            <PaidPack
+              data={outputs.paidPack as PaidPackData}
+              isLoading={isGenerating}
+              language={language}
+              onRegenerate={() => onRegenerateBlock?.('paidPack')}
+            />
+          ) : (
+            <OutputCard
+              title={t('Pack de Paid Media', 'Paid Media Pack')}
+              icon={<CurrencyDollar size={20} weight="fill" />}
+              content={typeof outputs.paidPack === 'string' ? outputs.paidPack : ''}
+              isLoading={isGenerating}
+              emptyMessage={t('El pack de paid media se generará aquí', 'Paid media pack will be generated here')}
+              language={language}
+              onRegenerate={() => onRegenerateBlock?.('paidPack')}
+              onSaveVersion={(content) => handleSaveVersion('paidPack', content)}
+              blockName="paidPack"
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="landing" className="mt-0">

@@ -316,7 +316,7 @@ export function ModularOutputsPanel({ outputs, isGenerating, language, onRegener
             <OutputBlock
               title={language === 'es' ? 'Pack Paid Media' : 'Paid Media Pack'}
               icon={<ChartLineUp size={20} weight="fill" className="text-accent" />}
-              content={outputs.paidPack || ''}
+              content={typeof outputs.paidPack === 'string' ? outputs.paidPack : JSON.stringify(outputs.paidPack, null, 2)}
               isLoading={isGenerating}
               emptyMessage={language === 'es' ? 'Estrategia y copy para campañas pagadas' : 'Strategy and copy for paid campaigns'}
               onRegenerate={() => onRegenerateBlock?.('paidPack')}
