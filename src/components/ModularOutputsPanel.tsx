@@ -14,7 +14,8 @@ import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { BrandConsistencyEvaluator } from '@/components/BrandConsistencyEvaluator'
 import { CreativeRoutesDisplay } from '@/components/CreativeRoutesDisplay'
-import type { CampaignOutput, CreativeRoute } from '@/lib/types'
+import FunnelBlueprint from '@/components/FunnelBlueprint'
+import type { CampaignOutput, CreativeRoute, FunnelPhase } from '@/lib/types'
 
 interface ModularOutputsPanelProps {
   outputs: Partial<CampaignOutput>
@@ -297,16 +298,20 @@ export function ModularOutputsPanel({ outputs, isGenerating, language, onRegener
 
         <TabsContent value="funnel" className="mt-0">
           <div className="grid grid-cols-1 gap-4">
-            <OutputBlock
-              title={language === 'es' ? 'Blueprint del Funnel' : 'Funnel Blueprint'}
-              icon={<Funnel size={20} weight="fill" className="text-primary" />}
-              content={outputs.funnelBlueprint || ''}
-              isLoading={isGenerating}
-              emptyMessage={language === 'es' ? 'Mapeo completo del funnel de conversión' : 'Complete conversion funnel mapping'}
-              onRegenerate={() => onRegenerateBlock?.('funnelBlueprint')}
-              language={language}
-              variant="highlight"
-            />
+            {Array.isArray(outputs.funnelBlueprint) ? (
+              <FunnelBlueprint phases={outputs.funnelBlueprint} language={language} />
+            ) : (
+              <OutputBlock
+                title={language === 'es' ? 'Blueprint del Funnel' : 'Funnel Blueprint'}
+                icon={<Funnel size={20} weight="fill" className="text-primary" />}
+                content={outputs.funnelBlueprint || ''}
+                isLoading={isGenerating}
+                emptyMessage={language === 'es' ? 'Mapeo completo del funnel de conversión' : 'Complete conversion funnel mapping'}
+                onRegenerate={() => onRegenerateBlock?.('funnelBlueprint')}
+                language={language}
+                variant="highlight"
+              />
+            )}
             
             <OutputBlock
               title={language === 'es' ? 'Pack Paid Media' : 'Paid Media Pack'}

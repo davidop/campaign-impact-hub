@@ -81,6 +81,21 @@ export interface CreativeRoute {
   expectedResults: string
 }
 
+export interface FunnelPhase {
+  phase: 'awareness' | 'consideration' | 'conversion' | 'retention'
+  phaseLabel: string
+  objective: string
+  keyMessage: string
+  formats: string[]
+  cta: string
+  kpis: string[]
+  examples: {
+    title: string
+    description: string
+    format: string
+  }[]
+}
+
 export interface CampaignOutput {
   overview?: {
     objective: string
@@ -98,7 +113,7 @@ export interface CampaignOutput {
   }
   strategy: string
   creativeRoutes: string | CreativeRoute[]
-  funnelBlueprint: string
+  funnelBlueprint: string | FunnelPhase[]
   paidPack: string
   landingKit: string
   contentCalendar: ContentCalendarItem[]

@@ -7,6 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { OutputCard } from '@/components/OutputCard'
 import { CampaignOverview } from '@/components/CampaignOverview'
 import { CreativeRoutesDisplay } from '@/components/CreativeRoutesDisplay'
+import FunnelBlueprint from '@/components/FunnelBlueprint'
 import { 
   Eye,
   Target,
@@ -21,7 +22,7 @@ import {
   Warning,
   CheckSquare
 } from '@phosphor-icons/react'
-import type { CampaignOutput, ContentCalendarItem, CreativeRoute } from '@/lib/types'
+import type { CampaignOutput, ContentCalendarItem, CreativeRoute, FunnelPhase } from '@/lib/types'
 
 interface CampaignDashboardProps {
   outputs: Partial<CampaignOutput>
@@ -165,17 +166,21 @@ export function CampaignDashboard({
         </TabsContent>
 
         <TabsContent value="funnel" className="mt-0">
-          <OutputCard
-            title={t('Blueprint del Funnel', 'Funnel Blueprint')}
-            icon={<Funnel size={20} weight="fill" />}
-            content={outputs.funnelBlueprint || ''}
-            isLoading={isGenerating}
-            emptyMessage={t('El funnel se generará aquí', 'Funnel will be generated here')}
-            language={language}
-            onRegenerate={() => onRegenerateBlock?.('funnelBlueprint')}
-            onSaveVersion={(content) => handleSaveVersion('funnelBlueprint', content)}
-            blockName="funnelBlueprint"
-          />
+          {Array.isArray(outputs.funnelBlueprint) ? (
+            <FunnelBlueprint phases={outputs.funnelBlueprint} language={language} />
+          ) : (
+            <OutputCard
+              title={t('Blueprint del Funnel', 'Funnel Blueprint')}
+              icon={<Funnel size={20} weight="fill" />}
+              content={outputs.funnelBlueprint || ''}
+              isLoading={isGenerating}
+              emptyMessage={t('El funnel se generará aquí', 'Funnel will be generated here')}
+              language={language}
+              onRegenerate={() => onRegenerateBlock?.('funnelBlueprint')}
+              onSaveVersion={(content) => handleSaveVersion('funnelBlueprint', content)}
+              blockName="funnelBlueprint"
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="paid" className="mt-0">

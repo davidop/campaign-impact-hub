@@ -196,14 +196,57 @@ ${isSpanish ? 'Para CADA ruta, el objeto debe contener exactamente estas propied
 ${isSpanish ? 'IMPORTANTE: Devuelve SOLO el JSON válido con el formato exacto indicado. No añadas texto adicional fuera del JSON.' : 'IMPORTANT: Return ONLY the valid JSON with the exact format indicated. Do not add additional text outside the JSON.'}`
 
       // @ts-expect-error - spark global is provided by runtime
-      const funnelPrompt = spark.llmPrompt`${isSpanish ? 'Eres un experto en funnels. Crea un blueprint del funnel completo:' : 'You are a funnel expert. Create a complete funnel blueprint:'}
+      const funnelPrompt = spark.llmPrompt`${isSpanish ? 'Eres un experto en funnels. Crea un blueprint del funnel completo con 4 fases estructuradas.' : 'You are a funnel expert. Create a complete funnel blueprint with 4 structured phases.'}
 ${brandGuidelines}
 
 Producto: ${briefData.product}
 Objetivos: ${briefData.goals}
 Canales: ${briefData.channels.join(', ')}
+Audiencia: ${briefData.audience}
 
-${isSpanish ? 'Mapea cada etapa: Awareness → Consideration → Conversion → Retention. Para cada una: objetivo, contenido, CTA, y métricas.' : 'Map each stage: Awareness → Consideration → Conversion → Retention. For each: objective, content, CTA, and metrics.'}`
+${isSpanish ? 'Genera EXACTAMENTE 4 fases (Awareness, Consideración, Conversión, Retención).' : 'Generate EXACTLY 4 phases (Awareness, Consideration, Conversion, Retention).'}
+
+${isSpanish ? 'Para CADA fase, el objeto debe contener exactamente estas propiedades:' : 'For EACH phase, the object must contain exactly these properties:'}
+
+{
+  "phase": "awareness" | "consideration" | "conversion" | "retention",
+  "phaseLabel": "${isSpanish ? '(Nombre de la fase en español/inglés según idioma)' : '(Phase name in Spanish/English per language)'}",
+  "objective": "${isSpanish ? '(Objetivo claro de esta fase del funnel, 1-2 frases)' : '(Clear objective of this funnel phase, 1-2 sentences)'}",
+  "keyMessage": "${isSpanish ? '(Mensaje clave que comunica al usuario en esta fase, 1 frase)' : '(Key message communicated to user in this phase, 1 sentence)'}",
+  "formats": [
+    "${isSpanish ? '(Formato 1: tipo de contenido recomendado)' : '(Format 1: recommended content type)'}",
+    "${isSpanish ? '(Formato 2)' : '(Format 2)'}",
+    "${isSpanish ? '(Formato 3)' : '(Format 3)'}",
+    "${isSpanish ? '(Formato 4)' : '(Format 4)'}",
+    "${isSpanish ? '(Formato 5)' : '(Format 5)'}"
+  ],
+  "cta": "${isSpanish ? '(CTA recomendado para esta fase, 2-4 palabras)' : '(Recommended CTA for this phase, 2-4 words)'}",
+  "kpis": [
+    "${isSpanish ? '(KPI 1: métrica clave para medir éxito)' : '(KPI 1: key metric to measure success)'}",
+    "${isSpanish ? '(KPI 2)' : '(KPI 2)'}",
+    "${isSpanish ? '(KPI 3)' : '(KPI 3)'}",
+    "${isSpanish ? '(KPI 4)' : '(KPI 4)'}",
+    "${isSpanish ? '(KPI 5)' : '(KPI 5)'}"
+  ],
+  "examples": [
+    {
+      "title": "${isSpanish ? '(Título de pieza tipo 1, específica para el producto/servicio)' : '(Title of example piece 1, specific to product/service)'}",
+      "description": "${isSpanish ? '(Descripción detallada de qué es y cómo funciona esta pieza, 2-3 frases)' : '(Detailed description of what this piece is and how it works, 2-3 sentences)'}",
+      "format": "${isSpanish ? '(Formato: Video, PDF, Post, Email, etc.)' : '(Format: Video, PDF, Post, Email, etc.)'}"
+    },
+    {
+      "title": "${isSpanish ? '(Título de pieza tipo 2)' : '(Title of example piece 2)'}",
+      "description": "${isSpanish ? '(Descripción)' : '(Description)'}",
+      "format": "${isSpanish ? '(Formato)' : '(Format)'}"
+    }
+  ]
+}
+
+${isSpanish ? 'Las 4 fases deben ser ESPECÍFICAS para este producto/servicio y audiencia, no genéricas.' : 'The 4 phases must be SPECIFIC for this product/service and audience, not generic.'}
+
+${isSpanish ? 'Devuelve un objeto JSON con una propiedad "phases" que contenga un array de 4 objetos (uno para cada fase).' : 'Return a JSON object with a "phases" property containing an array of 4 objects (one for each phase).'}
+
+${isSpanish ? 'IMPORTANTE: Devuelve SOLO el JSON válido. No añadas texto adicional fuera del JSON.' : 'IMPORTANT: Return ONLY the valid JSON. Do not add additional text outside the JSON.'}`
 
       // @ts-expect-error - spark global is provided by runtime
       const paidPackPrompt = spark.llmPrompt`${isSpanish ? 'Eres un especialista en paid media. Crea un pack completo de campañas pagadas:' : 'You are a paid media specialist. Create a complete paid campaigns pack:'}
@@ -300,7 +343,7 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         overviewText,
         strategy,
         creativeRoutesJson,
-        funnelBlueprint,
+        funnelBlueprintJson,
         paidPack,
         landingKit,
         emailFlow,
@@ -314,7 +357,7 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         spark.llm(overviewPrompt),
         spark.llm(strategyPrompt),
         spark.llm(creativeRoutesPrompt, 'gpt-4o', true),
-        spark.llm(funnelPrompt),
+        spark.llm(funnelPrompt, 'gpt-4o', true),
         spark.llm(paidPackPrompt),
         spark.llm(landingKitPrompt),
         spark.llm(emailFlowPrompt),
@@ -334,6 +377,16 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         }
       } catch (e) {
         console.error('Failed to parse creative routes JSON, using text fallback', e)
+      }
+
+      let parsedFunnelBlueprint: any = funnelBlueprintJson
+      try {
+        const parsed = JSON.parse(funnelBlueprintJson)
+        if (parsed.phases && Array.isArray(parsed.phases)) {
+          parsedFunnelBlueprint = parsed.phases
+        }
+      } catch (e) {
+        console.error('Failed to parse funnel blueprint JSON, using text fallback', e)
       }
 
       let parsedVariations: CopyVariation[] = []
@@ -491,7 +544,7 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         overview: overviewData,
         strategy,
         creativeRoutes: parsedCreativeRoutes,
-        funnelBlueprint,
+        funnelBlueprint: parsedFunnelBlueprint,
         paidPack,
         landingKit,
         contentCalendar: mockCalendar,
