@@ -1,122 +1,57 @@
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import React from "react";
 import { Card } from "@/components/ui/card";
-
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
 
 interface BriefScoreCardProps {
   score: number;
-  statusText?: string;
   missing?: string[];
-      segments: 10,
- 
+  recommendations?: string[];
+  statusText?: string;
+}
 
-      timing: 10,
-      buy
-      geograph
-
-    if (formData.kpi) s
+export default function BriefScoreCard({
+  score,
+  missing = [],
+  recommendations = [],
+  statusText = "Listo para generar"
 }: BriefScoreCardProps) {
-  const getScoreColor = () => {
-    if (score >= 80) return "text-green-600";
-    if (score >= 50) return "text-yellow-600";
-    return "text-red-600";
-  };
-
-  const getStatusText = () => {
-    if (statusText) return statusText;
-    if (score >= 80) return "Excelente - Brief completo";
-    if (score >= 50) return "Casi listo - Completa algunos campos";
-    return "Necesita más información";
-  };
+  const safeScore = Math.max(0, Math.min(100, Number.isFinite(score) ? score : 0));
 
   return (
-    <Card className="p-6 space-y-6">
-    const recommendations: string
-    const score = calculateScore();
-    if (score < 50) {
-        isSpanish 
-          : 'Comple
-    }
-    if (!formData.objections) {
-        isSpan
-          : 'Add common objections to anticipate q
-    }
-
-        isSpa
-          : 'Define buying
-    }
-    if (!formData.price) {
-        isSpan
-
-    }
-        <div className="space-y-3">
-        isSpanish 
-          : 'Indicate geography and 
-    }
-    return recommendations;
-
-  const missing = getMissingFields();
-
-    if (score >
-    return "tex
-
-    if (
-
-    } else {
-      if (score >= 50) return "Almo
-          <h4 className="text-sm font-semibold">Cómo mejorarlo:</h4>
-          <ul className="space-y-2">
-            {recommendations.map((item, idx) => (
-              <li key={idx} className="flex items-start gap-2 text-sm">
-                <span className="text-primary mt-0.5">→</span>
-                <span className="text-muted-foreground">{item}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </Card>
-  );
-}
-        <Progress value={score} className="h-2" />
+    <Card className="p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-semibold">Brief Score</h3>
+        <span className="text-sm font-medium">{safeScore}/100</span>
       </div>
 
-      <Alert>
-        <AlertDescription>
-          {getStatusText()}
-        </AlertDescription>
-      </Alert>
+      <Progress value={safeScore} />
 
-      {missing && missing.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="text-sm font-semibold">
-            {language === 'es' ? 'Qué falta:' : 'What\'s missing:'}
-          </h4>
-          <ul className="space-y-2">
+      {missing.length > 0 && (
+        <div className="space-y-1">
+          <p className="text-sm font-semibold">Qué falta</p>
+          <ul className="list-disc pl-5 text-sm space-y-1">
             {missing.map((item, idx) => (
-              <li key={idx} className="flex items-start gap-2 text-sm">
-                <span className="text-red-500 mt-0.5">•</span>
-                <span className="text-muted-foreground">{item}</span>
-              </li>
+              <li key={idx}>{item}</li>
             ))}
           </ul>
         </div>
       )}
 
-      {recommendations && recommendations.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="text-sm font-semibold">
-            {language === 'es' ? 'Cómo mejorarlo:' : 'How to improve:'}
-          </h4>
-          <ul className="space-y-2">
-            {recommendations.map((item, idx) => (
-              <li key={idx} className="flex items-start gap-2 text-sm">
-                <span className="text-primary mt-0.5">→</span>
-                <span className="text-muted-foreground">{item}</span>
-              </li>
+      {recommendations.length > 0 && (
+        <div className="space-y-1">
+          <p className="text-sm font-semibold">Cómo mejorarlo</p>
+          <ul className="list-disc pl-5 text-sm space-y-1">
+            {recommendations.map((tip, idx) => (
+              <li key={idx}>{tip}</li>
             ))}
           </ul>
         </div>
       )}
+
+      <Alert>
+        <AlertDescription className="text-sm">{statusText}</AlertDescription>
+      </Alert>
     </Card>
   );
 }

@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Lightning, CaretDown, Check, CheckCircle, ArrowRight, ArrowLeft, Info, Sparkle } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
-import { BriefScoreCard } from '@/components/BriefScoreCard'
+import BriefScoreCard from '@/components/BriefScoreCard'
 import type { CampaignBriefData } from '@/lib/types'
 
 interface BriefWizardProps {
@@ -780,9 +780,63 @@ export function BriefWizard({ onGenerate, isGenerating, language }: BriefWizardP
     }
   }
 
+  const calculateBriefScore = () => {
+    const data = formData || {} as CampaignBriefData
+    let score = 0
+    const missing: string[] = []
+    const recommendations: string[] = []
+
+    if (data.product) score += 15
+    else missing.push(language === 'es' ? 'Producto/Servicio' : 'Product/Service')
+
+    if (data.audience) score += 15
+    else missing.push(language === 'es' ? 'Audiencia' : 'Audience')
+
+    if (data.goals) score += 15
+    else missing.push(language === 'es' ? 'Objetivos' : 'Goals')
+
+    if (data.budget) score += 10
+    else missing.push(language === 'es' ? 'Presupuesto' : 'Budget')
+
+    if (data.channels && data.channels.length > 0) score += 10
+    else missing.push(language === 'es' ? 'Canales' : 'Channels')
+
+    if (data.mainPromise) score += 10
+    else recommendations.push(language === 'es' ? 'Añade una promesa principal clara' : 'Add a clear main promise')
+
+    if (data.price) score += 5
+    else recommendations.push(language === 'es' ? 'Define el precio' : 'Define the price')
+
+    if (data.tone) score += 5
+    else recommendations.push(language === 'es' ? 'Especifica el tono de voz' : 'Specify tone of voice')
+
+    if (data.timing) score += 5
+    else recommendations.push(language === 'es' ? 'Indica el timing' : 'Indicate timing')
+
+    if (data.geography) score += 5
+    else recommendations.push(language === 'es' ? 'Define la geografía' : 'Define geography')
+
+    if (data.kpi) score += 5
+
+    const statusText = score >= 80 
+      ? (language === 'es' ? 'Excelente - Brief completo' : 'Excellent - Brief complete')
+      : score >= 50 
+        ? (language === 'es' ? 'Casi listo - Completa algunos campos' : 'Almost ready - Complete some fields')
+        : (language === 'es' ? 'Necesita más información' : 'Needs more information')
+
+    return { score, missing, recommendations, statusText }
+  }
+
+  const briefScore = calculateBriefScore()
+
   return (
     <div className="space-y-4">
-      <BriefScoreCard formData={formData || {} as CampaignBriefData} language={language} />
+      <BriefScoreCard 
+        score={briefScore.score}
+        missing={briefScore.missing}
+        recommendations={briefScore.recommendations}
+        statusText={briefScore.statusText}
+      />
       
       <Card className="glass-panel p-6 border-2 marketing-shine">
         <div className="mb-6">
