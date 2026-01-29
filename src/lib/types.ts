@@ -11,17 +11,36 @@ export interface BrandKit {
 }
 
 export interface CampaignBriefData {
+  objective: 'awareness' | 'leads' | 'ventas' | 'retencion' | ''
+  kpi: string
+  segments: string
+  pains: string
+  objections: string
+  buyingContext: string
   product: string
+  price?: string
+  promo?: string
+  guarantee?: string
+  usp?: string
+  channels: string[]
+  budget: string
+  timing: string
+  geography: string
+  language: string
+  tone: string
+  brandVoice: string
+  forbiddenWords: string
+  allowedClaims: string
+  legalRequirements: string
+  availableAssets: string
+  links: string
   audience: string
   goals: string
-  budget: string
-  channels: string[]
-  price?: string
-  margin?: string
   mainPromise?: string
   proof?: string[]
   competitors?: string[]
   timeline?: string
+  margin?: string
 }
 
 export interface CopyVariation {

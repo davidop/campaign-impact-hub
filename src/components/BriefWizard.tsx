@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useKV } from '@github/spark/hooks'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -7,8 +8,10 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Lightning, CaretDown, Check, CheckCircle, WarningCircle, ArrowRight, ArrowLeft } from '@phosphor-icons/react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Lightning, CaretDown, Check, CheckCircle, ArrowRight, ArrowLeft, Info, Sparkle } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 import type { CampaignBriefData } from '@/lib/types'
 
@@ -21,126 +24,197 @@ interface BriefWizardProps {
 const AVAILABLE_CHANNELS = [
   { value: 'email', label: 'Email' },
   { value: 'facebook', label: 'Facebook' },
-  { value: 'google', label: 'Google' },
+  { value: 'google', label: 'Google Ads' },
   { value: 'instagram', label: 'Instagram' },
   { value: 'linkedin', label: 'LinkedIn' },
   { value: 'telegram', label: 'Telegram' },
   { value: 'tiktok', label: 'TikTok' },
-  { value: 'twitter', label: 'Twitter' },
+  { value: 'twitter', label: 'Twitter/X' },
   { value: 'whatsapp', label: 'WhatsApp' },
   { value: 'youtube', label: 'YouTube' }
 ]
+
+const DEMO_DATA: CampaignBriefData = {
+  objective: 'leads',
+  kpi: 'Generar 500 MQLs en 3 meses con un CPL < €50',
+  segments: 'Directores de IT y CTOs en empresas medianas (50-500 empleados) del sector financiero y retail',
+  pains: 'Costos elevados de infraestructura on-premise, complejidad en gestión híbrida cloud, falta de visibilidad centralizada',
+  objections: '"Ya tenemos AWS", "Es muy complejo", "No tenemos equipo capacitado"',
+  buyingContext: 'Ciclo de compra de 3-6 meses. Decisión en comité. Requieren demo y caso de éxito',
+  product: 'Azure ARC - Plataforma de gestión híbrida multi-cloud',
+  price: '€500/mes base + €50 por servidor gestionado',
+  promo: 'Primer mes gratis + consultoría de implementación sin costo',
+  guarantee: 'Garantía de devolución 30 días. SLA 99.9% uptime',
+  usp: 'Única solución que unifica gestión de on-premise, AWS, GCP y Azure desde un solo panel',
+  channels: ['linkedin', 'email', 'google'],
+  budget: '€15,000/mes durante 3 meses',
+  timing: 'Q1 2024 - Lanzamiento: 15 enero. Cierre: 31 marzo',
+  geography: 'España (Madrid, Barcelona, Valencia). Idioma: Español',
+  language: 'es',
+  tone: 'Profesional pero accesible. Técnico sin ser intimidante',
+  brandVoice: 'Experto cercano. Claridad > Jerga. Enfoque en ROI y simplicidad',
+  forbiddenWords: 'revolucionario, disruptivo, mágico, problema, obsoleto',
+  allowedClaims: 'Reduce costos hasta 30%, Implementación en 2 semanas, Certificado ISO 27001',
+  legalRequirements: 'Incluir link a términos. Mencionar GDPR compliance. Disclaimer de precios sujetos a configuración',
+  availableAssets: 'Logo en SVG, Case study BBVA (PDF), Video demo 2min, Screenshots dashboard',
+  links: 'Landing: azurearc.example.com, Case study: example.com/bbva, Demo: calendly.com/demo',
+  audience: 'Directores de IT y CTOs en empresas medianas (50-500 empleados) del sector financiero y retail',
+  goals: 'Generar 500 MQLs en 3 meses con un CPL < €50',
+  mainPromise: 'Gestión híbrida multi-cloud unificada que reduce costos 30% y se implementa en 2 semanas',
+  proof: [],
+  competitors: [],
+  timeline: ''
+}
 
 export function BriefWizard({ onGenerate, isGenerating, language }: BriefWizardProps) {
   const [currentStep, setCurrentStep] = useState(0)
   const [briefScore, setBriefScore] = useState(0)
   const [isChannelOpen, setIsChannelOpen] = useState(false)
   
-  const [formData, setFormData] = useState<CampaignBriefData>({
-    product: 'Azure ARC',
-    audience: 'CEO, CTO, Responsables de IT',
-    goals: 'Implementación de Azure ARC en OnPremise y aumentar el ACR',
-    budget: '€3,000',
-    channels: ['email'],
+  const [formData, setFormData] = useKV<CampaignBriefData>('campaign-brief-data', {
+    objective: '',
+    kpi: '',
+    segments: '',
+    pains: '',
+    objections: '',
+    buyingContext: '',
+    product: '',
     price: '',
-    margin: '',
+    promo: '',
+    guarantee: '',
+    usp: '',
+    channels: [],
+    budget: '',
+    timing: '',
+    geography: '',
+    language: 'es',
+    tone: '',
+    brandVoice: '',
+    forbiddenWords: '',
+    allowedClaims: '',
+    legalRequirements: '',
+    availableAssets: '',
+    links: '',
+    audience: '',
+    goals: '',
     mainPromise: '',
     proof: [],
     competitors: [],
     timeline: ''
   })
 
-  const [proofInput, setProofInput] = useState('')
-  const [competitorInput, setCompetitorInput] = useState('')
-
   const steps = language === 'es' 
-    ? ['Básico', 'Detalles', 'Evidencia', 'Validación']
-    : ['Basic', 'Details', 'Evidence', 'Validation']
+    ? ['Objetivo', 'Audiencia', 'Oferta', 'Canales', 'Restricciones']
+    : ['Objective', 'Audience', 'Offer', 'Channels', 'Restrictions']
 
   useEffect(() => {
     calculateScore()
   }, [formData])
 
   const calculateScore = () => {
+    if (!formData) return
     let score = 0
-    const weights = {
-      product: 10,
-      audience: 10,
-      goals: 10,
-      budget: 10,
-      channels: 10,
-      price: 15,
-      margin: 10,
-      mainPromise: 15,
-      proof: 10,
-      competitors: 5,
-      timeline: 5
-    }
-
-    if (formData.product.trim()) score += weights.product
-    if (formData.audience.trim()) score += weights.audience
-    if (formData.goals.trim()) score += weights.goals
-    if (formData.budget.trim()) score += weights.budget
-    if (formData.channels.length > 0) score += weights.channels
-    if (formData.price?.trim()) score += weights.price
-    if (formData.margin?.trim()) score += weights.margin
-    if (formData.mainPromise?.trim()) score += weights.mainPromise
-    if (formData.proof && formData.proof.length > 0) score += weights.proof
-    if (formData.competitors && formData.competitors.length > 0) score += weights.competitors
-    if (formData.timeline?.trim()) score += weights.timeline
-
+    const checks = [
+      formData.objective,
+      formData.kpi,
+      formData.segments,
+      formData.pains,
+      formData.product,
+      formData.usp,
+      formData.channels.length > 0,
+      formData.budget,
+      formData.timing,
+      formData.tone
+    ]
+    
+    const filledFields = checks.filter(Boolean).length
+    score = Math.round((filledFields / checks.length) * 100)
     setBriefScore(score)
   }
 
   const handleChange = (field: keyof CampaignBriefData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData((current) => {
+      const base: CampaignBriefData = current || {
+        objective: '',
+        kpi: '',
+        segments: '',
+        pains: '',
+        objections: '',
+        buyingContext: '',
+        product: '',
+        price: '',
+        promo: '',
+        guarantee: '',
+        usp: '',
+        channels: [],
+        budget: '',
+        timing: '',
+        geography: '',
+        language: 'es',
+        tone: '',
+        brandVoice: '',
+        forbiddenWords: '',
+        allowedClaims: '',
+        legalRequirements: '',
+        availableAssets: '',
+        links: '',
+        audience: '',
+        goals: '',
+        mainPromise: '',
+        proof: [],
+        competitors: [],
+        timeline: '',
+        margin: ''
+      }
+      return { ...base, [field]: value }
+    })
   }
 
   const toggleChannel = (channelValue: string) => {
-    setFormData(prev => ({
-      ...prev,
-      channels: prev.channels.includes(channelValue)
-        ? prev.channels.filter(ch => ch !== channelValue)
-        : [...prev.channels, channelValue]
-    }))
-  }
-
-  const addProof = () => {
-    if (proofInput.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        proof: [...(prev.proof || []), proofInput.trim()]
-      }))
-      setProofInput('')
-    }
-  }
-
-  const addCompetitor = () => {
-    if (competitorInput.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        competitors: [...(prev.competitors || []), competitorInput.trim()]
-      }))
-      setCompetitorInput('')
-    }
-  }
-
-  const removeProof = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      proof: prev.proof?.filter((_, i) => i !== index)
-    }))
-  }
-
-  const removeCompetitor = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      competitors: prev.competitors?.filter((_, i) => i !== index)
-    }))
+    setFormData((current) => {
+      const base: CampaignBriefData = current || {
+        objective: '',
+        kpi: '',
+        segments: '',
+        pains: '',
+        objections: '',
+        buyingContext: '',
+        product: '',
+        price: '',
+        promo: '',
+        guarantee: '',
+        usp: '',
+        channels: [],
+        budget: '',
+        timing: '',
+        geography: '',
+        language: 'es',
+        tone: '',
+        brandVoice: '',
+        forbiddenWords: '',
+        allowedClaims: '',
+        legalRequirements: '',
+        availableAssets: '',
+        links: '',
+        audience: '',
+        goals: '',
+        mainPromise: '',
+        proof: [],
+        competitors: [],
+        timeline: '',
+        margin: ''
+      }
+      return {
+        ...base,
+        channels: base.channels.includes(channelValue)
+          ? base.channels.filter(ch => ch !== channelValue)
+          : [...base.channels, channelValue]
+      }
+    })
   }
 
   const getChannelDisplayText = () => {
-    if (formData.channels.length === 0) {
+    if (!formData || formData.channels.length === 0) {
       return language === 'es' ? 'Selecciona canales...' : 'Select channels...'
     }
     return formData.channels
@@ -163,68 +237,110 @@ export function BriefWizard({ onGenerate, isGenerating, language }: BriefWizardP
   }
 
   const canProceed = () => {
+    if (!formData) return false
     if (currentStep === 0) {
-      return formData.product.trim() && formData.audience.trim() && formData.goals.trim()
+      return formData.objective && formData.kpi
     }
     if (currentStep === 1) {
-      return formData.budget.trim() && formData.channels.length > 0
+      return formData.segments && formData.pains
+    }
+    if (currentStep === 2) {
+      return formData.product && formData.usp
+    }
+    if (currentStep === 3) {
+      return formData.channels.length > 0 && formData.budget && formData.timing
     }
     return true
   }
 
   const handleSubmit = () => {
-    onGenerate(formData)
+    if (!formData) return
+    const mappedData: CampaignBriefData = {
+      ...formData,
+      audience: formData.segments,
+      goals: formData.kpi
+    }
+    onGenerate(mappedData)
   }
 
+  const loadDemoData = () => {
+    setFormData(() => DEMO_DATA)
+  }
+
+  const renderTooltip = (content: string) => (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Info size={16} className="text-muted-foreground hover:text-primary cursor-help" />
+      </TooltipTrigger>
+      <TooltipContent className="max-w-xs">
+        <p className="text-xs">{content}</p>
+      </TooltipContent>
+    </Tooltip>
+  )
+
   const renderStepContent = () => {
+    if (!formData) return null
+    
     switch (currentStep) {
       case 0:
         return (
           <div className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="product" className="text-xs uppercase font-bold tracking-wider text-primary flex items-center gap-2">
-                {language === 'es' ? 'Producto/Servicio' : 'Product/Service'}
-                <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="product"
-                value={formData.product}
-                onChange={(e) => handleChange('product', e.target.value)}
-                placeholder={language === 'es' ? 'ej., Azure ARC' : 'e.g., Azure ARC'}
-                className="glass-panel-hover border-2 rounded-xl"
-                required
-              />
+              <div className="flex items-center gap-2">
+                <Label htmlFor="objective" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Objetivo de campaña' : 'Campaign Objective'}
+                  <span className="text-destructive ml-1">*</span>
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "Leads" si buscas capturar contactos calificados para tu equipo de ventas'
+                  : 'Example: "Leads" if you want to capture qualified contacts for your sales team'
+                )}
+              </div>
+              <Select 
+                value={formData.objective} 
+                onValueChange={(value) => handleChange('objective', value)}
+              >
+                <SelectTrigger className="glass-panel-hover border-2 rounded-xl w-full">
+                  <SelectValue placeholder={language === 'es' ? 'Selecciona objetivo...' : 'Select objective...'} />
+                </SelectTrigger>
+                <SelectContent className="glass-panel border-2">
+                  <SelectItem value="awareness">
+                    {language === 'es' ? 'Awareness (Reconocimiento de marca)' : 'Awareness (Brand Recognition)'}
+                  </SelectItem>
+                  <SelectItem value="leads">
+                    {language === 'es' ? 'Leads (Captación de contactos)' : 'Leads (Lead Generation)'}
+                  </SelectItem>
+                  <SelectItem value="ventas">
+                    {language === 'es' ? 'Ventas (Conversión directa)' : 'Sales (Direct Conversion)'}
+                  </SelectItem>
+                  <SelectItem value="retencion">
+                    {language === 'es' ? 'Retención (Fidelización)' : 'Retention (Loyalty)'}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="audience" className="text-xs uppercase font-bold tracking-wider text-primary flex items-center gap-2">
-                {language === 'es' ? 'Público Objetivo' : 'Target Audience'}
-                <span className="text-destructive">*</span>
-              </Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="kpi" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'KPI Principal' : 'Main KPI'}
+                  <span className="text-destructive ml-1">*</span>
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "Generar 500 MQLs en 3 meses con CPL < €50" - Sé específico con números'
+                  : 'Example: "Generate 500 MQLs in 3 months with CPL < €50" - Be specific with numbers'
+                )}
+              </div>
               <Textarea
-                id="audience"
-                value={formData.audience}
-                onChange={(e) => handleChange('audience', e.target.value)}
-                placeholder={language === 'es' ? 'ej., CEO, CTO, Responsables de IT' : 'e.g., CEO, CTO, IT Managers'}
+                id="kpi"
+                value={formData.kpi}
+                onChange={(e) => handleChange('kpi', e.target.value)}
+                placeholder={language === 'es' 
+                  ? 'ej., Generar 500 MQLs en 3 meses con CPL < €50'
+                  : 'e.g., Generate 500 MQLs in 3 months with CPL < €50'
+                }
                 className="glass-panel-hover resize-none border-2 rounded-xl"
                 rows={3}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="goals" className="text-xs uppercase font-bold tracking-wider text-primary flex items-center gap-2">
-                {language === 'es' ? 'Objetivos de Campaña' : 'Campaign Goals'}
-                <span className="text-destructive">*</span>
-              </Label>
-              <Textarea
-                id="goals"
-                value={formData.goals}
-                onChange={(e) => handleChange('goals', e.target.value)}
-                placeholder={language === 'es' ? 'ej., Aumentar ACR en 30%' : 'e.g., Increase ACR by 30%'}
-                className="glass-panel-hover resize-none border-2 rounded-xl"
-                rows={3}
-                required
               />
             </div>
           </div>
@@ -234,25 +350,223 @@ export function BriefWizard({ onGenerate, isGenerating, language }: BriefWizardP
         return (
           <div className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="budget" className="text-xs uppercase font-bold tracking-wider text-primary flex items-center gap-2">
-                {language === 'es' ? 'Presupuesto' : 'Budget'}
-                <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="budget"
-                value={formData.budget}
-                onChange={(e) => handleChange('budget', e.target.value)}
-                placeholder={language === 'es' ? 'ej., €3,000' : 'e.g., €3,000'}
-                className="glass-panel-hover border-2 rounded-xl"
-                required
+              <div className="flex items-center gap-2">
+                <Label htmlFor="segments" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Segmentos de audiencia' : 'Audience Segments'}
+                  <span className="text-destructive ml-1">*</span>
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "CTOs en empresas 50-500 empleados del sector fintech en Madrid y Barcelona"'
+                  : 'Example: "CTOs in 50-500 employee fintech companies in Madrid and Barcelona"'
+                )}
+              </div>
+              <Textarea
+                id="segments"
+                value={formData.segments}
+                onChange={(e) => handleChange('segments', e.target.value)}
+                placeholder={language === 'es' 
+                  ? 'ej., CTOs en empresas medianas del sector fintech'
+                  : 'e.g., CTOs in mid-sized fintech companies'
+                }
+                className="glass-panel-hover resize-none border-2 rounded-xl"
+                rows={3}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="channels" className="text-xs uppercase font-bold tracking-wider text-primary flex items-center gap-2">
-                {language === 'es' ? 'Canales de Marketing' : 'Marketing Channels'}
-                <span className="text-destructive">*</span>
-              </Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="pains" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Pains (Dolores/Problemas)' : 'Pains (Pain Points)'}
+                  <span className="text-destructive ml-1">*</span>
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "Costos elevados de infraestructura, complejidad en gestión, falta de visibilidad"'
+                  : 'Example: "High infrastructure costs, management complexity, lack of visibility"'
+                )}
+              </div>
+              <Textarea
+                id="pains"
+                value={formData.pains}
+                onChange={(e) => handleChange('pains', e.target.value)}
+                placeholder={language === 'es' 
+                  ? 'ej., Costos elevados de infraestructura, complejidad en gestión'
+                  : 'e.g., High infrastructure costs, management complexity'
+                }
+                className="glass-panel-hover resize-none border-2 rounded-xl"
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="objections" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Objeciones comunes' : 'Common Objections'}
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "Ya tenemos AWS", "Es muy complejo", "No tenemos presupuesto ahora"'
+                  : 'Example: "We already have AWS", "It\'s too complex", "No budget right now"'
+                )}
+              </div>
+              <Textarea
+                id="objections"
+                value={formData.objections}
+                onChange={(e) => handleChange('objections', e.target.value)}
+                placeholder={language === 'es' 
+                  ? 'ej., "Ya tenemos otra solución", "No tenemos presupuesto"'
+                  : 'e.g., "We already have another solution", "No budget available"'
+                }
+                className="glass-panel-hover resize-none border-2 rounded-xl"
+                rows={2}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="buyingContext" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Contexto de compra' : 'Buying Context'}
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "Ciclo de compra 3-6 meses. Decisión en comité. Requieren demo y caso de éxito"'
+                  : 'Example: "3-6 month buying cycle. Committee decision. Require demo and case study"'
+                )}
+              </div>
+              <Textarea
+                id="buyingContext"
+                value={formData.buyingContext}
+                onChange={(e) => handleChange('buyingContext', e.target.value)}
+                placeholder={language === 'es' 
+                  ? 'ej., Ciclo largo, decisión en comité, requieren demo'
+                  : 'e.g., Long cycle, committee decision, demo required'
+                }
+                className="glass-panel-hover resize-none border-2 rounded-xl"
+                rows={2}
+              />
+            </div>
+          </div>
+        )
+
+      case 2:
+        return (
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="product" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Producto/Servicio' : 'Product/Service'}
+                  <span className="text-destructive ml-1">*</span>
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "Azure ARC - Plataforma de gestión híbrida multi-cloud"'
+                  : 'Example: "Azure ARC - Multi-cloud hybrid management platform"'
+                )}
+              </div>
+              <Input
+                id="product"
+                value={formData.product}
+                onChange={(e) => handleChange('product', e.target.value)}
+                placeholder={language === 'es' ? 'ej., Azure ARC - Plataforma de gestión híbrida' : 'e.g., Azure ARC - Hybrid management platform'}
+                className="glass-panel-hover border-2 rounded-xl"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="price" className="text-xs uppercase font-bold tracking-wider text-primary">
+                    {language === 'es' ? 'Precio' : 'Price'}
+                  </Label>
+                  {renderTooltip(language === 'es' 
+                    ? 'Ejemplo: "€500/mes base + €50 por servidor"'
+                    : 'Example: "€500/month base + €50 per server"'
+                  )}
+                </div>
+                <Input
+                  id="price"
+                  value={formData.price}
+                  onChange={(e) => handleChange('price', e.target.value)}
+                  placeholder={language === 'es' ? 'ej., €500/mes' : 'e.g., €500/month'}
+                  className="glass-panel-hover border-2 rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="promo" className="text-xs uppercase font-bold tracking-wider text-primary">
+                    {language === 'es' ? 'Promoción' : 'Promotion'}
+                  </Label>
+                  {renderTooltip(language === 'es' 
+                    ? 'Ejemplo: "Primer mes gratis + consultoría sin costo"'
+                    : 'Example: "First month free + free consultation"'
+                  )}
+                </div>
+                <Input
+                  id="promo"
+                  value={formData.promo}
+                  onChange={(e) => handleChange('promo', e.target.value)}
+                  placeholder={language === 'es' ? 'ej., Primer mes gratis' : 'e.g., First month free'}
+                  className="glass-panel-hover border-2 rounded-xl"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="guarantee" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Garantía' : 'Guarantee'}
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "Garantía de devolución 30 días. SLA 99.9% uptime"'
+                  : 'Example: "30-day money-back guarantee. 99.9% uptime SLA"'
+                )}
+              </div>
+              <Input
+                id="guarantee"
+                value={formData.guarantee}
+                onChange={(e) => handleChange('guarantee', e.target.value)}
+                placeholder={language === 'es' ? 'ej., Garantía 30 días' : 'e.g., 30-day guarantee'}
+                className="glass-panel-hover border-2 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="usp" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'USP / Diferenciador' : 'USP / Differentiator'}
+                  <span className="text-destructive ml-1">*</span>
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "Única solución que unifica on-premise, AWS, GCP y Azure desde un solo panel"'
+                  : 'Example: "Only solution that unifies on-premise, AWS, GCP and Azure from a single panel"'
+                )}
+              </div>
+              <Textarea
+                id="usp"
+                value={formData.usp}
+                onChange={(e) => handleChange('usp', e.target.value)}
+                placeholder={language === 'es' 
+                  ? 'ej., Única solución que unifica gestión multi-cloud'
+                  : 'e.g., Only solution that unifies multi-cloud management'
+                }
+                className="glass-panel-hover resize-none border-2 rounded-xl"
+                rows={3}
+              />
+            </div>
+          </div>
+        )
+
+      case 3:
+        return (
+          <div className="space-y-5">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="channels" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Canales de marketing' : 'Marketing Channels'}
+                  <span className="text-destructive ml-1">*</span>
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Selecciona todos los canales donde ejecutarás la campaña'
+                  : 'Select all channels where you will run the campaign'
+                )}
+              </div>
               <Popover open={isChannelOpen} onOpenChange={setIsChannelOpen}>
                 <PopoverTrigger asChild>
                   <Button
@@ -296,188 +610,205 @@ export function BriefWizard({ onGenerate, isGenerating, language }: BriefWizardP
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="timeline" className="text-xs uppercase font-bold tracking-wider text-primary">
-                {language === 'es' ? 'Duración / Timeline' : 'Timeline / Duration'}
-              </Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="budget" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Presupuesto' : 'Budget'}
+                  <span className="text-destructive ml-1">*</span>
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "€15,000/mes durante 3 meses" - Incluye duración si es relevante'
+                  : 'Example: "€15,000/month for 3 months" - Include duration if relevant'
+                )}
+              </div>
               <Input
-                id="timeline"
-                value={formData.timeline || ''}
-                onChange={(e) => handleChange('timeline', e.target.value)}
-                placeholder={language === 'es' ? 'ej., 3 meses, Q1 2024' : 'e.g., 3 months, Q1 2024'}
+                id="budget"
+                value={formData.budget}
+                onChange={(e) => handleChange('budget', e.target.value)}
+                placeholder={language === 'es' ? 'ej., €15,000/mes' : 'e.g., €15,000/month'}
+                className="glass-panel-hover border-2 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="timing" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Timing / Fechas' : 'Timing / Dates'}
+                  <span className="text-destructive ml-1">*</span>
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "Q1 2024 - Lanzamiento: 15 enero. Cierre: 31 marzo"'
+                  : 'Example: "Q1 2024 - Launch: Jan 15. Close: Mar 31"'
+                )}
+              </div>
+              <Input
+                id="timing"
+                value={formData.timing}
+                onChange={(e) => handleChange('timing', e.target.value)}
+                placeholder={language === 'es' ? 'ej., Q1 2024 - Lanzamiento: 15 enero' : 'e.g., Q1 2024 - Launch: Jan 15'}
+                className="glass-panel-hover border-2 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="geography" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Geografía e idioma' : 'Geography & Language'}
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "España (Madrid, Barcelona). Idioma: Español"'
+                  : 'Example: "Spain (Madrid, Barcelona). Language: Spanish"'
+                )}
+              </div>
+              <Input
+                id="geography"
+                value={formData.geography}
+                onChange={(e) => handleChange('geography', e.target.value)}
+                placeholder={language === 'es' ? 'ej., España. Idioma: Español' : 'e.g., Spain. Language: Spanish'}
                 className="glass-panel-hover border-2 rounded-xl"
               />
             </div>
           </div>
         )
 
-      case 2:
+      case 4:
         return (
           <div className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="price" className="text-xs uppercase font-bold tracking-wider text-primary">
-                {language === 'es' ? 'Precio del Producto' : 'Product Price'}
-              </Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="tone" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Tono' : 'Tone'}
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "Profesional pero accesible. Técnico sin ser intimidante"'
+                  : 'Example: "Professional but accessible. Technical without being intimidating"'
+                )}
+              </div>
               <Input
-                id="price"
-                value={formData.price || ''}
-                onChange={(e) => handleChange('price', e.target.value)}
-                placeholder={language === 'es' ? 'ej., €500/mes' : 'e.g., €500/month'}
+                id="tone"
+                value={formData.tone}
+                onChange={(e) => handleChange('tone', e.target.value)}
+                placeholder={language === 'es' ? 'ej., Profesional pero accesible' : 'e.g., Professional but accessible'}
                 className="glass-panel-hover border-2 rounded-xl"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="margin" className="text-xs uppercase font-bold tracking-wider text-primary">
-                {language === 'es' ? 'Margen / ROI Esperado' : 'Margin / Expected ROI'}
-              </Label>
-              <Input
-                id="margin"
-                value={formData.margin || ''}
-                onChange={(e) => handleChange('margin', e.target.value)}
-                placeholder={language === 'es' ? 'ej., 40%, 3:1 ROI' : 'e.g., 40%, 3:1 ROI'}
-                className="glass-panel-hover border-2 rounded-xl"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="mainPromise" className="text-xs uppercase font-bold tracking-wider text-primary">
-                {language === 'es' ? 'Promesa Principal' : 'Main Promise'}
-              </Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="brandVoice" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Brand Voice' : 'Brand Voice'}
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "Experto cercano. Claridad > Jerga. Enfoque en ROI y simplicidad"'
+                  : 'Example: "Friendly expert. Clarity > Jargon. Focus on ROI and simplicity"'
+                )}
+              </div>
               <Textarea
-                id="mainPromise"
-                value={formData.mainPromise || ''}
-                onChange={(e) => handleChange('mainPromise', e.target.value)}
-                placeholder={language === 'es' ? 'ej., Gestión híbrida unificada que reduce costos 30%' : 'e.g., Unified hybrid management that reduces costs by 30%'}
+                id="brandVoice"
+                value={formData.brandVoice}
+                onChange={(e) => handleChange('brandVoice', e.target.value)}
+                placeholder={language === 'es' ? 'ej., Experto cercano. Enfoque en ROI' : 'e.g., Friendly expert. Focus on ROI'}
                 className="glass-panel-hover resize-none border-2 rounded-xl"
-                rows={3}
+                rows={2}
               />
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs uppercase font-bold tracking-wider text-primary">
-                {language === 'es' ? 'Pruebas / Evidencias' : 'Proof / Evidence'}
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  value={proofInput}
-                  onChange={(e) => setProofInput(e.target.value)}
-                  placeholder={language === 'es' ? 'ej., Case study Microsoft' : 'e.g., Microsoft case study'}
-                  className="glass-panel-hover border-2 rounded-xl"
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addProof())}
-                />
-                <Button type="button" onClick={addProof} variant="outline" className="rounded-xl">
-                  {language === 'es' ? 'Añadir' : 'Add'}
-                </Button>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="forbiddenWords" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Palabras prohibidas' : 'Forbidden Words'}
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "revolucionario, disruptivo, mágico, problema"'
+                  : 'Example: "revolutionary, disruptive, magic, problem"'
+                )}
               </div>
-              {formData.proof && formData.proof.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {formData.proof.map((item, idx) => (
-                    <Badge key={idx} variant="secondary" className="rounded-lg cursor-pointer" onClick={() => removeProof(idx)}>
-                      {item} ×
-                    </Badge>
-                  ))}
-                </div>
-              )}
+              <Input
+                id="forbiddenWords"
+                value={formData.forbiddenWords}
+                onChange={(e) => handleChange('forbiddenWords', e.target.value)}
+                placeholder={language === 'es' ? 'ej., revolucionario, disruptivo' : 'e.g., revolutionary, disruptive'}
+                className="glass-panel-hover border-2 rounded-xl"
+              />
             </div>
 
             <div className="space-y-2">
-              <Label className="text-xs uppercase font-bold tracking-wider text-primary">
-                {language === 'es' ? 'Competidores' : 'Competitors'}
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  value={competitorInput}
-                  onChange={(e) => setCompetitorInput(e.target.value)}
-                  placeholder={language === 'es' ? 'ej., AWS Outposts' : 'e.g., AWS Outposts'}
-                  className="glass-panel-hover border-2 rounded-xl"
-                  onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCompetitor())}
-                />
-                <Button type="button" onClick={addCompetitor} variant="outline" className="rounded-xl">
-                  {language === 'es' ? 'Añadir' : 'Add'}
-                </Button>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="allowedClaims" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Claims permitidos' : 'Allowed Claims'}
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "Reduce costos hasta 30%, Implementación en 2 semanas"'
+                  : 'Example: "Reduces costs up to 30%, 2-week implementation"'
+                )}
               </div>
-              {formData.competitors && formData.competitors.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {formData.competitors.map((item, idx) => (
-                    <Badge key={idx} variant="secondary" className="rounded-lg cursor-pointer" onClick={() => removeCompetitor(idx)}>
-                      {item} ×
-                    </Badge>
-                  ))}
-                </div>
-              )}
+              <Textarea
+                id="allowedClaims"
+                value={formData.allowedClaims}
+                onChange={(e) => handleChange('allowedClaims', e.target.value)}
+                placeholder={language === 'es' ? 'ej., Reduce costos hasta 30%' : 'e.g., Reduces costs up to 30%'}
+                className="glass-panel-hover resize-none border-2 rounded-xl"
+                rows={2}
+              />
             </div>
-          </div>
-        )
 
-      case 3:
-        return (
-          <div className="space-y-5">
-            <div className="glass-panel p-6 rounded-2xl border-2">
-              <h3 className="text-lg font-bold mb-4 text-foreground">
-                {language === 'es' ? 'Resumen del Brief' : 'Brief Summary'}
-              </h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <p className="text-xs uppercase font-bold text-muted-foreground mb-1">
-                    {language === 'es' ? 'Producto' : 'Product'}
-                  </p>
-                  <p className="text-sm font-medium">{formData.product || 'TBD'}</p>
-                </div>
-                
-                <div>
-                  <p className="text-xs uppercase font-bold text-muted-foreground mb-1">
-                    {language === 'es' ? 'Audiencia' : 'Audience'}
-                  </p>
-                  <p className="text-sm font-medium">{formData.audience || 'TBD'}</p>
-                </div>
-                
-                <div>
-                  <p className="text-xs uppercase font-bold text-muted-foreground mb-1">
-                    {language === 'es' ? 'Presupuesto' : 'Budget'}
-                  </p>
-                  <p className="text-sm font-medium">{formData.budget || 'TBD'}</p>
-                </div>
-                
-                <div>
-                  <p className="text-xs uppercase font-bold text-muted-foreground mb-1">
-                    {language === 'es' ? 'Canales' : 'Channels'}
-                  </p>
-                  <p className="text-sm font-medium">{formData.channels.length > 0 ? formData.channels.join(', ') : 'TBD'}</p>
-                </div>
-
-                {!formData.price && (
-                  <div className="flex items-start gap-2 bg-destructive/10 p-3 rounded-lg border border-destructive/30">
-                    <WarningCircle size={20} className="text-destructive mt-0.5" weight="fill" />
-                    <div className="flex-1">
-                      <p className="text-sm font-bold text-destructive mb-1">
-                        {language === 'es' ? 'Precio no especificado' : 'Price not specified'}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {language === 'es' 
-                          ? 'Recomendamos incluir el precio para generar estrategias de pricing más precisas'
-                          : 'We recommend including the price for more accurate pricing strategies'}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {!formData.mainPromise && (
-                  <div className="flex items-start gap-2 bg-accent/10 p-3 rounded-lg border border-accent/30">
-                    <WarningCircle size={20} className="text-accent mt-0.5" weight="fill" />
-                    <div className="flex-1">
-                      <p className="text-sm font-bold text-accent mb-1">
-                        {language === 'es' ? 'Promesa principal no definida' : 'Main promise not defined'}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {language === 'es' 
-                          ? 'La promesa principal ayuda a crear mensajes más impactantes'
-                          : 'The main promise helps create more impactful messages'}
-                      </p>
-                    </div>
-                  </div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="legalRequirements" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Requisitos legales' : 'Legal Requirements'}
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "Incluir link a términos. Mencionar GDPR compliance"'
+                  : 'Example: "Include link to terms. Mention GDPR compliance"'
                 )}
               </div>
+              <Textarea
+                id="legalRequirements"
+                value={formData.legalRequirements}
+                onChange={(e) => handleChange('legalRequirements', e.target.value)}
+                placeholder={language === 'es' ? 'ej., Incluir términos y GDPR' : 'e.g., Include terms and GDPR'}
+                className="glass-panel-hover resize-none border-2 rounded-xl"
+                rows={2}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="availableAssets" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Activos disponibles' : 'Available Assets'}
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "Logo SVG, Case study BBVA (PDF), Video demo 2min"'
+                  : 'Example: "SVG logo, BBVA case study (PDF), 2min demo video"'
+                )}
+              </div>
+              <Textarea
+                id="availableAssets"
+                value={formData.availableAssets}
+                onChange={(e) => handleChange('availableAssets', e.target.value)}
+                placeholder={language === 'es' ? 'ej., Logo SVG, Case study PDF' : 'e.g., SVG logo, PDF case study'}
+                className="glass-panel-hover resize-none border-2 rounded-xl"
+                rows={2}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="links" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Links relevantes' : 'Relevant Links'}
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "Landing: example.com, Demo: calendly.com/demo"'
+                  : 'Example: "Landing: example.com, Demo: calendly.com/demo"'
+                )}
+              </div>
+              <Textarea
+                id="links"
+                value={formData.links}
+                onChange={(e) => handleChange('links', e.target.value)}
+                placeholder={language === 'es' ? 'ej., Landing: example.com' : 'e.g., Landing: example.com'}
+                className="glass-panel-hover resize-none border-2 rounded-xl"
+                rows={2}
+              />
             </div>
           </div>
         )
@@ -511,19 +842,32 @@ export function BriefWizard({ onGenerate, isGenerating, language }: BriefWizardP
         <Progress value={briefScore} className="h-2 mb-4" />
 
         <div className="flex items-center justify-between mb-4">
-          {steps.map((step, idx) => (
-            <div key={idx} className="flex items-center gap-2">
-              <div className={cn(
-                "w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-all",
-                idx < currentStep ? "bg-primary text-primary-foreground border-primary" :
-                idx === currentStep ? "bg-accent text-accent-foreground border-accent" :
-                "bg-muted text-muted-foreground border-muted"
-              )}>
-                {idx < currentStep ? <CheckCircle size={20} weight="fill" /> : idx + 1}
+          <div className="flex items-center gap-2 flex-wrap">
+            {steps.map((step, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <div className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-all",
+                  idx < currentStep ? "bg-primary text-primary-foreground border-primary" :
+                  idx === currentStep ? "bg-accent text-accent-foreground border-accent" :
+                  "bg-muted text-muted-foreground border-muted"
+                )}>
+                  {idx < currentStep ? <CheckCircle size={20} weight="fill" /> : idx + 1}
+                </div>
+                <span className="text-xs font-bold hidden md:block">{step}</span>
               </div>
-              <span className="text-xs font-bold hidden md:block">{step}</span>
-            </div>
-          ))}
+            ))}
+          </div>
+          
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={loadDemoData}
+            className="rounded-xl border-2 gap-2"
+          >
+            <Sparkle size={16} weight="fill" />
+            {language === 'es' ? 'Demo' : 'Demo'}
+          </Button>
         </div>
       </div>
 
