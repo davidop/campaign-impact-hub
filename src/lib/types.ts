@@ -179,6 +179,26 @@ export interface LandingKitData {
   trustSignals: LandingKitTrustSignal[]
 }
 
+export interface FlowMessage {
+  id: string
+  subject?: string
+  firstLine?: string
+  body: string
+  cta: string
+  objective: string
+  timing: string
+  channel: 'email' | 'whatsapp'
+}
+
+export interface FlowSequence {
+  id: string
+  name: string
+  type: 'bienvenida' | 'nurturing' | 'winback'
+  description: string
+  totalMessages: number
+  messages: FlowMessage[]
+}
+
 export interface CampaignOutput {
   overview?: {
     objective: string
@@ -202,6 +222,7 @@ export interface CampaignOutput {
   contentCalendar: ContentCalendarItem[]
   emailFlow: string
   whatsappFlow: string
+  flows?: FlowSequence[]
   experimentPlan: string
   measurementUtms: string
   risks: string

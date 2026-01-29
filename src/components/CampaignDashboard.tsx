@@ -10,6 +10,7 @@ import { CreativeRoutesDisplay } from '@/components/CreativeRoutesDisplay'
 import FunnelBlueprint from '@/components/FunnelBlueprint'
 import { PaidPack } from '@/components/PaidPack'
 import LandingKitDisplay from '@/components/LandingKitDisplay'
+import FlowsDisplay from '@/components/FlowsDisplay'
 import { 
   Eye,
   Target,
@@ -24,7 +25,7 @@ import {
   Warning,
   CheckSquare
 } from '@phosphor-icons/react'
-import type { CampaignOutput, ContentCalendarItem, CreativeRoute, FunnelPhase, PaidPackData, LandingKitData } from '@/lib/types'
+import type { CampaignOutput, ContentCalendarItem, CreativeRoute, FunnelPhase, PaidPackData, LandingKitData, FlowSequence } from '@/lib/types'
 
 interface CampaignDashboardProps {
   outputs: Partial<CampaignOutput>
@@ -300,31 +301,35 @@ export function CampaignDashboard({
         </TabsContent>
 
         <TabsContent value="flows" className="mt-0">
-          <div className="space-y-6">
-            <OutputCard
-              title={t('Flow de Email', 'Email Flow')}
-              icon={<EnvelopeSimple size={20} weight="fill" />}
-              content={outputs.emailFlow || ''}
-              isLoading={isGenerating}
-              emptyMessage={t('El flow de email se generará aquí', 'Email flow will be generated here')}
-              language={language}
-              onRegenerate={() => onRegenerateBlock?.('emailFlow')}
-              onSaveVersion={(content) => handleSaveVersion('emailFlow', content)}
-              blockName="emailFlow"
-            />
+          {outputs.flows && outputs.flows.length > 0 ? (
+            <FlowsDisplay flows={outputs.flows} language={language} />
+          ) : (
+            <div className="space-y-6">
+              <OutputCard
+                title={t('Flow de Email', 'Email Flow')}
+                icon={<EnvelopeSimple size={20} weight="fill" />}
+                content={outputs.emailFlow || ''}
+                isLoading={isGenerating}
+                emptyMessage={t('El flow de email se generará aquí', 'Email flow will be generated here')}
+                language={language}
+                onRegenerate={() => onRegenerateBlock?.('emailFlow')}
+                onSaveVersion={(content) => handleSaveVersion('emailFlow', content)}
+                blockName="emailFlow"
+              />
 
-            <OutputCard
-              title={t('Flow de WhatsApp', 'WhatsApp Flow')}
-              icon={<EnvelopeSimple size={20} weight="fill" />}
-              content={outputs.whatsappFlow || ''}
-              isLoading={isGenerating}
-              emptyMessage={t('El flow de WhatsApp se generará aquí', 'WhatsApp flow will be generated here')}
-              language={language}
-              onRegenerate={() => onRegenerateBlock?.('whatsappFlow')}
-              onSaveVersion={(content) => handleSaveVersion('whatsappFlow', content)}
-              blockName="whatsappFlow"
-            />
-          </div>
+              <OutputCard
+                title={t('Flow de WhatsApp', 'WhatsApp Flow')}
+                icon={<EnvelopeSimple size={20} weight="fill" />}
+                content={outputs.whatsappFlow || ''}
+                isLoading={isGenerating}
+                emptyMessage={t('El flow de WhatsApp se generará aquí', 'WhatsApp flow will be generated here')}
+                language={language}
+                onRegenerate={() => onRegenerateBlock?.('whatsappFlow')}
+                onSaveVersion={(content) => handleSaveVersion('whatsappFlow', content)}
+                blockName="whatsappFlow"
+              />
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="experiments" className="mt-0">

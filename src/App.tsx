@@ -10,7 +10,7 @@ import { VariationLab } from '@/components/VariationLab'
 import { WarRoomChat } from '@/components/WarRoomChat'
 import { FileText, Palette, Sparkle, Lightning } from '@phosphor-icons/react'
 import type { Language } from '@/lib/i18n'
-import type { CampaignBriefData, CampaignOutput, CopyVariation, BrandKit } from '@/lib/types'
+import type { CampaignBriefData, CampaignOutput, CopyVariation, BrandKit, FlowSequence } from '@/lib/types'
 
 function App() {
   const [theme, setTheme] = useKV<string>('theme', 'light')
@@ -523,6 +523,146 @@ Tono: conversacional, profesional
 ${isSpanish ? 'Para cada mensaje: texto breve (max 2-3 oraciones), emojis apropiados, CTA, y timing.' : 'For each message: brief text (max 2-3 sentences), appropriate emojis, CTA, and timing.'}`
 
       // @ts-expect-error - spark global is provided by runtime
+      const flowBienvenidaPrompt = spark.llmPrompt`${isSpanish ? 'Crea una secuencia de Bienvenida / Lead Magnet con EXACTAMENTE 3 mensajes.' : 'Create a Welcome / Lead Magnet sequence with EXACTLY 3 messages.'}
+${brandGuidelines}
+
+Producto: ${briefData.product}
+Audiencia: ${briefData.audience}
+Promesa Principal: ${briefData.mainPromise || briefData.goals}
+
+${isSpanish ? 'Devuelve un objeto JSON con esta estructura EXACTA:' : 'Return a JSON object with this EXACT structure:'}
+
+{
+  "messages": [
+    {
+      "id": "bienvenida-1",
+      "channel": "email",
+      "subject": "${isSpanish ? '(Asunto del email 1, max 60 caracteres, acogedor y que genere apertura)' : '(Email 1 subject, max 60 chars, welcoming and generating opens)'}",
+      "body": "${isSpanish ? '(Cuerpo del mensaje 1: saludo cálido, entrega del lead magnet o recurso, establecer expectativas de qué recibirán. 3-4 párrafos cortos, conversacional)' : '(Message 1 body: warm greeting, deliver lead magnet or resource, set expectations of what they will receive. 3-4 short paragraphs, conversational)'}",
+      "cta": "${isSpanish ? '(CTA específico, 2-4 palabras)' : '(Specific CTA, 2-4 words)'}",
+      "objective": "${isSpanish ? '(Objetivo: ej. Entregar valor inmediato y generar confianza)' : '(Objective: e.g. Deliver immediate value and generate trust)'}",
+      "timing": "${isSpanish ? '(Timing: ej. Inmediato tras suscripción)' : '(Timing: e.g. Immediate after subscription)'}"
+    },
+    {
+      "id": "bienvenida-2",
+      "channel": "email",
+      "subject": "${isSpanish ? '(Asunto del email 2)' : '(Email 2 subject)'}",
+      "body": "${isSpanish ? '(Cuerpo del mensaje 2: reforzar valor del recurso, compartir caso de uso o testimonio, invitar a dar siguiente paso)' : '(Message 2 body: reinforce resource value, share use case or testimonial, invite to take next step)'}",
+      "cta": "${isSpanish ? '(CTA)' : '(CTA)'}",
+      "objective": "${isSpanish ? '(Objetivo)' : '(Objective)'}",
+      "timing": "${isSpanish ? '(Timing: ej. 2 días después)' : '(Timing: e.g. 2 days later)'}"
+    },
+    {
+      "id": "bienvenida-3",
+      "channel": "whatsapp",
+      "firstLine": "${isSpanish ? '(Primera línea del mensaje WhatsApp 3, debe captar atención en móvil)' : '(First line of WhatsApp message 3, must capture attention on mobile)'}",
+      "body": "${isSpanish ? '(Cuerpo del mensaje 3: recordatorio amigable, destacar beneficio clave, propuesta clara de siguiente acción. Max 2-3 oraciones. Incluir emojis si el Brand Kit lo permite)' : '(Message 3 body: friendly reminder, highlight key benefit, clear next action proposal. Max 2-3 sentences. Include emojis if Brand Kit allows)'}",
+      "cta": "${isSpanish ? '(CTA)' : '(CTA)'}",
+      "objective": "${isSpanish ? '(Objetivo)' : '(Objective)'}",
+      "timing": "${isSpanish ? '(Timing: ej. 4 días después)' : '(Timing: e.g. 4 days later)'}"
+    }
+  ]
+}
+
+${isSpanish ? 'IMPORTANTE: Devuelve SOLO el JSON válido. No añadas texto fuera del JSON.' : 'IMPORTANT: Return ONLY valid JSON. Do not add text outside JSON.'}`
+
+      // @ts-expect-error - spark global is provided by runtime
+      const flowNurturingPrompt = spark.llmPrompt`${isSpanish ? 'Crea una secuencia de Nurturing con EXACTAMENTE 4 mensajes.' : 'Create a Nurturing sequence with EXACTLY 4 messages.'}
+${brandGuidelines}
+
+Producto: ${briefData.product}
+Audiencia: ${briefData.audience}
+Objetivo: ${briefData.goals}
+
+${isSpanish ? 'Devuelve un objeto JSON con esta estructura EXACTA:' : 'Return a JSON object with this EXACT structure:'}
+
+{
+  "messages": [
+    {
+      "id": "nurturing-1",
+      "channel": "email",
+      "subject": "${isSpanish ? '(Asunto educativo, que aporte valor)' : '(Educational subject, providing value)'}",
+      "body": "${isSpanish ? '(Cuerpo: contenido educativo sobre el problema que resuelve el producto, sin vender directamente. 3-4 párrafos)' : '(Body: educational content about the problem the product solves, without direct selling. 3-4 paragraphs)'}",
+      "cta": "${isSpanish ? '(CTA: ej. Leer artículo completo, Ver caso de estudio)' : '(CTA: e.g. Read full article, See case study)'}",
+      "objective": "${isSpanish ? '(Objetivo: Educar y posicionar como experto)' : '(Objective: Educate and position as expert)'}",
+      "timing": "${isSpanish ? '(Timing: ej. Semana 1)' : '(Timing: e.g. Week 1)'}"
+    },
+    {
+      "id": "nurturing-2",
+      "channel": "email",
+      "subject": "${isSpanish ? '(Asunto)' : '(Subject)'}",
+      "body": "${isSpanish ? '(Cuerpo: compartir caso de éxito o prueba social relevante, mostrar resultados concretos)' : '(Body: share success case or relevant social proof, show concrete results)'}",
+      "cta": "${isSpanish ? '(CTA)' : '(CTA)'}",
+      "objective": "${isSpanish ? '(Objetivo: Generar confianza con prueba social)' : '(Objective: Generate trust with social proof)'}",
+      "timing": "${isSpanish ? '(Timing: ej. Semana 2)' : '(Timing: e.g. Week 2)'}"
+    },
+    {
+      "id": "nurturing-3",
+      "channel": "email",
+      "subject": "${isSpanish ? '(Asunto)' : '(Subject)'}",
+      "body": "${isSpanish ? '(Cuerpo: explicar cómo funciona la solución, detalles técnicos si es B2B o beneficios específicos si es B2C)' : '(Body: explain how the solution works, technical details if B2B or specific benefits if B2C)'}",
+      "cta": "${isSpanish ? '(CTA)' : '(CTA)'}",
+      "objective": "${isSpanish ? '(Objetivo: Demostrar capacidades y aclarar dudas)' : '(Objective: Demonstrate capabilities and clarify doubts)'}",
+      "timing": "${isSpanish ? '(Timing: ej. Semana 3)' : '(Timing: e.g. Week 3)'}"
+    },
+    {
+      "id": "nurturing-4",
+      "channel": "whatsapp",
+      "firstLine": "${isSpanish ? '(Primera línea)' : '(First line)'}",
+      "body": "${isSpanish ? '(Cuerpo: propuesta suave de conversación o demo, sin presión. Tono conversacional. 2-3 oraciones)' : '(Body: soft conversation or demo proposal, no pressure. Conversational tone. 2-3 sentences)'}",
+      "cta": "${isSpanish ? '(CTA)' : '(CTA)'}",
+      "objective": "${isSpanish ? '(Objetivo: Iniciar conversación comercial)' : '(Objective: Start commercial conversation)'}",
+      "timing": "${isSpanish ? '(Timing: ej. Semana 4)' : '(Timing: e.g. Week 4)'}"
+    }
+  ]
+}
+
+${isSpanish ? 'IMPORTANTE: Devuelve SOLO el JSON válido. No añadas texto fuera del JSON.' : 'IMPORTANT: Return ONLY valid JSON. Do not add text outside JSON.'}`
+
+      // @ts-expect-error - spark global is provided by runtime
+      const flowWinbackPrompt = spark.llmPrompt`${isSpanish ? 'Crea una secuencia de Winback / Reactivación con EXACTAMENTE 3 mensajes.' : 'Create a Winback / Reactivation sequence with EXACTLY 3 messages.'}
+${brandGuidelines}
+
+Producto: ${briefData.product}
+Audiencia: ${briefData.audience}
+
+${isSpanish ? 'Devuelve un objeto JSON con esta estructura EXACTA:' : 'Return a JSON object with this EXACT structure:'}
+
+{
+  "messages": [
+    {
+      "id": "winback-1",
+      "channel": "email",
+      "subject": "${isSpanish ? '(Asunto nostálgico o que genere curiosidad, ej. Te extrañamos, Algo nuevo para ti)' : '(Nostalgic or curiosity-generating subject, e.g. We miss you, Something new for you)'}",
+      "body": "${isSpanish ? '(Cuerpo: reconocer su ausencia de forma empática, recordar valor previo, mencionar novedades o mejoras. 3-4 párrafos)' : '(Body: acknowledge their absence empathetically, remind previous value, mention news or improvements. 3-4 paragraphs)'}",
+      "cta": "${isSpanish ? '(CTA: ej. Ver qué hay de nuevo, Retomar)' : '(CTA: e.g. See what is new, Resume)'}",
+      "objective": "${isSpanish ? '(Objetivo: Reconectar y generar curiosidad)' : '(Objective: Reconnect and generate curiosity)'}",
+      "timing": "${isSpanish ? '(Timing: ej. Tras 30-45 días de inactividad)' : '(Timing: e.g. After 30-45 days of inactivity)'}"
+    },
+    {
+      "id": "winback-2",
+      "channel": "email",
+      "subject": "${isSpanish ? '(Asunto con incentivo o beneficio exclusivo)' : '(Subject with incentive or exclusive benefit)'}",
+      "body": "${isSpanish ? '(Cuerpo: oferta especial de reactivación, beneficio exclusivo para clientes que vuelven, crear urgencia suave)' : '(Body: special reactivation offer, exclusive benefit for returning customers, create soft urgency)'}",
+      "cta": "${isSpanish ? '(CTA)' : '(CTA)'}",
+      "objective": "${isSpanish ? '(Objetivo: Incentivar retorno con oferta)' : '(Objective: Incentivize return with offer)'}",
+      "timing": "${isSpanish ? '(Timing: ej. 5 días después del mensaje 1)' : '(Timing: e.g. 5 days after message 1)'}"
+    },
+    {
+      "id": "winback-3",
+      "channel": "whatsapp",
+      "firstLine": "${isSpanish ? '(Primera línea personal y directa)' : '(Personal and direct first line)'}",
+      "body": "${isSpanish ? '(Cuerpo: última oportunidad o recordatorio final, tono amigable pero con cierre claro. Si no responden, avisar que dejarán de recibir mensajes. 2-3 oraciones)' : '(Body: last opportunity or final reminder, friendly tone but clear closure. If no response, notify they will stop receiving messages. 2-3 sentences)'}",
+      "cta": "${isSpanish ? '(CTA)' : '(CTA)'}",
+      "objective": "${isSpanish ? '(Objetivo: Última oportunidad de reactivación)' : '(Objective: Last reactivation opportunity)'}",
+      "timing": "${isSpanish ? '(Timing: ej. 7 días después del mensaje 2)' : '(Timing: e.g. 7 days after message 2)'}"
+    }
+  ]
+}
+
+${isSpanish ? 'IMPORTANTE: Devuelve SOLO el JSON válido. No añadas texto fuera del JSON.' : 'IMPORTANT: Return ONLY valid JSON. Do not add text outside JSON.'}`
+
+      // @ts-expect-error - spark global is provided by runtime
       const experimentPlanPrompt = spark.llmPrompt`${isSpanish ? 'Crea un plan de experimentos A/B para optimizar esta campaña:' : 'Create an A/B experiment plan to optimize this campaign:'}
 ${brandGuidelines}
 
@@ -584,6 +724,9 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         landingKit,
         emailFlow,
         whatsappFlow,
+        flowBienvenidaJson,
+        flowNurturingJson,
+        flowWinbackJson,
         experimentPlan,
         measurementUtms,
         risks,
@@ -598,6 +741,9 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         spark.llm(landingKitPrompt, 'gpt-4o', true),
         spark.llm(emailFlowPrompt),
         spark.llm(whatsappFlowPrompt),
+        spark.llm(flowBienvenidaPrompt, 'gpt-4o', true),
+        spark.llm(flowNurturingPrompt, 'gpt-4o', true),
+        spark.llm(flowWinbackPrompt, 'gpt-4o', true),
         spark.llm(experimentPlanPrompt),
         spark.llm(utmsPrompt),
         spark.llm(risksPrompt),
@@ -660,6 +806,69 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
       } catch (e) {
         console.error('Failed to parse variations', e)
       }
+
+      const parseFlowSequence = (jsonString: string, sequenceId: string, sequenceName: string, sequenceType: 'bienvenida' | 'nurturing' | 'winback', sequenceDescription: string) => {
+        try {
+          const parsed = JSON.parse(jsonString)
+          if (parsed.messages && Array.isArray(parsed.messages)) {
+            return {
+              id: sequenceId,
+              name: sequenceName,
+              type: sequenceType,
+              description: sequenceDescription,
+              totalMessages: parsed.messages.length,
+              messages: parsed.messages.map((msg: any) => ({
+                id: msg.id || `${sequenceId}-${Math.random().toString(36).substr(2, 9)}`,
+                channel: msg.channel || 'email',
+                subject: msg.subject,
+                firstLine: msg.firstLine,
+                body: msg.body || '',
+                cta: msg.cta || '',
+                objective: msg.objective || '',
+                timing: msg.timing || ''
+              }))
+            }
+          }
+        } catch (e) {
+          console.error(`Failed to parse ${sequenceName} flow`, e)
+        }
+        return null
+      }
+
+      const flowSequences: FlowSequence[] = []
+      
+      const bienvenidaFlow = parseFlowSequence(
+        flowBienvenidaJson,
+        'flow-bienvenida',
+        isSpanish ? 'Bienvenida / Lead Magnet' : 'Welcome / Lead Magnet',
+        'bienvenida',
+        isSpanish 
+          ? 'Secuencia para dar la bienvenida a nuevos leads y entregar valor inmediato'
+          : 'Sequence to welcome new leads and deliver immediate value'
+      )
+      if (bienvenidaFlow) flowSequences.push(bienvenidaFlow)
+
+      const nurturingFlow = parseFlowSequence(
+        flowNurturingJson,
+        'flow-nurturing',
+        isSpanish ? 'Nurturing' : 'Nurturing',
+        'nurturing',
+        isSpanish
+          ? 'Secuencia para educar y construir confianza con leads a lo largo del tiempo'
+          : 'Sequence to educate and build trust with leads over time'
+      )
+      if (nurturingFlow) flowSequences.push(nurturingFlow)
+
+      const winbackFlow = parseFlowSequence(
+        flowWinbackJson,
+        'flow-winback',
+        isSpanish ? 'Winback / Reactivación' : 'Winback / Reactivation',
+        'winback',
+        isSpanish
+          ? 'Secuencia para reactivar leads o clientes inactivos'
+          : 'Sequence to reactivate inactive leads or customers'
+      )
+      if (winbackFlow) flowSequences.push(winbackFlow)
 
       const parseOverview = (text: string) => {
         const lines = text.split('\n')
@@ -806,6 +1015,7 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         contentCalendar: mockCalendar,
         emailFlow,
         whatsappFlow,
+        flows: flowSequences.length > 0 ? flowSequences : undefined,
         experimentPlan,
         measurementUtms,
         risks,
