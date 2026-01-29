@@ -142,6 +142,43 @@ export interface PaidPackData {
   warnings: string[]
 }
 
+export interface LandingKitSection {
+  sectionName: string
+  wireframe: string
+  copyOptions: string[]
+}
+
+export interface LandingKitFormField {
+  fieldName: string
+  label: string
+  placeholder: string
+  errorState: string
+  helpText: string
+}
+
+export interface LandingKitFAQ {
+  question: string
+  answer: string
+}
+
+export interface LandingKitTrustSignal {
+  type: 'reviews' | 'logos' | 'garantias' | 'cifras' | 'certificaciones' | 'casos'
+  description: string
+  recommendation: string
+}
+
+export interface LandingKitData {
+  sections: LandingKitSection[]
+  formMicrocopy: {
+    fields: LandingKitFormField[]
+    privacyText: string
+    submitButton: string
+    successMessage: string
+  }
+  faqs: LandingKitFAQ[]
+  trustSignals: LandingKitTrustSignal[]
+}
+
 export interface CampaignOutput {
   overview?: {
     objective: string
@@ -161,7 +198,7 @@ export interface CampaignOutput {
   creativeRoutes: string | CreativeRoute[]
   funnelBlueprint: string | FunnelPhase[]
   paidPack: string | PaidPackData
-  landingKit: string
+  landingKit: string | LandingKitData
   contentCalendar: ContentCalendarItem[]
   emailFlow: string
   whatsappFlow: string

@@ -355,14 +355,154 @@ ${isSpanish ? 'Genera:' : 'Generate:'}
 ${isSpanish ? 'IMPORTANTE: Devuelve SOLO el JSON válido. No añadas texto adicional fuera del JSON.' : 'IMPORTANT: Return ONLY valid JSON. Do not add additional text outside the JSON.'}`
 
       // @ts-expect-error - spark global is provided by runtime
-      const landingKitPrompt = spark.llmPrompt`${isSpanish ? 'Eres un experto en landing pages. Crea un kit completo para landing:' : 'You are a landing page expert. Create a complete landing kit:'}
+      const landingKitPrompt = spark.llmPrompt`${isSpanish ? 'Eres un experto en landing pages con 10+ años de experiencia. Crea un kit completo y detallado para landing page en formato JSON estructurado.' : 'You are a landing page expert with 10+ years of experience. Create a complete and detailed landing page kit in structured JSON format.'}
 ${brandGuidelines}
 
 Producto: ${briefData.product}
-Promesa: ${briefData.mainPromise || 'TBD'}
-Pruebas: ${briefData.proof?.join(', ') || 'TBD'}
+Promesa Principal: ${briefData.mainPromise || 'TBD'}
+Audiencia: ${briefData.audience}
+Precio: ${briefData.price || 'TBD'}
+Pruebas/Evidencia: ${briefData.proof?.join(', ') || 'TBD'}
+Objetivo: ${briefData.goals}
+Garantía: ${briefData.guarantee || 'N/A'}
 
-${isSpanish ? 'Incluye: Estructura (hero, beneficios, prueba social, CTA), copy para cada sección, y recomendaciones de diseño.' : 'Include: Structure (hero, benefits, social proof, CTA), copy for each section, and design recommendations.'}`
+${isSpanish ? 'Devuelve un objeto JSON con esta estructura EXACTA:' : 'Return a JSON object with this EXACT structure:'}
+
+{
+  "sections": [
+    {
+      "sectionName": "Hero",
+      "wireframe": "${isSpanish ? '(Describe la estructura visual del Hero: disposición de headline, subheadline, CTA, imagen/video. Usa bullets y formato tipo ASCII art simple si ayuda)' : '(Describe the visual structure of Hero: layout of headline, subheadline, CTA, image/video. Use bullets and simple ASCII art format if it helps)'}",
+      "copyOptions": [
+        "${isSpanish ? '(Opción 1: Headline + subheadline + CTA completos. Debe ser copy listo para usar)' : '(Option 1: Complete headline + subheadline + CTA. Must be ready-to-use copy)'}",
+        "${isSpanish ? '(Opción 2: Variante con diferente ángulo/enfoque)' : '(Option 2: Variant with different angle/approach)'}"
+      ]
+    },
+    {
+      "sectionName": "Beneficios",
+      "wireframe": "${isSpanish ? '(Describe estructura: cuántos beneficios, formato (cards/lista/iconos), disposición)' : '(Describe structure: how many benefits, format (cards/list/icons), layout)'}",
+      "copyOptions": [
+        "${isSpanish ? '(Opción 1: Lista completa de beneficios con títulos y descripciones breves)' : '(Option 1: Complete list of benefits with titles and brief descriptions)'}",
+        "${isSpanish ? '(Opción 2: Variante con diferente enfoque)' : '(Option 2: Variant with different approach)'}"
+      ]
+    },
+    {
+      "sectionName": "Prueba Social",
+      "wireframe": "${isSpanish ? '(Describe estructura: testimonios, logos de clientes, cifras, formato)' : '(Describe structure: testimonials, client logos, numbers, format)'}",
+      "copyOptions": [
+        "${isSpanish ? '(Opción 1: Copy completo de testimonios/cifras/evidencia)' : '(Option 1: Complete copy of testimonials/numbers/evidence)'}",
+        "${isSpanish ? '(Opción 2: Variante con diferente presentación)' : '(Option 2: Variant with different presentation)'}"
+      ]
+    },
+    {
+      "sectionName": "Manejo de Objeciones",
+      "wireframe": "${isSpanish ? '(Describe estructura: FAQ corto, comparativa, garantía)' : '(Describe structure: short FAQ, comparison, guarantee)'}",
+      "copyOptions": [
+        "${isSpanish ? '(Opción 1: 3-4 objeciones principales con respuestas)' : '(Option 1: 3-4 main objections with answers)'}",
+        "${isSpanish ? '(Opción 2: Variante con diferente enfoque)' : '(Option 2: Variant with different approach)'}"
+      ]
+    },
+    {
+      "sectionName": "FAQs",
+      "wireframe": "${isSpanish ? '(Describe formato: acordeón, dos columnas, etc.)' : '(Describe format: accordion, two columns, etc.)'}",
+      "copyOptions": [
+        "${isSpanish ? '(Opción 1: 6-10 preguntas frecuentes completas con respuestas)' : '(Option 1: 6-10 complete FAQs with answers)'}",
+        "${isSpanish ? '(Opción 2: Variante con preguntas diferentes)' : '(Option 2: Variant with different questions)'}"
+      ]
+    },
+    {
+      "sectionName": "CTA Final",
+      "wireframe": "${isSpanish ? '(Describe estructura: headline de cierre, refuerzo de urgencia/valor, botón, garantía)' : '(Describe structure: closing headline, urgency/value reinforcement, button, guarantee)'}",
+      "copyOptions": [
+        "${isSpanish ? '(Opción 1: Copy completo del CTA final)' : '(Option 1: Complete final CTA copy)'}",
+        "${isSpanish ? '(Opción 2: Variante con diferente ángulo)' : '(Option 2: Variant with different angle)'}"
+      ]
+    }
+  ],
+  "formMicrocopy": {
+    "fields": [
+      {
+        "fieldName": "Nombre",
+        "label": "${isSpanish ? '(Label para el campo nombre)' : '(Label for name field)'}",
+        "placeholder": "${isSpanish ? '(Placeholder para nombre)' : '(Placeholder for name)'}",
+        "errorState": "${isSpanish ? '(Mensaje de error si el campo está vacío o inválido)' : '(Error message if field is empty or invalid)'}",
+        "helpText": "${isSpanish ? '(Texto de ayuda opcional)' : '(Optional help text)'}"
+      },
+      {
+        "fieldName": "Email",
+        "label": "${isSpanish ? '(Label para email)' : '(Label for email)'}",
+        "placeholder": "${isSpanish ? '(Placeholder)' : '(Placeholder)'}",
+        "errorState": "${isSpanish ? '(Error si email inválido)' : '(Error if invalid email)'}",
+        "helpText": "${isSpanish ? '(Ayuda)' : '(Help)'}"
+      },
+      {
+        "fieldName": "Teléfono",
+        "label": "${isSpanish ? '(Label)' : '(Label)'}",
+        "placeholder": "${isSpanish ? '(Placeholder)' : '(Placeholder)'}",
+        "errorState": "${isSpanish ? '(Error)' : '(Error)'}",
+        "helpText": "${isSpanish ? '(Ayuda)' : '(Help)'}"
+      },
+      {
+        "fieldName": "Empresa",
+        "label": "${isSpanish ? '(Label)' : '(Label)'}",
+        "placeholder": "${isSpanish ? '(Placeholder)' : '(Placeholder)'}",
+        "errorState": "${isSpanish ? '(Error)' : '(Error)'}",
+        "helpText": "${isSpanish ? '(Ayuda)' : '(Help)'}"
+      }
+    ],
+    "privacyText": "${isSpanish ? '(Texto legal de privacidad completo, cumpliendo RGPD/GDPR si aplica. Debe incluir consentimiento de datos y link a política de privacidad)' : '(Complete privacy legal text, complying with GDPR if applicable. Must include data consent and privacy policy link)'}",
+    "submitButton": "${isSpanish ? '(Texto del botón de envío, accionable y específico)' : '(Submit button text, actionable and specific)'}",
+    "successMessage": "${isSpanish ? '(Mensaje de confirmación tras envío exitoso)' : '(Confirmation message after successful submission)'}"
+  },
+  "faqs": [
+    {
+      "question": "${isSpanish ? '(Pregunta frecuente 1)' : '(FAQ question 1)'}",
+      "answer": "${isSpanish ? '(Respuesta clara y completa)' : '(Clear and complete answer)'}"
+    },
+    "${isSpanish ? '...incluir 6-10 FAQs en total' : '...include 6-10 FAQs in total'}"
+  ],
+  "trustSignals": [
+    {
+      "type": "reviews",
+      "description": "${isSpanish ? '(Descripción de qué tipo de reviews mostrar: testimonios, rating, cantidad)' : '(Description of what type of reviews to show: testimonials, rating, quantity)'}",
+      "recommendation": "${isSpanish ? '(Recomendación específica: dónde colocar, formato, cuántos)' : '(Specific recommendation: where to place, format, how many)'}"
+    },
+    {
+      "type": "logos",
+      "description": "${isSpanish ? '(Qué logos de clientes/partners mostrar)' : '(Which client/partner logos to show)'}",
+      "recommendation": "${isSpanish ? '(Recomendación)' : '(Recommendation)'}"
+    },
+    {
+      "type": "garantias",
+      "description": "${isSpanish ? '(Qué garantías ofrecer: devolución, satisfacción, prueba gratis)' : '(Which guarantees to offer: refund, satisfaction, free trial)'}",
+      "recommendation": "${isSpanish ? '(Recomendación)' : '(Recommendation)'}"
+    },
+    {
+      "type": "cifras",
+      "description": "${isSpanish ? '(Qué cifras destacar: usuarios, ahorro, ROI, años de experiencia)' : '(Which numbers to highlight: users, savings, ROI, years of experience)'}",
+      "recommendation": "${isSpanish ? '(Recomendación)' : '(Recommendation)'}"
+    },
+    {
+      "type": "certificaciones",
+      "description": "${isSpanish ? '(Certificaciones, premios, reconocimientos relevantes)' : '(Relevant certifications, awards, recognitions)'}",
+      "recommendation": "${isSpanish ? '(Recomendación)' : '(Recommendation)'}"
+    },
+    {
+      "type": "casos",
+      "description": "${isSpanish ? '(Casos de éxito/estudios de caso a destacar)' : '(Success cases/case studies to highlight)'}",
+      "recommendation": "${isSpanish ? '(Recomendación)' : '(Recommendation)'}"
+    }
+  ]
+}
+
+${isSpanish ? 'IMPORTANTE:' : 'IMPORTANT:'}
+- ${isSpanish ? 'Genera copy específico para este producto, no genérico.' : 'Generate specific copy for this product, not generic.'}
+- ${isSpanish ? 'Cada opción de copy debe ser completa y lista para usar.' : 'Each copy option must be complete and ready to use.'}
+- ${isSpanish ? 'Si faltan datos (precio, prueba social), marca como TBD pero sugiere qué añadir.' : 'If data is missing (price, social proof), mark as TBD but suggest what to add.'}
+- ${isSpanish ? 'Los FAQs deben responder objeciones reales de la audiencia.' : 'FAQs must answer real audience objections.'}
+- ${isSpanish ? 'Las señales de confianza deben ser específicas y accionables.' : 'Trust signals must be specific and actionable.'}
+
+${isSpanish ? 'Devuelve SOLO el JSON válido con el formato exacto indicado. No añadas texto adicional fuera del JSON.' : 'Return ONLY the valid JSON with the exact format indicated. Do not add additional text outside the JSON.'}`
 
       // @ts-expect-error - spark global is provided by runtime
       const emailFlowPrompt = spark.llmPrompt`${isSpanish ? 'Diseña un flow automatizado de 5 emails para nutrir leads:' : 'Design an automated 5-email flow to nurture leads:'}
@@ -455,7 +595,7 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         spark.llm(creativeRoutesPrompt, 'gpt-4o', true),
         spark.llm(funnelPrompt, 'gpt-4o', true),
         spark.llm(paidPackPrompt, 'gpt-4o', true),
-        spark.llm(landingKitPrompt),
+        spark.llm(landingKitPrompt, 'gpt-4o', true),
         spark.llm(emailFlowPrompt),
         spark.llm(whatsappFlowPrompt),
         spark.llm(experimentPlanPrompt),
@@ -492,6 +632,17 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
       } catch (e) {
         console.error('Failed to parse paid pack JSON, using text fallback', e)
         parsedPaidPack = paidPackJson
+      }
+
+      let parsedLandingKit: any = landingKit
+      try {
+        const parsed = JSON.parse(landingKit)
+        if (parsed.sections && parsed.formMicrocopy && parsed.faqs && parsed.trustSignals) {
+          parsedLandingKit = parsed
+        }
+      } catch (e) {
+        console.error('Failed to parse landing kit JSON, using text fallback', e)
+        parsedLandingKit = landingKit
       }
 
       let parsedVariations: CopyVariation[] = []
@@ -651,7 +802,7 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         creativeRoutes: parsedCreativeRoutes,
         funnelBlueprint: parsedFunnelBlueprint,
         paidPack: parsedPaidPack,
-        landingKit,
+        landingKit: parsedLandingKit,
         contentCalendar: mockCalendar,
         emailFlow,
         whatsappFlow,

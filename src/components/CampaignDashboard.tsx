@@ -9,6 +9,7 @@ import { CampaignOverview } from '@/components/CampaignOverview'
 import { CreativeRoutesDisplay } from '@/components/CreativeRoutesDisplay'
 import FunnelBlueprint from '@/components/FunnelBlueprint'
 import { PaidPack } from '@/components/PaidPack'
+import LandingKitDisplay from '@/components/LandingKitDisplay'
 import { 
   Eye,
   Target,
@@ -23,7 +24,7 @@ import {
   Warning,
   CheckSquare
 } from '@phosphor-icons/react'
-import type { CampaignOutput, ContentCalendarItem, CreativeRoute, FunnelPhase, PaidPackData } from '@/lib/types'
+import type { CampaignOutput, ContentCalendarItem, CreativeRoute, FunnelPhase, PaidPackData, LandingKitData } from '@/lib/types'
 
 interface CampaignDashboardProps {
   outputs: Partial<CampaignOutput>
@@ -208,17 +209,31 @@ export function CampaignDashboard({
         </TabsContent>
 
         <TabsContent value="landing" className="mt-0">
-          <OutputCard
-            title={t('Landing Page Kit', 'Landing Page Kit')}
-            icon={<Desktop size={20} weight="fill" />}
-            content={outputs.landingKit || ''}
-            isLoading={isGenerating}
-            emptyMessage={t('El landing kit se generará aquí', 'Landing kit will be generated here')}
-            language={language}
-            onRegenerate={() => onRegenerateBlock?.('landingKit')}
-            onSaveVersion={(content) => handleSaveVersion('landingKit', content)}
-            blockName="landingKit"
-          />
+          {typeof outputs.landingKit === 'object' && outputs.landingKit !== null ? (
+            <Card className="glass-panel p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Desktop size={20} weight="fill" className="text-primary" />
+                  <h3 className="text-lg font-bold">
+                    {t('Landing Page Kit', 'Landing Page Kit')}
+                  </h3>
+                </div>
+              </div>
+              <LandingKitDisplay data={outputs.landingKit as LandingKitData} language={language} />
+            </Card>
+          ) : (
+            <OutputCard
+              title={t('Landing Page Kit', 'Landing Page Kit')}
+              icon={<Desktop size={20} weight="fill" />}
+              content={typeof outputs.landingKit === 'string' ? outputs.landingKit : ''}
+              isLoading={isGenerating}
+              emptyMessage={t('El landing kit se generará aquí', 'Landing kit will be generated here')}
+              language={language}
+              onRegenerate={() => onRegenerateBlock?.('landingKit')}
+              onSaveVersion={(content) => handleSaveVersion('landingKit', content)}
+              blockName="landingKit"
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="calendar" className="mt-0">

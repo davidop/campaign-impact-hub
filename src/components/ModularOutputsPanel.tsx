@@ -15,7 +15,8 @@ import { toast } from 'sonner'
 import { BrandConsistencyEvaluator } from '@/components/BrandConsistencyEvaluator'
 import { CreativeRoutesDisplay } from '@/components/CreativeRoutesDisplay'
 import FunnelBlueprint from '@/components/FunnelBlueprint'
-import type { CampaignOutput, CreativeRoute, FunnelPhase } from '@/lib/types'
+import LandingKitDisplay from '@/components/LandingKitDisplay'
+import type { CampaignOutput, CreativeRoute, FunnelPhase, LandingKitData } from '@/lib/types'
 
 interface ModularOutputsPanelProps {
   outputs: Partial<CampaignOutput>
@@ -284,15 +285,49 @@ export function ModularOutputsPanel({ outputs, isGenerating, language, onRegener
               />
             )}
 
-            <OutputBlock
-              title={language === 'es' ? 'Kit de Landing' : 'Landing Kit'}
-              icon={<FileText size={20} weight="fill" className="text-primary" />}
-              content={outputs.landingKit || ''}
-              isLoading={isGenerating}
-              emptyMessage={language === 'es' ? 'Estructura y copy para landing pages' : 'Structure and copy for landing pages'}
-              onRegenerate={() => onRegenerateBlock?.('landingKit')}
-              language={language}
-            />
+            {typeof outputs.landingKit === 'object' && outputs.landingKit !== null ? (
+              <Card className="glass-panel p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <FileText size={20} weight="fill" className="text-primary" />
+                    <h3 className="text-lg font-bold">
+                      {language === 'es' ? 'Kit de Landing' : 'Landing Kit'}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        const text = JSON.stringify(outputs.landingKit, null, 2)
+                        navigator.clipboard.writeText(text)
+                        toast.success(language === 'es' ? 'Copiado' : 'Copied')
+                      }}
+                    >
+                      <Copy size={16} weight="bold" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onRegenerateBlock?.('landingKit')}
+                    >
+                      <ArrowsClockwise size={16} weight="bold" />
+                    </Button>
+                  </div>
+                </div>
+                <LandingKitDisplay data={outputs.landingKit as LandingKitData} language={language} />
+              </Card>
+            ) : (
+              <OutputBlock
+                title={language === 'es' ? 'Kit de Landing' : 'Landing Kit'}
+                icon={<FileText size={20} weight="fill" className="text-primary" />}
+                content={typeof outputs.landingKit === 'string' ? outputs.landingKit : ''}
+                isLoading={isGenerating}
+                emptyMessage={language === 'es' ? 'Estructura y copy para landing pages' : 'Structure and copy for landing pages'}
+                onRegenerate={() => onRegenerateBlock?.('landingKit')}
+                language={language}
+              />
+            )}
           </div>
         </TabsContent>
 
