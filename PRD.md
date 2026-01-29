@@ -1,15 +1,15 @@
 # Marketing Agent Command Center - Intelligent Campaign Brief System
 
-A premium marketing campaign brief wizard with real-time intelligent scoring, smart gap detection, persistent Brand Kit configuration, and AI-powered brand consistency evaluation that guides users to create high-quality, on-brand campaign materials.
+A premium marketing campaign brief wizard with real-time intelligent scoring, smart gap detection, persistent Brand Kit configuration, AI-powered brand consistency evaluation, and modular campaign dashboard with actionable outputs that guides users to create high-quality, on-brand campaign materials.
 
 **Experience Qualities**:
 1. **Empowering** - Users feel confident and informed as they build their brief, with clear guidance on what will make their campaign stronger
 2. **Intelligent** - System detects critical gaps and asks smart contextual questions before generation
 3. **Consistent** - Brand voice and guidelines are automatically applied to all generated content, ensuring cohesive messaging
-4. **Non-blocking** - Never prevents generation, but provides clear warnings when results may be generic due to missing data
+4. **Actionable** - All outputs are presented in modular cards with copy, edit, regenerate, and versioning capabilities
 
-**Complexity Level**: Light Application (multiple features with basic state)
-This is a guided form wizard with real-time scoring calculations, intelligent gap detection, dynamic question generation, persistent brand kit storage, brand consistency evaluation, validation logic, and persistent state management through multiple steps.
+**Complexity Level**: Complex Application (advanced functionality, multiple views, persistent state)
+This is a guided form wizard with real-time scoring calculations, intelligent gap detection, dynamic question generation, persistent brand kit storage, brand consistency evaluation, modular dashboard with tabs, content versioning, validation logic, and persistent state management through multiple steps.
 
 ## Essential Features
 
@@ -124,8 +124,7 @@ This is a guided form wizard with real-time scoring calculations, intelligent ga
 - **Functionality**: Three-tier status system (Listo para generar 80+, Casi listo 50-79, Necesita completar datos <50)
 - **Purpose**: Gives clear at-a-glance assessment of brief readiness
 - **Trigger**: Calculated based on total score
-- **Progression**: Score calculated → Status tier determined → Icon, color, and message selected → Alert displayed
-- **Progression**: Status updates → Warning message shown if < 80 points → User proceeds with informed expectations
+- **Progression**: Score calculated → Status tier determined → Icon, color, and message selected → Alert displayed → Status updates → Warning message shown if < 80 points → User proceeds with informed expectations
 - **Success criteria**: Status correctly reflects score tier; warning message explains impact on output quality
 
 ### Non-Blocking Generation
@@ -148,6 +147,54 @@ This is a guided form wizard with real-time scoring calculations, intelligent ga
 - **Trigger**: Language prop changes
 - **Progression**: Language toggle clicked → Component receives new language prop → All text switches → Score logic unchanged
 - **Success criteria**: Complete translation coverage; no text remains in wrong language; formatting preserved
+
+### Modular Campaign Dashboard
+- **Functionality**: Tab-based dashboard with 12 distinct sections for campaign outputs, plus an executive overview
+- **Purpose**: Organizes complex campaign deliverables into digestible, actionable modules with individual controls
+- **Trigger**: Displayed after campaign generation completes
+- **Progression**: Campaign generated → Dashboard populated → User navigates tabs → Views/edits specific modules → Copies/regenerates/saves versions as needed
+- **Success criteria**: All tabs render correctly; content persists between tab switches; actions work independently per module
+
+#### Dashboard Tabs:
+1. **Overview** - Executive summary with highlights from all sections plus upcoming content calendar preview
+2. **Strategy** - Overall campaign strategy, positioning, audience approach, and budget allocation
+3. **Creative Routes** - 4 distinct creative angles with concepts, tone, and examples
+4. **Funnel Blueprint** - Complete funnel mapping with stages, objectives, content, CTAs, and metrics
+5. **Paid Pack** - Campaign structure, segmentation, ad copy variations, budget allocation, and benchmarks
+6. **Landing Kit** - Landing page structure, copy for each section, and design recommendations
+7. **Content Calendar** - Timeline view with platform, content type, objective, funnel phase, CTA, and format
+8. **Flows** - Email and WhatsApp automation sequences with subject lines, timing, and CTAs
+9. **Experiments** - A/B testing plan with hypotheses, variations, success metrics, and duration
+10. **Measurement & UTMs** - Tracking structure, UTM nomenclature, URL examples, and KPI dashboard
+11. **Risks & Assumptions** - Critical risks with impact, probability, and mitigation plans
+12. **Execution Checklist** - Step-by-step launch checklist organized by pre-launch, launch, and post-launch phases
+
+### Output Card Actions
+- **Functionality**: Every output card includes 4 action buttons for content management
+- **Purpose**: Enables users to iterate, refine, and manage campaign content without leaving the interface
+- **Trigger**: Each card renders with action buttons in the header
+- **Progression**: User clicks action → Modal or inline editor appears → User completes action → Content updates → Toast confirmation shown
+- **Success criteria**: All 4 actions work independently; changes persist; UI updates immediately; no data loss
+
+#### Card Actions:
+1. **Copiar (Copy)** - Copies content to clipboard with toast notification
+2. **Editar (Edit)** - Switches to inline edit mode with textarea; Save/Cancel buttons replace action bar
+3. **Regenerar este bloque (Regenerate)** - Calls LLM to regenerate just this specific block with same brief data
+4. **Guardar como versión (Save Version)** - Stores current content as a version in persistent storage with timestamp
+
+### Content Versioning System
+- **Functionality**: Stores multiple versions of each output block with timestamps
+- **Purpose**: Allows users to experiment with regenerations without losing previous versions
+- **Trigger**: "Guardar como versión" button clicked on any output card
+- **Progression**: User clicks save → Current content captured → Timestamp added → Stored in KV → Toast confirms → Version retrievable later
+- **Success criteria**: Versions persist across sessions; no version limit; retrieval accurate; timestamps correct
+
+### Inline Content Editor
+- **Functionality**: Converts output card to edit mode with textarea and Save/Cancel controls
+- **Purpose**: Enables quick manual edits to generated content without external tools
+- **Trigger**: "Editar" button clicked on any output card
+- **Progression**: Edit clicked → Card switches to edit mode → Textarea populated → User edits → Save clicked → Content updated → Card returns to view mode
+- **Success criteria**: Original formatting preserved; Cancel restores previous content; Save persists changes; No visual glitches during mode switch
 
 ## Edge Case Handling
 

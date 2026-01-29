@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { Header } from '@/components/Header'
 import { BriefWizard } from '@/components/BriefWizard'
 import { BrandKitEditor } from '@/components/BrandKitEditor'
-import { ModularOutputsPanel } from '@/components/ModularOutputsPanel'
+import { CampaignDashboard } from '@/components/CampaignDashboard'
 import { VariationLab } from '@/components/VariationLab'
 import { WarRoomChat } from '@/components/WarRoomChat'
 import { FileText, Palette, Sparkle, Lightning } from '@phosphor-icons/react'
@@ -387,7 +387,7 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
                 </div>
                 
                 <div className="lg:col-span-6">
-                  <ModularOutputsPanel 
+                  <CampaignDashboard
                     outputs={outputs || {}}
                     isGenerating={isGenerating}
                     language={language || 'es'}

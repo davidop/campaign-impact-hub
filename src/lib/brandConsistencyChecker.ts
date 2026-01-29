@@ -101,7 +101,6 @@ ${isSpanish ? '4. SEÑALES DE RIESGO A DETECTAR:' : '4. RISK SIGNALS TO DETECT:'
 ${isSpanish ? 'IMPORTANTE: Genera exactamente 5 cambios sugeridos priorizando los más impactantes. Ordena riskSignals por severidad (alto → medio → bajo).' : 'IMPORTANT: Generate exactly 5 suggested changes prioritizing the most impactful. Order riskSignals by severity (high → medium → low).'}
 `
 
-  // @ts-expect-error - spark global is provided by runtime
   const resultJson = await spark.llm(prompt, 'gpt-4o', true)
   
   try {
