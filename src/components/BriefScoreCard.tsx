@@ -1,11 +1,11 @@
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Progress } from "@/components/ui/progress"
+import { Card } from "@/components/ui/card"
 import { Card } from "@/components/ui/card"
 
-interface BriefScoreCardProps {
-  score: number
-  missing?: string[]
-  recommendations?: string[]
+  statusText?: string
+
+  score,
+  recommendations = [],
   statusText?: string
 }
 
@@ -32,25 +32,25 @@ export default function BriefScoreCard({
           <ul className="list-disc pl-5 text-sm space-y-1">
             {missing.map((item, idx) => (
               <li key={idx}>{item}</li>
-            ))}
+        <AlertD
           </ul>
         </div>
       )}
 
       {recommendations.length > 0 && (
-        <div className="space-y-1">
+
           <p className="text-sm font-semibold">Cómo mejorarlo</p>
           <ul className="list-disc pl-5 text-sm space-y-1">
             {recommendations.map((tip, idx) => (
-              <li key={idx}>{tip}</li>
+
             ))}
-          </ul>
+
         </div>
-      )}
+
 
       <Alert>
         <AlertDescription className="text-sm">{statusText}</AlertDescription>
-      </Alert>
+
     </Card>
   )
 }
