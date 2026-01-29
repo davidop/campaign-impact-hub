@@ -14,6 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Lightning, CaretDown, Check, CheckCircle, ArrowRight, ArrowLeft, Info, Sparkle } from '@phosphor-icons/react'
 import { cn } from '@/lib/utils'
 import BriefScoreCard from '@/components/BriefScoreCard'
+import { QuickQuestionsModal } from '@/components/QuickQuestionsModal'
+import { detectBriefGaps, type QuickQuestion } from '@/lib/briefGapDetector'
 import type { CampaignBriefData } from '@/lib/types'
 
 interface BriefWizardProps {
@@ -70,6 +72,8 @@ const DEMO_DATA: CampaignBriefData = {
 export function BriefWizard({ onGenerate, isGenerating, language }: BriefWizardProps) {
   const [currentStep, setCurrentStep] = useState(0)
   const [isChannelOpen, setIsChannelOpen] = useState(false)
+  const [showQuickQuestions, setShowQuickQuestions] = useState(false)
+  const [quickQuestions, setQuickQuestions] = useState<QuickQuestion[]>([])
   
   const [formData, setFormData] = useKV<CampaignBriefData>('campaign-brief-data', {
     objective: '',
@@ -217,10 +221,62 @@ export function BriefWizard({ onGenerate, isGenerating, language }: BriefWizardP
 
   const handleSubmit = () => {
     if (!formData) return
+    
+    const gapDetection = detectBriefGaps(formData, language)
+    
+    if (gapDetection.hasGaps) {
+      setQuickQuestions(gapDetection.questions)
+      setShowQuickQuestions(true)
+    } else {
+      proceedWithGeneration(formData)
+    }
+  }
+
+  const handleQuickQuestionsComplete = (answers: Partial<CampaignBriefData>) => {
+    setFormData((current) => {
+      const base: CampaignBriefData = current || {
+        objective: '',
+        kpi: '',
+        segments: '',
+        pains: '',
+        objections: '',
+        buyingContext: '',
+        product: '',
+        price: '',
+        promo: '',
+        guarantee: '',
+        usp: '',
+        channels: [],
+        budget: '',
+        timing: '',
+        geography: '',
+        language: 'es',
+        tone: '',
+        brandVoice: '',
+        forbiddenWords: '',
+        allowedClaims: '',
+        legalRequirements: '',
+        availableAssets: '',
+        links: '',
+        audience: '',
+        goals: '',
+        mainPromise: '',
+        proof: [],
+        competitors: [],
+        timeline: '',
+        margin: ''
+      }
+      const updated = { ...base, ...answers }
+      setTimeout(() => proceedWithGeneration(updated), 0)
+      return updated
+    })
+  }
+
+  const proceedWithGeneration = (data: CampaignBriefData) => {
     const mappedData: CampaignBriefData = {
-      ...formData,
-      audience: formData.segments,
-      goals: formData.kpi
+      ...data,
+      audience: data.segments,
+      goals: data.kpi
     }
     onGenerate(mappedData)
   }
@@ -830,15 +886,24 @@ export function BriefWizard({ onGenerate, isGenerating, language }: BriefWizardP
   const briefScore = calculateBriefScore()
 
   return (
-    <div className="space-y-4">
-      <BriefScoreCard 
-        score={briefScore.score}
-        missing={briefScore.missing}
-        recommendations={briefScore.recommendations}
-        statusText={briefScore.statusText}
+    <>
+      <QuickQuestionsModal
+        isOpen={showQuickQuestions}
+        onClose={() => setShowQuickQuestions(false)}
+        onComplete={handleQuickQuestionsComplete}
+        questions={quickQuestions}
+        language={language}
       />
-      
-      <Card className="glass-panel p-6 border-2 marketing-shine">
+
+      <div className="space-y-4">
+        <BriefScoreCard 
+          score={briefScore.score}
+          missing={briefScore.missing}
+          recommendations={briefScore.recommendations}
+          statusText={briefScore.statusText}
+        />
+        
+        <Card className="glass-panel p-6 border-2 marketing-shine">
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
@@ -924,5 +989,6 @@ export function BriefWizard({ onGenerate, isGenerating, language }: BriefWizardP
         </div>
       </Card>
     </div>
+    </>
   )
 }

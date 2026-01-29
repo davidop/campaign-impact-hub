@@ -1,16 +1,47 @@
-# Marketing Agent Command Center - Brief Score Feature
+# Marketing Agent Command Center - Intelligent Campaign Brief System
 
-A premium marketing campaign brief wizard with real-time intelligent scoring that guides users to create high-quality campaign briefs through structured feedback and actionable recommendations.
+A premium marketing campaign brief wizard with real-time intelligent scoring and smart gap detection that guides users to create high-quality campaign briefs through structured feedback, actionable recommendations, and contextual quick questions.
 
 **Experience Qualities**:
 1. **Empowering** - Users feel confident and informed as they build their brief, with clear guidance on what will make their campaign stronger
-2. **Transparent** - Real-time scoring makes quality visible and demystifies what makes an excellent campaign brief
+2. **Intelligent** - System detects critical gaps and asks smart contextual questions before generation
 3. **Non-blocking** - Never prevents generation, but provides clear warnings when results may be generic due to missing data
 
 **Complexity Level**: Light Application (multiple features with basic state)
-This is a guided form wizard with real-time scoring calculations, validation logic, and persistent state management through multiple steps.
+This is a guided form wizard with real-time scoring calculations, intelligent gap detection, dynamic question generation, validation logic, and persistent state management through multiple steps.
 
 ## Essential Features
+
+### Smart Gap Detection System
+- **Functionality**: Analyzes the completed brief before generation and detects 8 types of critical gaps that would significantly impact campaign quality
+- **Purpose**: Prevents generic outputs by ensuring essential campaign elements are defined
+- **Trigger**: Runs when user clicks "Generar Campaña" button, before the actual generation starts
+- **Progression**: Generate clicked → Brief analyzed → Gaps detected → If gaps exist, Quick Questions modal opens → If no gaps, generation proceeds
+- **Success criteria**: Detects all 8 gap types accurately; only triggers when truly critical information is missing; never blocks unnecessarily
+
+### Dynamic Quick Questions Modal
+- **Functionality**: Multi-step modal that asks 3-6 contextual questions based on detected gaps, with progress indicator
+- **Purpose**: Collects missing critical information in an efficient, focused flow
+- **Trigger**: Opens when gap detection finds critical missing data
+- **Progression**: Modal opens → Question 1 shown → User answers → Next question → ... → Complete → Answers merged into brief → Generation starts
+- **Success criteria**: Modal is focused and non-intrusive; questions are clearly worded; progress is visible; can navigate back; answers auto-save to brief
+
+### Context-Aware Question Types
+- **Functionality**: 8 intelligent question triggers with 4 input types (text, textarea, select, multiselect)
+- **Purpose**: Asks the right questions in the right format based on what's missing
+- **Trigger**: Each trigger evaluates specific conditions in the brief data
+- **Progression**: Brief analyzed → Conditions evaluated → Matching questions generated → Questions prioritized → Modal populated
+- **Success criteria**: Questions only appear when relevant; input type matches data needs; options are contextual
+
+#### Question Triggers:
+1. **Missing Price** - Asks for price range when price field is empty
+2. **Weak/Missing USP** - Provides 4 hypothesis options to choose from when USP is too short or missing
+3. **No Social Proof** - Multiselect of 5 proof types when no proof data exists
+4. **Vague Audience** - Requests specific 1-2 priority segments when audience description is too generic (< 8 words)
+5. **Paid Channels Without Budget** - Asks for minimum budget when paid channels selected but budget missing
+6. **Paid Channels Without KPI** - Select from 4 paid objectives (CPA/ROAS/CPL/CTR) when KPIs don't mention them
+7. **Regulated Sector Claims** - Asks for allowed/prohibited claims when regulated keywords detected in product or audience
+8. **Regulated Sector Legal** - Asks for mandatory legal requirements when regulated sector detected
 
 ### Real-Time Brief Score Calculator
 - **Functionality**: Calculates a 0-100 score based on 8 weighted criteria as the user fills the campaign brief
@@ -72,10 +103,18 @@ This is a guided form wizard with real-time scoring calculations, validation log
 ## Edge Case Handling
 
 - **Empty Form on Load** - Shows 0 score with all 8 items missing and recommendations for top 3; no errors thrown
+- **All Gaps Present** - Modal shows up to 6 questions; progress bar accurate; can complete all without errors
+- **No Gaps Detected** - Modal never appears; generation proceeds immediately
+- **Skip Optional Questions** - User can skip non-required questions; brief generated with available data
+- **Navigate Back in Modal** - Previous answers preserved when going back; can change answers
+- **Close Modal Without Completing** - Modal closes; generation does not proceed; user returns to form
+- **Regulated Sector Auto-Detection** - Keywords like "financiero", "salud", "farmacéutico" trigger legal questions
+- **Paid Channels Detection** - Correctly identifies paid channels (Google Ads, Facebook, Instagram, LinkedIn, TikTok, YouTube)
+- **Multiple Gap Types** - Questions ordered logically; all gap types can coexist; no conflicts
 - **Partial Multi-Field Criteria** - If only 1 of 2 required fields filled (e.g., product but no price), criterion not met; recommendation explains both requirements
-- **Demo Data Load** - Score jumps to high value immediately; all UI elements update smoothly; no flickering
+- **Demo Data Load** - Score jumps to high value immediately; all UI elements update smoothly; no flickering; gap detection works correctly
 - **Rapid Form Changes** - Debouncing not needed as calculations are instant; React batches updates naturally
-- **Language Switch Mid-Session** - Score value preserved; only text changes; recommendations remain relevant
+- **Language Switch Mid-Session** - Score value preserved; only text changes; modal questions switch language if reopened
 - **Score Exactly 50 or 80** - Uses >= comparison so edge values fall into correct tier (50 = "Casi listo", 80 = "Listo")
 
 ## Design Direction
