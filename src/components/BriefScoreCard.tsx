@@ -1,5 +1,5 @@
 import React from "react";
-import { Card } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 
@@ -8,11 +8,11 @@ interface BriefScoreCardProps {
   missing?: string[];
   recommendations?: string[];
   statusText?: string;
- 
+}
 
-}: BriefScoreCardProps) {
-
-    <Card class
+export function BriefScoreCard({
+  score,
+  missing = [],
   recommendations = [],
   statusText = "Listo para generar",
 }: BriefScoreCardProps) {
@@ -34,24 +34,24 @@ interface BriefScoreCardProps {
             {missing.map((item, idx) => (
               <li key={idx}>{item}</li>
             ))}
-            {re
+          </ul>
         </div>
-        
+      )}
 
       {recommendations.length > 0 && (
-
+        <div className="space-y-1">
           <p className="text-sm font-semibold">Cómo mejorarlo</p>
           <ul className="list-disc pl-5 text-sm space-y-1">
             {recommendations.map((tip, idx) => (
-
+              <li key={idx}>{tip}</li>
             ))}
-
+          </ul>
         </div>
-
+      )}
 
       <Alert>
         <AlertDescription className="text-sm">{statusText}</AlertDescription>
-
+      </Alert>
     </Card>
   );
 }
