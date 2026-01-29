@@ -1,19 +1,19 @@
 export interface BrandKit {
-  voice: string
+  tone: string
   tone: string
   doList: string[]
   dontList: string[]
   forbiddenWords: string[]
   allowedClaims: string[]
   useEmojis: boolean
-  formality: 'casual' | 'professional' | 'formal'
-  examples: string[]
-}
+  pains: string
+  buyingContext: str
+ 
 
-export interface CampaignBriefData {
-  objective: 'awareness' | 'leads' | 'ventas' | 'retencion' | ''
-  kpi: string
-  segments: string
+  channels: string[]
+  timing: string
+  language: s
+  brandVoice: stri
   pains: string
   objections: string
   buyingContext: string
@@ -34,7 +34,7 @@ export interface CampaignBriefData {
   legalRequirements: string
   availableAssets: string
   links: string
-  audience: string
+
   goals: string
   mainPromise?: string
   proof?: string[]
@@ -44,29 +44,29 @@ export interface CampaignBriefData {
 }
 
 export interface CopyVariation {
-  id: string
+  funnelBlue
   angle: 'beneficio' | 'urgencia' | 'autoridad' | 'emocion' | 'objeciones'
-  hook: string
+  contentCalen
   promise: string
-  proof: string
+  experimentPla
   cta: string
   risk: 'bajo' | 'medio' | 'alto'
 }
 
 export interface ContentCalendarItem {
-  date: string
+  version: num
   platform: string
   contentType: string
   objective: string
   funnelPhase: 'awareness' | 'consideration' | 'conversion' | 'retention'
   cta: string
-  format: string
+
   description: string
-}
+
 
 export interface CampaignOutput {
   strategy: string
-  creativeRoutes: string
+
   funnelBlueprint: string
   paidPack: string
   landingKit: string
@@ -78,11 +78,11 @@ export interface CampaignOutput {
   risks: string
   executionChecklist: string
   copyVariations: CopyVariation[]
-}
+
 
 export interface CampaignVersion {
   id: string
-  version: number
+
   timestamp: number
   outputs: CampaignOutput
   changelog: string
