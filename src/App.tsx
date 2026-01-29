@@ -86,6 +86,45 @@ ${kit.brandExamplesNo.length > 0 ? `\nEjemplos de copy que NO representa nuestra
 IMPORTANTE: Todo el copy debe seguir estas directrices de marca.`
       
       // @ts-expect-error - spark global is provided by runtime
+      const overviewPrompt = spark.llmPrompt`${isSpanish ? 'Genera un Overview ejecutivo súper escaneable con esta estructura EXACTA:' : 'Generate an executive Overview super scannable with this EXACT structure:'}
+${brandGuidelines}
+
+Producto: ${briefData.product}
+Audiencia: ${briefData.audience}
+Objetivos: ${briefData.goals}
+Presupuesto: ${briefData.budget}
+Canales: ${briefData.channels.join(', ')}
+${briefData.price ? `Precio: ${briefData.price}` : ''}
+${briefData.mainPromise ? `Promesa Principal: ${briefData.mainPromise}` : ''}
+
+${isSpanish ? 'Formato de respuesta (SIGUE ESTE FORMATO EXACTO):' : 'Response format (FOLLOW THIS EXACT FORMAT):'}
+
+OBJETIVO: ${isSpanish ? '[un objetivo claro y específico]' : '[one clear and specific objective]'}
+KPI: ${isSpanish ? '[métrica principal a trackear]' : '[main metric to track]'}
+
+AUDIENCIA PRIMARIA: ${isSpanish ? '[descripción del segmento prioritario en 1 línea]' : '[description of priority segment in 1 line]'}
+
+PROPUESTA DE VALOR: ${isSpanish ? '[1 frase única que explica qué obtendrá el cliente]' : '[1 unique sentence explaining what the customer will get]'}
+
+MENSAJE PRINCIPAL: ${isSpanish ? '[1 frase que comunica el core del mensaje de campaña]' : '[1 sentence communicating the core campaign message]'}
+
+RTBs:
+1. ${isSpanish ? '[Razón para creer #1]' : '[Reason to believe #1]'}
+2. ${isSpanish ? '[Razón para creer #2]' : '[Reason to believe #2]'}
+3. ${isSpanish ? '[Razón para creer #3]' : '[Reason to believe #3]'}
+
+CTA RECOMENDADO: ${isSpanish ? '[llamada a la acción clara]' : '[clear call to action]'}
+
+QUÉ LANZAR PRIMERO:
+1. ${isSpanish ? '[Acción prioritaria #1]' : '[Priority action #1]'}
+2. ${isSpanish ? '[Acción prioritaria #2]' : '[Priority action #2]'}
+3. ${isSpanish ? '[Acción prioritaria #3]' : '[Priority action #3]'}
+
+ALERTAS:
+TBDs: ${isSpanish ? '[lista de cosas por definir]' : '[list of things to be defined]'}
+RIESGOS: ${isSpanish ? '[riesgos identificados]' : '[identified risks]'}`
+
+      // @ts-expect-error - spark global is provided by runtime
       const strategyPrompt = spark.llmPrompt`${isSpanish ? 'Eres un estratega de marketing premium. Crea una estrategia integral para esta campaña:' : 'You are a premium marketing strategist. Create a comprehensive strategy for this campaign:'}
 ${brandGuidelines}
 
@@ -211,6 +250,7 @@ ${isSpanish ? 'Para CADA variación incluye:' : 'For EACH variation include:'}
 ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que contenga el array de 15 objetos.' : 'Return a JSON object with a "variations" property containing the array of 15 objects.'}`
 
       const [
+        overviewText,
         strategy,
         creativeRoutes,
         funnelBlueprint,
@@ -224,6 +264,7 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         executionChecklist,
         variationsJson
       ] = await Promise.all([
+        spark.llm(overviewPrompt),
         spark.llm(strategyPrompt),
         spark.llm(creativeRoutesPrompt),
         spark.llm(funnelPrompt),
@@ -253,6 +294,78 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
       } catch (e) {
         console.error('Failed to parse variations', e)
       }
+
+      const parseOverview = (text: string) => {
+        const lines = text.split('\n')
+        let objective = ''
+        let kpi = ''
+        let primaryAudience = ''
+        let valueProposition = ''
+        let mainMessage = ''
+        const rtbs: string[] = []
+        let recommendedCTA = ''
+        const launchPriority: string[] = []
+        const tbds: string[] = []
+        const risks: string[] = []
+
+        let currentSection = ''
+        
+        for (const line of lines) {
+          const trimmed = line.trim()
+          
+          if (trimmed.startsWith('OBJETIVO:')) {
+            objective = trimmed.replace('OBJETIVO:', '').trim()
+          } else if (trimmed.startsWith('KPI:')) {
+            kpi = trimmed.replace('KPI:', '').trim()
+          } else if (trimmed.startsWith('AUDIENCIA PRIMARIA:')) {
+            primaryAudience = trimmed.replace('AUDIENCIA PRIMARIA:', '').trim()
+          } else if (trimmed.startsWith('PROPUESTA DE VALOR:')) {
+            valueProposition = trimmed.replace('PROPUESTA DE VALOR:', '').trim()
+          } else if (trimmed.startsWith('MENSAJE PRINCIPAL:')) {
+            mainMessage = trimmed.replace('MENSAJE PRINCIPAL:', '').trim()
+          } else if (trimmed.startsWith('CTA RECOMENDADO:')) {
+            recommendedCTA = trimmed.replace('CTA RECOMENDADO:', '').trim()
+          } else if (trimmed.startsWith('RTBs:') || trimmed.startsWith('RTBS:')) {
+            currentSection = 'rtbs'
+          } else if (trimmed.startsWith('QUÉ LANZAR PRIMERO:') || trimmed.startsWith('QUE LANZAR PRIMERO:')) {
+            currentSection = 'launch'
+          } else if (trimmed.startsWith('ALERTAS:')) {
+            currentSection = 'alerts'
+          } else if (trimmed.startsWith('TBDs:') || trimmed.startsWith('TBDS:')) {
+            currentSection = 'tbds'
+          } else if (trimmed.startsWith('RIESGOS:')) {
+            currentSection = 'risks'
+          } else if (trimmed && /^\d+\./.test(trimmed)) {
+            const content = trimmed.replace(/^\d+\.\s*/, '')
+            if (currentSection === 'rtbs') {
+              rtbs.push(content)
+            } else if (currentSection === 'launch') {
+              launchPriority.push(content)
+            }
+          } else if (trimmed.startsWith('-') && currentSection === 'tbds') {
+            tbds.push(trimmed.replace(/^-\s*/, ''))
+          } else if (trimmed.startsWith('-') && currentSection === 'risks') {
+            risks.push(trimmed.replace(/^-\s*/, ''))
+          }
+        }
+
+        return {
+          objective: objective || 'Por definir',
+          kpi: kpi || 'Por definir',
+          primaryAudience: primaryAudience || 'Por definir',
+          valueProposition: valueProposition || 'Por definir',
+          mainMessage: mainMessage || 'Por definir',
+          rtbs: rtbs.length > 0 ? rtbs : [],
+          recommendedCTA: recommendedCTA || 'Por definir',
+          launchPriority: launchPriority.length > 0 ? launchPriority : [],
+          alerts: {
+            tbds: tbds.length > 0 ? tbds : [],
+            risks: risks.length > 0 ? risks : []
+          }
+        }
+      }
+
+      const overviewData = parseOverview(overviewText)
 
       const mockCalendar = [
         {
@@ -318,6 +431,7 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
       ]
 
       setOutputs(() => ({
+        overview: overviewData,
         strategy,
         creativeRoutes,
         funnelBlueprint,

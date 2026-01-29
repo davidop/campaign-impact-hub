@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { OutputCard } from '@/components/OutputCard'
+import { CampaignOverview } from '@/components/CampaignOverview'
 import { 
   Eye,
   Target,
@@ -48,46 +49,6 @@ export function CampaignDashboard({
       }
     })
   }
-
-  const generateOverview = () => {
-    const sections: Array<{ title: string; content: string }> = []
-    
-    if (outputs.strategy) {
-      const lines = outputs.strategy.split('\n').filter(l => l.trim())
-      sections.push({
-        title: t('Estrategia', 'Strategy'),
-        content: lines.slice(0, 3).join('\n')
-      })
-    }
-
-    if (outputs.creativeRoutes) {
-      const lines = outputs.creativeRoutes.split('\n').filter(l => l.trim())
-      sections.push({
-        title: t('Rutas Creativas', 'Creative Routes'),
-        content: lines.slice(0, 3).join('\n')
-      })
-    }
-
-    if (outputs.funnelBlueprint) {
-      const lines = outputs.funnelBlueprint.split('\n').filter(l => l.trim())
-      sections.push({
-        title: t('Funnel', 'Funnel'),
-        content: lines.slice(0, 3).join('\n')
-      })
-    }
-
-    if (outputs.paidPack) {
-      const lines = outputs.paidPack.split('\n').filter(l => l.trim())
-      sections.push({
-        title: t('Paid Media', 'Paid Media'),
-        content: lines.slice(0, 3).join('\n')
-      })
-    }
-
-    return sections
-  }
-
-  const overviewSections = generateOverview()
 
   return (
     <div className="w-full">
@@ -146,72 +107,24 @@ export function CampaignDashboard({
         </ScrollArea>
 
         <TabsContent value="overview" className="mt-0">
-          <div className="space-y-6">
-            <Card className="glass-panel p-6 border-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                  <Eye size={24} weight="fill" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">
-                    {t('Resumen Ejecutivo', 'Executive Summary')}
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    {t('Vista general de toda la campaña', 'Campaign overview at a glance')}
-                  </p>
-                </div>
+          {outputs.overview ? (
+            <CampaignOverview 
+              data={outputs.overview}
+              language={language}
+            />
+          ) : (
+            <Card className="glass-panel p-12 border-2">
+              <div className="text-center">
+                <Eye size={48} weight="fill" className="mx-auto mb-4 text-muted-foreground/30" />
+                <p className="text-muted-foreground italic">
+                  {t(
+                    'Genera una campaña para ver el overview ejecutivo',
+                    'Generate a campaign to see the executive overview'
+                  )}
+                </p>
               </div>
-
-              {overviewSections.length === 0 ? (
-                <div className="py-12 text-center">
-                  <p className="text-muted-foreground italic">
-                    {t(
-                      'Genera una campaña para ver el resumen ejecutivo',
-                      'Generate a campaign to see the executive summary'
-                    )}
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {overviewSections.map((section, idx) => (
-                    <Card key={idx} className="p-4 border bg-background/50">
-                      <h3 className="font-bold text-sm mb-2 text-primary">
-                        {section.title}
-                      </h3>
-                      <p className="text-xs leading-relaxed whitespace-pre-wrap text-muted-foreground">
-                        {section.content}
-                      </p>
-                    </Card>
-                  ))}
-                </div>
-              )}
-
-              {outputs.contentCalendar && outputs.contentCalendar.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="font-bold text-sm mb-3">
-                    {t('Próximos contenidos', 'Upcoming content')}
-                  </h3>
-                  <div className="space-y-2">
-                    {outputs.contentCalendar.slice(0, 3).map((item, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Badge variant="outline" className="text-xs">
-                            {item.date}
-                          </Badge>
-                          <span className="text-sm font-medium">{item.contentType}</span>
-                          <Badge className="text-xs">{item.platform}</Badge>
-                        </div>
-                        <span className="text-xs text-muted-foreground">{item.objective}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </Card>
-          </div>
+          )}
         </TabsContent>
 
         <TabsContent value="strategy" className="mt-0">

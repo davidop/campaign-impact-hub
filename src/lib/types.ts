@@ -67,6 +67,20 @@ export interface ContentCalendarItem {
 }
 
 export interface CampaignOutput {
+  overview?: {
+    objective: string
+    kpi: string
+    primaryAudience: string
+    valueProposition: string
+    mainMessage: string
+    rtbs: string[]
+    recommendedCTA: string
+    launchPriority: string[]
+    alerts: {
+      tbds: string[]
+      risks: string[]
+    }
+  }
   strategy: string
   creativeRoutes: string
   funnelBlueprint: string
