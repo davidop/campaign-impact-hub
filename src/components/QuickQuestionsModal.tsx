@@ -1,21 +1,22 @@
-import { useState, useEffect } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
-import { Check, Question, Sparkle } from '@phosphor-icons/react'
-import { cn } from '@/lib/utils'
-import type { QuickQuestion } from '@/lib/briefGapDetector'
+import { useEffect, useMemo, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+
+import { Check, Question, Sparkle } from "@phosphor-icons/react";
+
+import type { QuickQuestion } from "@/lib/briefGapDetector";
+
+type QuickQuestionOption = { label: string; value: string };
 
 interface QuickQuestionsModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onComplete: (answers: Record<string, any>) => void
-  questions: QuickQuestion[]
-  language: 'es' | 'en'
+  isOpen: boolean;
+  onClose: () => void;
+  onComplete: (answers: Record<string, any>) => void;
+  questions: QuickQuestion[];
+  language?: "es" | "en";
 }
 
 export function QuickQuestionsModal({
@@ -23,245 +24,213 @@ export function QuickQuestionsModal({
   onClose,
   onComplete,
   questions,
-  language
+  language = "es",
 }: QuickQuestionsModalProps) {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [answers, setAnswers] = useState<Record<string, any>>({})
-  const [selectedOptions, setSelectedOptions] = useState<string[]>([])
+  const safeQuestions = useMemo(
+    () => (Array.isArray(questions) ? questions : []),
+    [questions]
+  );
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, any>>({});
+
+  const current = safeQuestions[currentIndex];
 
   useEffect(() => {
-    if (isOpen) {
-      setCurrentQuestionIndex(0)
-      setAnswers({})
-      setSelectedOptions([])
+    if (!isOpen) {
+      setCurrentIndex(0);
+      setAnswers({});
     }
-  }, [isOpen])
+  }, [isOpen]);
 
-  const currentQuestion = questions[currentQuestionIndex]
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100
+  const progress = safeQuestions.length
+    ? ((currentIndex + 1) / safeQuestions.length) * 100
+    : 0;
 
-  const handleAnswer = (value: any) => {
-    setAnswers(prev => ({
-      ...prev,
-      [currentQuestion.field]: value
-    }))
-  }
+  const currentKey = String((current as any)?.id ?? currentIndex);
 
-  const handleNext = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1)
-      setSelectedOptions([])
-    } else {
-      onComplete(answers)
-      onClose()
-    }
-  }
-
-  const handleBack = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1)
-      const prevQuestion = questions[currentQuestionIndex - 1]
-      if (prevQuestion.type === 'multiselect' && answers[prevQuestion.field]) {
-        setSelectedOptions(answers[prevQuestion.field].split(', '))
-      }
-    }
-  }
-
-  const handleSkip = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1)
-      setSelectedOptions([])
-    } else {
-      onComplete(answers)
-      onClose()
-    }
-  }
+  const getAnswer = () => answers[currentKey] ?? "";
+  const setAnswer = (value: any) =>
+    setAnswers((prev) => ({ ...prev, [currentKey]: value }));
 
   const toggleOption = (value: string) => {
-    setSelectedOptions(prev => {
-      const newSelection = prev.includes(value)
-        ? prev.filter(v => v !== value)
-        : [...prev, value]
-      handleAnswer(newSelection.join(', '))
-      return newSelection
-    })
-  }
+    const prev = getAnswer();
+    const arr: string[] = Array.isArray(prev) ? prev : [];
+    if (arr.includes(value)) {
+      setAnswer(arr.filter((v) => v !== value));
+    } else {
+      setAnswer([...arr, value]);
+    }
+  };
 
   const canProceed = () => {
-    if (!currentQuestion.required) return true
-    const answer = answers[currentQuestion.field]
-    if (!answer) return false
-    if (typeof answer === 'string' && answer.trim().length === 0) return false
-    return true
-  }
+    if (!current) return false;
+    const type = (current as any)?.type ?? "text";
+    const answer = getAnswer();
+
+    if (type === "multiselect") return Array.isArray(answer) && answer.length > 0;
+    if (type === "select") return typeof answer === "string" && answer.trim().length > 0;
+    if (type === "textarea") return typeof answer === "string" && answer.trim().length > 0;
+
+    return typeof answer === "string" ? answer.trim().length > 0 : Boolean(answer);
+  };
+
+  const handleNext = () => {
+    if (currentIndex < safeQuestions.length - 1) {
+      setCurrentIndex((i) => i + 1);
+    } else {
+      onComplete(answers);
+      onClose();
+    }
+  };
+
+  const handleSkip = () => {
+    if (currentIndex < safeQuestions.length - 1) {
+      setCurrentIndex((i) => i + 1);
+    } else {
+      onComplete(answers);
+      onClose();
+    }
+  };
 
   const renderQuestionInput = () => {
-    const answer = answers[currentQuestion.field] || currentQuestion.defaultValue || ''
+    if (!current) return null;
 
-    switch (currentQuestion.type) {
-      case 'textarea':
-        return (
-          <Textarea
-            value={answer}
-            onChange={(e) => handleAnswer(e.target.value)}
-            placeholder={currentQuestion.placeholder}
-            rows={4}
-            className="w-full text-base"
-          />
-        )
+    const type = (current as any)?.type ?? "text";
+    const placeholder = (current as any)?.placeholder ?? "";
+    const options: QuickQuestionOption[] = (current as any)?.options ?? [];
 
-      case 'select':
-        return (
-          <div className="space-y-2">
-            {currentQuestion.options?.map(option => (
+    if (type === "multiselect") {
+      const selected: string[] = Array.isArray(getAnswer()) ? getAnswer() : [];
+      return (
+        <div className="flex flex-wrap gap-2">
+          {options.map((opt) => {
+            const isSelected = selected.includes(opt.value);
+            return (
               <button
-                key={option.value}
-                onClick={() => handleAnswer(option.value)}
-                className={cn(
-                  'w-full p-4 text-left rounded-lg border-2 transition-all',
-                  'hover:border-primary/50 hover:bg-primary/5',
-                  answer === option.value
-                    ? 'border-primary bg-primary/10 font-medium'
-                    : 'border-border'
-                )}
+                key={opt.value}
+                type="button"
+                onClick={() => toggleOption(opt.value)}
+                className={[
+                  "flex items-center gap-2 rounded-md border px-3 py-2 text-sm transition",
+                  isSelected ? "border-primary bg-primary/10" : "hover:border-primary/60",
+                ].join(" ")}
               >
-                <div className="flex items-center justify-between">
-                  <span>{option.label}</span>
-                  {answer === option.value && (
-                    <Check size={20} weight="bold" className="text-primary" />
-                  )}
-                </div>
+                {isSelected ? <Check size={16} /> : <span className="w-4" />}
+                <span>{opt.label}</span>
               </button>
-            ))}
-          </div>
-        )
-
-      case 'multiselect':
-        return (
-          <div className="space-y-2">
-            {currentQuestion.options?.map(option => (
-              <button
-                key={option.value}
-                onClick={() => toggleOption(option.value)}
-                className={cn(
-                  'w-full p-4 text-left rounded-lg border-2 transition-all',
-                  'hover:border-primary/50 hover:bg-primary/5',
-                  selectedOptions.includes(option.value)
-                    ? 'border-primary bg-primary/10 font-medium'
-                    : 'border-border'
-                )}
-              >
-                <div className="flex items-center justify-between">
-                  <span>{option.label}</span>
-                  {selectedOptions.includes(option.value) && (
-                    <Check size={20} weight="bold" className="text-primary" />
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
-        )
-
-      default:
-        return (
-          <Input
-            value={answer}
-            onChange={(e) => handleAnswer(e.target.value)}
-            placeholder={currentQuestion.placeholder}
-            className="w-full text-base"
-          />
-        )
+            );
+          })}
+        </div>
+      );
     }
-  }
 
-  if (!currentQuestion || questions.length === 0) return null
+    if (type === "select") {
+      const answer = String(getAnswer() ?? "");
+      return (
+        <div className="flex flex-wrap gap-2">
+          {options.map((opt) => {
+            const isSelected = answer === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setAnswer(opt.value)}
+                className={[
+                  "rounded-md border px-3 py-2 text-sm transition",
+                  isSelected ? "border-primary bg-primary/10" : "hover:border-primary/60",
+                ].join(" ")}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+      );
+    }
+
+    if (type === "textarea") {
+      return (
+        <Textarea
+          rows={4}
+          value={String(getAnswer() ?? "")}
+          onChange={(e) => setAnswer(e.target.value)}
+          placeholder={placeholder}
+        />
+      );
+    }
+
+    return (
+      <Input
+        value={String(getAnswer() ?? "")}
+        onChange={(e) => setAnswer(e.target.value)}
+        placeholder={placeholder}
+      />
+    );
+  };
+
+  if (!isOpen) return null;
+
+  const title = language === "es" ? "Preguntas rápidas" : "Quick questions";
+  const subtitle =
+    language === "es"
+      ? "Responde esto y la campaña saldrá mucho más precisa."
+      : "Answer these to generate a much more accurate campaign.";
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl glass-panel border-2">
-        <DialogHeader>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Question size={24} weight="fill" className="text-primary" />
-            </div>
-            <div>
-              <DialogTitle className="text-2xl">
-                {language === 'es' ? 'Preguntas Rápidas' : 'Quick Questions'}
-              </DialogTitle>
-              <DialogDescription>
-                {language === 'es'
-                  ? 'Completa estos detalles para una campaña más precisa'
-                  : 'Complete these details for a more precise campaign'}
-              </DialogDescription>
-            </div>
-          </div>
-        </DialogHeader>
-
-        <div className="space-y-6 mt-4">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <span>
-                {language === 'es' ? 'Pregunta' : 'Question'} {currentQuestionIndex + 1} {language === 'es' ? 'de' : 'of'} {questions.length}
-              </span>
-              <span>{Math.round(progress)}%</span>
-            </div>
-            <Progress value={progress} className="h-2" />
-          </div>
-
-          <div className="space-y-4 py-4">
-            <div className="flex items-start gap-3">
-              <Badge variant="outline" className="mt-1 shrink-0">
-                {currentQuestionIndex + 1}
-              </Badge>
-              <div className="flex-1 space-y-3">
-                <Label className="text-lg font-semibold leading-tight">
-                  {currentQuestion.question}
-                </Label>
-                {renderQuestionInput()}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between gap-3 pt-4 border-t">
-            <Button
-              variant="ghost"
-              onClick={handleBack}
-              disabled={currentQuestionIndex === 0}
-            >
-              {language === 'es' ? 'Anterior' : 'Back'}
-            </Button>
-
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-2xl rounded-xl bg-background shadow-lg border p-5 space-y-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
             <div className="flex items-center gap-2">
-              {!currentQuestion.required && (
-                <Button
-                  variant="ghost"
-                  onClick={handleSkip}
-                  className="text-muted-foreground"
-                >
-                  {language === 'es' ? 'Omitir' : 'Skip'}
-                </Button>
-              )}
-              <Button
-                onClick={handleNext}
-                disabled={!canProceed()}
-                className="min-w-32"
-              >
-                {currentQuestionIndex === questions.length - 1 ? (
-                  <>
-                    <Check size={18} weight="bold" className="mr-2" />
-                    {language === 'es' ? 'Completar' : 'Complete'}
-                  </>
-                ) : (
-                  <>
-                    {language === 'es' ? 'Siguiente' : 'Next'}
-                    <Sparkle size={18} weight="fill" className="ml-2" />
-                  </>
-                )}
-              </Button>
+              <Sparkle size={18} />
+              <h2 className="text-lg font-semibold">{title}</h2>
             </div>
+            <p className="text-sm text-muted-foreground">{subtitle}</p>
           </div>
+
+          <Button variant="ghost" onClick={onClose}>
+            {language === "es" ? "Cerrar" : "Close"}
+          </Button>
         </div>
-      </DialogContent>
-    </Dialog>
-  )
+
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center gap-2">
+            <Question size={18} />
+            <span>
+              {(current as any)?.label ??
+                (language === "es" ? "Pregunta" : "Question")}{" "}
+              {safeQuestions.length ? `${currentIndex + 1}/${safeQuestions.length}` : ""}
+            </span>
+          </div>
+          <Badge variant="secondary">{Math.round(progress)}%</Badge>
+        </div>
+
+        <div className="space-y-2">
+          {(current as any)?.question && (
+            <p className="text-base font-medium">{(current as any).question}</p>
+          )}
+          {renderQuestionInput()}
+        </div>
+
+        <div className="flex items-center justify-between gap-2 pt-2">
+          <Button variant="outline" onClick={handleSkip}>
+            {language === "es" ? "Saltar" : "Skip"}
+          </Button>
+
+          <Button onClick={handleNext} disabled={!canProceed()}>
+            {currentIndex >= safeQuestions.length - 1
+              ? language === "es"
+                ? "Completar"
+                : "Finish"
+              : language === "es"
+              ? "Siguiente"
+              : "Next"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 }
+
+export default QuickQuestionsModal;
