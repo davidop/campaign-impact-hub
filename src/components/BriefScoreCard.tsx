@@ -1,78 +1,66 @@
 import { Card } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { cn } from '@/lib/utils'
+import { CheckCircle, XCircle, Warning, Lightbulb } from '@phosphor-icons/react'
+import type { CampaignBriefData } from '@/lib/types'
 
-import { cn } from '@/lib/utils'
-}
-
-  value: number
+interface BriefScoreCardProps {
   formData: CampaignBriefData
-  recommendation: strin
+  language: 'en' | 'es'
 }
 
 interface ScoreItem {
   label: string
   value: number
-      met: Bool
-        'Define el objetivo específico (ej. aum
-      )
+  met: boolean
+  recommendation: string
+}
+
+export function BriefScoreCard({ formData, language }: BriefScoreCardProps) {
+  const t = (es: string, en: string) => language === 'es' ? es : en
+
+  const scoreItems: ScoreItem[] = [
     {
- 
-
+      label: t('Objetivo + KPI', 'Objective + KPI'),
+      value: 15,
+      met: Boolean(formData.objective && formData.kpi),
       recommendation: t(
-        'Describe the audience segment with job title, company size
-
-      label: t('Dolores + objecione
-     
+        'Define el objetivo específico (ej. aumentar ventas) y un KPI medible (ej. 20% más conversiones).',
+        'Define the specific objective (e.g., increase sales) and a measurable KPI (e.g., 20% more conversions).'
+      )
+    },
+    {
+      label: t('Segmento de audiencia', 'Audience segment'),
+      value: 15,
+      met: Boolean(formData.segments || formData.audience),
+      recommendation: t(
+        'Describe el segmento de audiencia con cargo, tamaño de empresa, industria, nivel de decisión.',
+        'Describe the audience segment with job title, company size, industry, decision level.'
+      )
+    },
+    {
+      label: t('Dolores + objeciones', 'Pains + objections'),
+      value: 15,
       met: Boolean(formData.pains && formData.objections),
-      value: 15,
+      recommendation: t(
+        'Identifica los dolores actuales de tu audiencia y las objeciones comunes que tienen al comprar.',
+        'Identify current pains of your audience and common objections they have when buying.'
       )
+    },
     {
+      label: t('Producto + promesa', 'Product + promise'),
       value: 15,
+      met: Boolean(formData.product && (formData.mainPromise || formData.usp)),
       recommendation: t(
-      recommendation: t(
+        'Describe el producto y la promesa central que ofreces (el valor principal).',
         'Describe the product and the core promise you offer (the main value).'
+      )
     },
-    },
-     
+    {
+      label: t('USP / Ventaja diferencial', 'USP / Unique advantage'),
+      value: 10,
       met: Boolean(formData.usp),
-        'Define 
-      )
-    {
-      value: 10,
-      recommendation: t(
-      recommendation: t(
-        'Add verifiable claims (e.g., "reduces costs 30%"), case studies, testimonials or certifications
-      )
-      
-    {
-      met: Boolean(formData.channels.length > 0 && formData.b
-        'Selecci
-      )
-    {
-      value: 10,
-      recommendation: t(
-      recommendation: t(
-        'Define communication tone, forbidden words and legal requirements (GDPR, terms, 
-    },
-    },
-     
-      met: Boolean(formData.timing || formData.geography),
-        'Especif
-      )
-  ]
-  const totalScore = scoreItems.reduce((sum, item) => sum + (
-  const completedItems =
-  const getScoreStatus = () => {
-      label: t('Listo para generar', 'Ready to generate'),
-      )
-      
-    {
-      label: t('Casi listo', 'Almost ready'),
-      bgColor: '
-      icon: Warning
-    }
-      label: t('Necesita completa
       recommendation: t(
         'Define qué hace única tu oferta. ¿Por qué elegirte vs competidores? Sé específico.',
         'Define what makes your offer unique. Why choose you vs competitors? Be specific.'
@@ -81,8 +69,6 @@ interface ScoreItem {
     {
       label: t('Prueba social / Evidencia', 'Social proof / Evidence'),
       value: 10,
-      field: 'multi',
-      checkFn: (data) => Boolean(data.allowedClaims || data.availableAssets),
       met: Boolean(formData.allowedClaims || formData.availableAssets),
       recommendation: t(
         'Añade claims verificables (ej. "reduce costos 30%"), casos de éxito, testimonios o certificaciones.',
@@ -92,8 +78,6 @@ interface ScoreItem {
     {
       label: t('Canales + presupuesto', 'Channels + budget'),
       value: 10,
-      field: 'multi',
-      checkFn: (data) => Boolean(data.channels.length > 0 && data.budget),
       met: Boolean(formData.channels.length > 0 && formData.budget),
       recommendation: t(
         'Selecciona los canales de marketing y asigna un presupuesto total con duración.',
@@ -103,8 +87,6 @@ interface ScoreItem {
     {
       label: t('Restricciones de marca / legales', 'Brand / legal restrictions'),
       value: 10,
-      field: 'multi',
-      checkFn: (data) => Boolean(data.tone || data.legalRequirements || data.forbiddenWords),
       met: Boolean(formData.tone || formData.legalRequirements || formData.forbiddenWords),
       recommendation: t(
         'Define el tono de comunicación, palabras prohibidas y requisitos legales (GDPR, términos, etc.).',
@@ -114,14 +96,12 @@ interface ScoreItem {
     {
       label: t('Timing / Geografía', 'Timing / Geography'),
       value: 5,
-      field: 'multi',
-      checkFn: (data) => Boolean(data.timing || data.geography),
       met: Boolean(formData.timing || formData.geography),
       recommendation: t(
         'Especifica fechas de inicio/fin y geografía objetivo con idiomas relevantes.',
         'Specify start/end dates and target geography with relevant languages.'
       )
-     
+    }
   ]
 
   const totalScore = scoreItems.reduce((sum, item) => sum + (item.met ? item.value : 0), 0)
@@ -139,9 +119,9 @@ interface ScoreItem {
     }
     if (totalScore >= 50) return {
       label: t('Casi listo', 'Almost ready'),
-
+      color: 'text-accent',
       bgColor: 'bg-accent/10',
-
+      borderColor: 'border-accent',
       icon: Warning,
       variant: 'warning' as const
     }
@@ -149,35 +129,35 @@ interface ScoreItem {
       label: t('Necesita completar datos', 'Needs more data'),
       color: 'text-destructive',
       bgColor: 'bg-destructive/10',
-
+      borderColor: 'border-destructive',
       icon: XCircle,
       variant: 'destructive' as const
     }
+  }
 
-
-
+  const status = getScoreStatus()
   const StatusIcon = status.icon
 
   return (
     <Card className="glass-panel border-2 p-5">
       <div className="space-y-4">
-
+        <div>
           <h3 className="text-sm font-bold uppercase tracking-wider text-primary flex items-center gap-2">
-
+            <StatusIcon size={16} weight="fill" />
             {t('Brief Score', 'Brief Score')}
           </h3>
-
+          <div className="flex items-baseline gap-1 mt-2">
             <span className={cn("text-2xl font-bold", status.color)}>
               {totalScore}
             </span>
             <span className="text-sm text-muted-foreground font-semibold">/100</span>
-
+          </div>
         </div>
 
         <Progress value={totalScore} className="h-3" />
 
         <Alert className={cn("border-2", status.borderColor, status.bgColor)}>
-
+          <StatusIcon size={16} weight="fill" className={status.color} />
           <AlertDescription className="ml-2">
             <span className={cn("font-bold", status.color)}>{status.label}</span>
             {totalScore < 80 && (
@@ -185,7 +165,7 @@ interface ScoreItem {
                 {t(
                   `El resultado será más genérico por falta de datos. Completa ${100 - totalScore} puntos más para una campaña optimizada.`,
                   `The result will be more generic due to missing data. Complete ${100 - totalScore} more points for an optimized campaign.`
-
+                )}
               </span>
             )}
           </AlertDescription>
@@ -193,21 +173,21 @@ interface ScoreItem {
 
         {missingItems.length > 0 && (
           <div className="space-y-3">
-
+            <div className="flex items-center gap-2">
               <XCircle size={16} weight="fill" className="text-destructive" />
               <h4 className="text-xs font-bold uppercase tracking-wider text-destructive">
                 {t('Qué falta', 'What\'s missing')} ({missingItems.length})
-
+              </h4>
             </div>
-
+            <ul className="space-y-2">
               {missingItems.map((item, idx) => (
-
+                <li key={idx} className="flex items-start gap-2 text-xs">
                   <div className={cn(
                     "min-w-[32px] h-5 rounded-md flex items-center justify-center font-bold text-[10px]",
                     "bg-destructive/20 text-destructive"
-
+                  )}>
                     +{item.value}
-
+                  </div>
                   <span className="text-foreground/80 font-medium leading-5">{item.label}</span>
                 </li>
               ))}
@@ -215,21 +195,21 @@ interface ScoreItem {
           </div>
         )}
 
-
+        {completedItems.length > 0 && (
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <CheckCircle size={16} weight="fill" className="text-success" />
               <h4 className="text-xs font-bold uppercase tracking-wider text-success">
                 {t('Completado', 'Completed')} ({completedItems.length})
-
+              </h4>
             </div>
-
+            <ul className="space-y-2">
               {completedItems.map((item, idx) => (
                 <li key={idx} className="flex items-start gap-2 text-xs">
                   <div className={cn(
                     "min-w-[32px] h-5 rounded-md flex items-center justify-center font-bold text-[10px]",
                     "bg-success/20 text-success"
-
+                  )}>
                     {item.value}
                   </div>
                   <span className="text-foreground/70 font-medium leading-5">{item.label}</span>
@@ -239,9 +219,9 @@ interface ScoreItem {
           </div>
         )}
 
-
+        {missingItems.length > 0 && (
           <div className="space-y-3 pt-2 border-t border-border">
-
+            <div className="flex items-center gap-2">
               <Lightbulb size={16} weight="fill" className="text-accent" />
               <h4 className="text-xs font-bold uppercase tracking-wider text-accent">
                 {t('Cómo mejorarlo', 'How to improve')}
@@ -253,21 +233,21 @@ interface ScoreItem {
                   <div className="font-bold text-primary">{item.label}</div>
                   <div className="text-muted-foreground leading-relaxed pl-3 border-l-2 border-accent/30">
                     {item.recommendation}
-
+                  </div>
                 </li>
-
+              ))}
             </ul>
             {missingItems.length > 3 && (
               <p className="text-xs text-muted-foreground italic">
-
+                {t(
                   `+ ${missingItems.length - 3} recomendaciones más...`,
                   `+ ${missingItems.length - 3} more recommendations...`
                 )}
               </p>
             )}
-
+          </div>
         )}
-
+      </div>
     </Card>
-
+  )
 }
