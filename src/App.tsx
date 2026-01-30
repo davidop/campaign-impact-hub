@@ -672,12 +672,152 @@ Presupuesto: ${briefData.budget}
 ${isSpanish ? 'Identifica 5-6 experimentos clave (headlines, CTAs, landing, segmentación). Para cada uno: hipótesis, variaciones, métrica de éxito, y duración.' : 'Identify 5-6 key experiments (headlines, CTAs, landing, segmentation). For each: hypothesis, variations, success metric, and duration.'}`
 
       // @ts-expect-error - spark global is provided by runtime
-      const utmsPrompt = spark.llmPrompt`${isSpanish ? 'Crea una estructura de tracking completa con UTMs:' : 'Create a complete tracking structure with UTMs:'}
+      const measurementUtmsPrompt = spark.llmPrompt`${isSpanish ? 'Crea un plan completo de medición y tracking con UTMs en formato JSON estructurado.' : 'Create a complete measurement and tracking plan with UTMs in structured JSON format.'}
+${brandGuidelines}
 
+Producto: ${briefData.product}
+Objetivos: ${briefData.goals}
+KPI Principal: ${briefData.kpi || 'Por definir'}
 Canales: ${briefData.channels.join(', ')}
-Campaña: ${briefData.product}
+Presupuesto: ${briefData.budget}
+Audiencia: ${briefData.audience}
 
-${isSpanish ? 'Proporciona: Nomenclatura estándar de UTMs, ejemplos de URLs completas para cada canal, y dashboard de KPIs a trackear.' : 'Provide: Standard UTM nomenclature, complete URL examples for each channel, and KPI dashboard to track.'}`
+${isSpanish ? 'Devuelve un objeto JSON con esta estructura EXACTA:' : 'Return a JSON object with this EXACT structure:'}
+
+{
+  "kpisByPhase": [
+    {
+      "phase": "awareness" | "consideration" | "conversion" | "retention",
+      "phaseLabel": "${isSpanish ? '(Nombre de la fase en español/inglés)' : '(Phase name in Spanish/English)'}",
+      "primaryKPI": "${isSpanish ? '(KPI principal de esta fase, ej: Impresiones, CTR, Conversiones, LTV)' : '(Primary KPI for this phase, e.g.: Impressions, CTR, Conversions, LTV)'}",
+      "secondaryKPIs": [
+        "${isSpanish ? '(KPI secundario 1)' : '(Secondary KPI 1)'}",
+        "${isSpanish ? '(KPI secundario 2)' : '(Secondary KPI 2)'}",
+        "${isSpanish ? '(KPI secundario 3)' : '(Secondary KPI 3)'}"
+      ],
+      "benchmarks": "${isSpanish ? '(Benchmarks del sector o targets esperados, ej: CTR 2-5%, CPL €20-40)' : '(Industry benchmarks or expected targets, e.g.: CTR 2-5%, CPL €20-40)'}",
+      "tools": [
+        "${isSpanish ? '(Herramienta 1: Google Analytics, Meta Pixel, etc.)' : '(Tool 1: Google Analytics, Meta Pixel, etc.)'}",
+        "${isSpanish ? '(Herramienta 2)' : '(Tool 2)'}"
+      ]
+    }
+  ],
+  "recommendedEvents": [
+    {
+      "eventName": "${isSpanish ? '(Nombre del evento, ej: view_content, lead, purchase)' : '(Event name, e.g.: view_content, lead, purchase)'}",
+      "eventType": "view_content" | "lead" | "purchase" | "add_to_cart" | "begin_checkout" | "sign_up" | "contact" | "custom",
+      "funnelPhase": "${isSpanish ? '(Fase: Awareness, Consideration, Conversion, Retention)' : '(Phase: Awareness, Consideration, Conversion, Retention)'}",
+      "description": "${isSpanish ? '(Descripción de qué representa este evento y cuándo se dispara)' : '(Description of what this event represents and when it fires)'}",
+      "parameters": [
+        "${isSpanish ? '(Parámetro 1: value, currency, item_id, etc.)' : '(Parameter 1: value, currency, item_id, etc.)'}",
+        "${isSpanish ? '(Parámetro 2)' : '(Parameter 2)'}"
+      ],
+      "priority": "critical" | "important" | "nice-to-have"
+    }
+  ],
+  "namingConvention": {
+    "structure": "${isSpanish ? '(Estructura de nomenclatura, ej: {objetivo}_{canal}_{audiencia}_{fecha})' : '(Naming structure, e.g.: {objective}_{channel}_{audience}_{date})'}",
+    "rules": [
+      "${isSpanish ? '(Regla 1: Usar minúsculas y guiones)' : '(Rule 1: Use lowercase and hyphens)'}",
+      "${isSpanish ? '(Regla 2: Incluir fecha en formato YYYYMMDD)' : '(Rule 2: Include date in YYYYMMDD format)'}",
+      "${isSpanish ? '(Regla 3: Máximo 50 caracteres)' : '(Rule 3: Maximum 50 characters)'}",
+      "${isSpanish ? '(Regla 4)' : '(Rule 4)'}"
+    ],
+    "examples": [
+      {
+        "campaignType": "${isSpanish ? '(Tipo: Lanzamiento, Retargeting, etc.)' : '(Type: Launch, Retargeting, etc.)'}",
+        "exampleName": "${isSpanish ? '(Nombre completo del ejemplo)' : '(Full example name)'}",
+        "explanation": "${isSpanish ? '(Explicación de por qué está estructurado así)' : '(Explanation of why it is structured this way)'}"
+      }
+    ]
+  },
+  "utmTemplate": {
+    "structure": "${isSpanish ? '(Estructura completa: {url_base}?utm_source={source}&utm_medium={medium}&utm_campaign={campaign}&utm_content={content}&utm_term={term})' : '(Complete structure: {base_url}?utm_source={source}&utm_medium={medium}&utm_campaign={campaign}&utm_content={content}&utm_term={term})'}",
+    "parameters": [
+      {
+        "parameter": "source",
+        "description": "${isSpanish ? '(Origen del tráfico: facebook, google, email, linkedin, etc.)' : '(Traffic source: facebook, google, email, linkedin, etc.)'}",
+        "examples": ["facebook", "google", "linkedin", "email", "instagram"],
+        "rules": [
+          "${isSpanish ? '(Regla 1 para source)' : '(Rule 1 for source)'}",
+          "${isSpanish ? '(Regla 2)' : '(Rule 2)'}"
+        ]
+      },
+      {
+        "parameter": "medium",
+        "description": "${isSpanish ? '(Tipo de canal: paid, organic, social, email, referral, etc.)' : '(Channel type: paid, organic, social, email, referral, etc.)'}",
+        "examples": ["paid", "organic", "social", "email", "referral"],
+        "rules": [
+          "${isSpanish ? '(Regla 1 para medium)' : '(Rule 1 for medium)'}",
+          "${isSpanish ? '(Regla 2)' : '(Rule 2)'}"
+        ]
+      },
+      {
+        "parameter": "campaign",
+        "description": "${isSpanish ? '(Nombre de la campaña específica)' : '(Specific campaign name)'}",
+        "examples": ["${isSpanish ? 'lanzamiento-q1-2024' : 'launch-q1-2024'}", "${isSpanish ? 'black-friday-2024' : 'black-friday-2024'}"],
+        "rules": [
+          "${isSpanish ? '(Regla 1 para campaign)' : '(Rule 1 for campaign)'}",
+          "${isSpanish ? '(Regla 2)' : '(Rule 2)'}"
+        ]
+      },
+      {
+        "parameter": "content",
+        "description": "${isSpanish ? '(Variante del anuncio o contenido)' : '(Ad or content variant)'}",
+        "examples": ["video-hero", "carousel-benefits", "image-testimonial"],
+        "rules": [
+          "${isSpanish ? '(Regla 1 para content)' : '(Rule 1 for content)'}",
+          "${isSpanish ? '(Regla 2)' : '(Rule 2)'}"
+        ]
+      },
+      {
+        "parameter": "term",
+        "description": "${isSpanish ? '(Palabra clave o segmento de audiencia)' : '(Keyword or audience segment)'}",
+        "examples": ["ceo-tech", "marketing-director", "brand-managers"],
+        "rules": [
+          "${isSpanish ? '(Regla 1 para term)' : '(Rule 1 for term)'}",
+          "${isSpanish ? '(Regla 2)' : '(Rule 2)'}"
+        ]
+      }
+    ],
+    "exampleUrls": [
+      {
+        "channel": "${isSpanish ? '(Canal: Facebook, Google, Email, etc.)' : '(Channel: Facebook, Google, Email, etc.)'}",
+        "url": "${isSpanish ? '(URL completa con todos los UTMs)' : '(Complete URL with all UTMs)'}",
+        "breakdown": "${isSpanish ? '(Explicación de cada parámetro usado en esta URL)' : '(Explanation of each parameter used in this URL)'}"
+      }
+    ]
+  },
+  "trackingChecklist": [
+    {
+      "category": "${isSpanish ? '(Categoría: Configuración inicial, Eventos, Testing, etc.)' : '(Category: Initial setup, Events, Testing, etc.)'}",
+      "items": [
+        {
+          "task": "${isSpanish ? '(Tarea específica a completar)' : '(Specific task to complete)'}",
+          "critical": true | false,
+          "details": "${isSpanish ? '(Detalles adicionales u observaciones)' : '(Additional details or notes)'}"
+        }
+      ]
+    }
+  ]
+}
+
+${isSpanish ? 'Genera:' : 'Generate:'}
+- ${isSpanish ? '4 fases de KPIs (Awareness, Consideration, Conversion, Retention) con KPI principal, 3-5 secundarios, benchmarks y 2-3 herramientas por fase' : '4 KPI phases (Awareness, Consideration, Conversion, Retention) with primary KPI, 3-5 secondary ones, benchmarks and 2-3 tools per phase'}
+- ${isSpanish ? '8-12 eventos recomendados (view_content, lead, purchase, add_to_cart, begin_checkout, sign_up, contact, etc.) con prioridad y parámetros' : '8-12 recommended events (view_content, lead, purchase, add_to_cart, begin_checkout, sign_up, contact, etc.) with priority and parameters'}
+- ${isSpanish ? 'Convención de nombres con estructura clara, 4-6 reglas y 3-5 ejemplos' : 'Naming convention with clear structure, 4-6 rules and 3-5 examples'}
+- ${isSpanish ? 'Plantilla UTM completa con descripción, ejemplos y reglas para cada parámetro (source, medium, campaign, content, term)' : 'Complete UTM template with description, examples and rules for each parameter (source, medium, campaign, content, term)'}
+- ${isSpanish ? '3-5 URLs de ejemplo completas por canal con desglose' : '3-5 complete example URLs per channel with breakdown'}
+- ${isSpanish ? 'Checklist de tracking en 5-7 categorías (Configuración inicial, Instalación de píxeles, Eventos críticos, Testing pre-launch, Verificación post-launch, Dashboards, Documentación) con 3-6 tareas por categoría, marcando las críticas' : 'Tracking checklist in 5-7 categories (Initial setup, Pixel installation, Critical events, Pre-launch testing, Post-launch verification, Dashboards, Documentation) with 3-6 tasks per category, marking critical ones'}
+
+${isSpanish ? 'IMPORTANTE:' : 'IMPORTANT:'}
+- ${isSpanish ? 'Sé específico para este producto y canales' : 'Be specific for this product and channels'}
+- ${isSpanish ? 'Los eventos deben cubrir todo el funnel' : 'Events must cover the entire funnel'}
+- ${isSpanish ? 'Los benchmarks deben ser realistas para el sector' : 'Benchmarks must be realistic for the sector'}
+- ${isSpanish ? 'La nomenclatura debe ser escalable y consistente' : 'Naming convention must be scalable and consistent'}
+- ${isSpanish ? 'El checklist debe ser accionable y práctico' : 'Checklist must be actionable and practical'}
+
+${isSpanish ? 'Devuelve SOLO el JSON válido con el formato exacto indicado. No añadas texto adicional fuera del JSON.' : 'Return ONLY the valid JSON with the exact format indicated. Do not add additional text outside the JSON.'}`
 
       // @ts-expect-error - spark global is provided by runtime
       const risksPrompt = spark.llmPrompt`${isSpanish ? 'Identifica riesgos y supuestos críticos de esta campaña:' : 'Identify critical risks and assumptions for this campaign:'}
@@ -728,7 +868,7 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         flowNurturingJson,
         flowWinbackJson,
         experimentPlan,
-        measurementUtms,
+        measurementUtmsJson,
         risks,
         executionChecklist,
         variationsJson
@@ -745,7 +885,7 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         spark.llm(flowNurturingPrompt, 'gpt-4o', true),
         spark.llm(flowWinbackPrompt, 'gpt-4o', true),
         spark.llm(experimentPlanPrompt),
-        spark.llm(utmsPrompt),
+        spark.llm(measurementUtmsPrompt, 'gpt-4o', true),
         spark.llm(risksPrompt),
         spark.llm(checklistPrompt),
         spark.llm(variationsPrompt, 'gpt-4o', true)
@@ -869,6 +1009,17 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
           : 'Sequence to reactivate inactive leads or customers'
       )
       if (winbackFlow) flowSequences.push(winbackFlow)
+
+      let parsedMeasurementUtms: any = measurementUtmsJson
+      try {
+        const parsed = JSON.parse(measurementUtmsJson)
+        if (parsed.kpisByPhase && parsed.recommendedEvents && parsed.namingConvention && parsed.utmTemplate && parsed.trackingChecklist) {
+          parsedMeasurementUtms = parsed
+        }
+      } catch (e) {
+        console.error('Failed to parse measurement UTMs JSON, using text fallback', e)
+        parsedMeasurementUtms = measurementUtmsJson
+      }
 
       const parseOverview = (text: string) => {
         const lines = text.split('\n')
@@ -1017,7 +1168,7 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         whatsappFlow,
         flows: flowSequences.length > 0 ? flowSequences : undefined,
         experimentPlan,
-        measurementUtms,
+        measurementUtms: parsedMeasurementUtms,
         risks,
         executionChecklist
       }))

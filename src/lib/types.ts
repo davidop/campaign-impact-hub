@@ -199,6 +199,56 @@ export interface FlowSequence {
   messages: FlowMessage[]
 }
 
+export interface MeasurementUtmsData {
+  kpisByPhase: Array<{
+    phase: 'awareness' | 'consideration' | 'conversion' | 'retention'
+    phaseLabel: string
+    primaryKPI: string
+    secondaryKPIs: string[]
+    benchmarks?: string
+    tools: string[]
+  }>
+  recommendedEvents: Array<{
+    eventName: string
+    eventType: 'view_content' | 'lead' | 'purchase' | 'add_to_cart' | 'begin_checkout' | 'sign_up' | 'contact' | 'custom'
+    funnelPhase: string
+    description: string
+    parameters: string[]
+    priority: 'critical' | 'important' | 'nice-to-have'
+  }>
+  namingConvention: {
+    structure: string
+    rules: string[]
+    examples: Array<{
+      campaignType: string
+      exampleName: string
+      explanation: string
+    }>
+  }
+  utmTemplate: {
+    structure: string
+    parameters: Array<{
+      parameter: 'source' | 'medium' | 'campaign' | 'content' | 'term'
+      description: string
+      examples: string[]
+      rules: string[]
+    }>
+    exampleUrls: Array<{
+      channel: string
+      url: string
+      breakdown: string
+    }>
+  }
+  trackingChecklist: Array<{
+    category: string
+    items: Array<{
+      task: string
+      critical: boolean
+      details?: string
+    }>
+  }>
+}
+
 export interface CampaignOutput {
   overview?: {
     objective: string
@@ -224,7 +274,7 @@ export interface CampaignOutput {
   whatsappFlow: string
   flows?: FlowSequence[]
   experimentPlan: string
-  measurementUtms: string
+  measurementUtms: string | MeasurementUtmsData
   risks: string
   executionChecklist: string
 }

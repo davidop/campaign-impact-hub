@@ -16,7 +16,8 @@ import { BrandConsistencyEvaluator } from '@/components/BrandConsistencyEvaluato
 import { CreativeRoutesDisplay } from '@/components/CreativeRoutesDisplay'
 import FunnelBlueprint from '@/components/FunnelBlueprint'
 import LandingKitDisplay from '@/components/LandingKitDisplay'
-import type { CampaignOutput, CreativeRoute, FunnelPhase, LandingKitData } from '@/lib/types'
+import MeasurementUtmsDisplay from '@/components/MeasurementUtmsDisplay'
+import type { CampaignOutput, CreativeRoute, FunnelPhase, LandingKitData, MeasurementUtmsData } from '@/lib/types'
 
 interface ModularOutputsPanelProps {
   outputs: Partial<CampaignOutput>
@@ -358,15 +359,22 @@ export function ModularOutputsPanel({ outputs, isGenerating, language, onRegener
               language={language}
             />
 
-            <OutputBlock
-              title={language === 'es' ? 'Medición y UTMs' : 'Measurement & UTMs'}
-              icon={<Link size={20} weight="fill" className="text-primary" />}
-              content={outputs.measurementUtms || ''}
-              isLoading={isGenerating}
-              emptyMessage={language === 'es' ? 'Estructura de tracking y UTMs' : 'Tracking structure and UTMs'}
-              onRegenerate={() => onRegenerateBlock?.('measurementUtms')}
-              language={language}
-            />
+            {typeof outputs.measurementUtms === 'object' && outputs.measurementUtms !== null ? (
+              <MeasurementUtmsDisplay 
+                data={outputs.measurementUtms as MeasurementUtmsData}
+                language={language}
+              />
+            ) : (
+              <OutputBlock
+                title={language === 'es' ? 'Medición y UTMs' : 'Measurement & UTMs'}
+                icon={<Link size={20} weight="fill" className="text-primary" />}
+                content={typeof outputs.measurementUtms === 'string' ? outputs.measurementUtms : ''}
+                isLoading={isGenerating}
+                emptyMessage={language === 'es' ? 'Estructura de tracking y UTMs' : 'Tracking structure and UTMs'}
+                onRegenerate={() => onRegenerateBlock?.('measurementUtms')}
+                language={language}
+              />
+            )}
           </div>
         </TabsContent>
 

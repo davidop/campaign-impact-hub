@@ -11,6 +11,7 @@ import FunnelBlueprint from '@/components/FunnelBlueprint'
 import { PaidPack } from '@/components/PaidPack'
 import LandingKitDisplay from '@/components/LandingKitDisplay'
 import FlowsDisplay from '@/components/FlowsDisplay'
+import MeasurementUtmsDisplay from '@/components/MeasurementUtmsDisplay'
 import { 
   Eye,
   Target,
@@ -347,17 +348,24 @@ export function CampaignDashboard({
         </TabsContent>
 
         <TabsContent value="measurement" className="mt-0">
-          <OutputCard
-            title={t('Medición y UTMs', 'Measurement & UTMs')}
-            icon={<ChartLineUp size={20} weight="fill" />}
-            content={outputs.measurementUtms || ''}
-            isLoading={isGenerating}
-            emptyMessage={t('El sistema de medición se generará aquí', 'Measurement system will be generated here')}
-            language={language}
-            onRegenerate={() => onRegenerateBlock?.('measurementUtms')}
-            onSaveVersion={(content) => handleSaveVersion('measurementUtms', content)}
-            blockName="measurementUtms"
-          />
+          {typeof outputs.measurementUtms === 'object' && outputs.measurementUtms !== null ? (
+            <MeasurementUtmsDisplay 
+              data={outputs.measurementUtms}
+              language={language}
+            />
+          ) : (
+            <OutputCard
+              title={t('Medición y UTMs', 'Measurement & UTMs')}
+              icon={<ChartLineUp size={20} weight="fill" />}
+              content={outputs.measurementUtms || ''}
+              isLoading={isGenerating}
+              emptyMessage={t('El sistema de medición se generará aquí', 'Measurement system will be generated here')}
+              language={language}
+              onRegenerate={() => onRegenerateBlock?.('measurementUtms')}
+              onSaveVersion={(content) => handleSaveVersion('measurementUtms', content)}
+              blockName="measurementUtms"
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="risks" className="mt-0">
