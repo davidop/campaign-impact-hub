@@ -43,6 +43,7 @@ export interface CampaignBriefData {
   competitors?: string[]
   timeline?: string
   margin?: string
+  sector?: string
 }
 
 export type HookType = 'curiosidad' | 'beneficio' | 'autoridad' | 'urgencia' | 'objecion'

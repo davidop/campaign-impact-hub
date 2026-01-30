@@ -66,7 +66,8 @@ const DEMO_DATA: CampaignBriefData = {
   mainPromise: 'Gestión híbrida multi-cloud unificada que reduce costos 30% y se implementa en 2 semanas',
   proof: [],
   competitors: [],
-  timeline: ''
+  timeline: '',
+  sector: 'Tecnología - Cloud Computing'
 }
 
 export function BriefWizard({ onGenerate, isGenerating, language }: BriefWizardProps) {
@@ -104,7 +105,8 @@ export function BriefWizard({ onGenerate, isGenerating, language }: BriefWizardP
     mainPromise: '',
     proof: [],
     competitors: [],
-    timeline: ''
+    timeline: '',
+    sector: ''
   })
 
   const steps = language === 'es' 
@@ -143,7 +145,8 @@ export function BriefWizard({ onGenerate, isGenerating, language }: BriefWizardP
         proof: [],
         competitors: [],
         timeline: '',
-        margin: ''
+        margin: '',
+        sector: ''
       }
       return { ...base, [field]: value }
     })
@@ -481,6 +484,25 @@ export function BriefWizard({ onGenerate, isGenerating, language }: BriefWizardP
                 value={formData.product}
                 onChange={(e) => handleChange('product', e.target.value)}
                 placeholder={language === 'es' ? 'ej., Azure ARC - Plataforma de gestión híbrida' : 'e.g., Azure ARC - Hybrid management platform'}
+                className="glass-panel-hover border-2 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="sector" className="text-xs uppercase font-bold tracking-wider text-primary">
+                  {language === 'es' ? 'Sector / Industria' : 'Sector / Industry'}
+                </Label>
+                {renderTooltip(language === 'es' 
+                  ? 'Ejemplo: "Salud", "Financiero", "Tech", "Retail". Ayuda a detectar riesgos legales específicos del sector.'
+                  : 'Example: "Healthcare", "Finance", "Tech", "Retail". Helps detect sector-specific legal risks.'
+                )}
+              </div>
+              <Input
+                id="sector"
+                value={formData.sector || ''}
+                onChange={(e) => handleChange('sector', e.target.value)}
+                placeholder={language === 'es' ? 'ej., Tecnología, Salud, Financiero, Retail...' : 'e.g., Technology, Healthcare, Finance, Retail...'}
                 className="glass-panel-hover border-2 rounded-xl"
               />
             </div>

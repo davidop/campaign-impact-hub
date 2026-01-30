@@ -8,7 +8,8 @@ import { BrandKitEditor } from '@/components/BrandKitEditor'
 import { CampaignDashboard } from '@/components/CampaignDashboard'
 import { VariationLab } from '@/components/VariationLab'
 import { WarRoomChat } from '@/components/WarRoomChat'
-import { FileText, Palette, Sparkle, Lightning } from '@phosphor-icons/react'
+import { ContentSafetyReviewer } from '@/components/ContentSafetyReviewer'
+import { FileText, Palette, Sparkle, Lightning, ShieldCheck } from '@phosphor-icons/react'
 import type { Language } from '@/lib/i18n'
 import type { CampaignBriefData, CampaignOutput, CopyVariation, BrandKit, FlowSequence, ContentCalendarItem } from '@/lib/types'
 
@@ -28,6 +29,7 @@ function App() {
     brandExamplesNo: [],
     preferredCTA: 'contacta'
   })
+  const [currentBrief, setCurrentBrief] = useKV<CampaignBriefData | null>('current-brief', null)
   const [isConnected, setIsConnected] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [outputs, setOutputs] = useKV<Partial<CampaignOutput>>('campaign-outputs-v2', {})
@@ -63,6 +65,7 @@ function App() {
 
   const handleGenerateCampaign = async (briefData: CampaignBriefData) => {
     setIsGenerating(true)
+    setCurrentBrief(() => briefData)
     
     try {
       const lang = language || 'en'
@@ -1436,6 +1439,10 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
                 <Sparkle size={18} weight="fill" className="mr-2" />
                 {language === 'es' ? 'Variation Lab' : 'Variation Lab'}
               </TabsTrigger>
+              <TabsTrigger value="safety" className="text-sm font-bold rounded-lg px-6 py-2 data-[state=active]:neon-glow">
+                <ShieldCheck size={18} weight="fill" className="mr-2" />
+                {language === 'es' ? 'Safety Review' : 'Safety Review'}
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="campaign" className="mt-0">
@@ -1483,6 +1490,70 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
                   isGenerating={isGenerating}
                   language={language || 'es'}
                 />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="safety" className="mt-0">
+              <div className="max-w-7xl mx-auto space-y-6">
+                {outputs && outputs.overview && (
+                  <ContentSafetyReviewer
+                    content={JSON.stringify(outputs.overview, null, 2)}
+                    title={language === 'es' ? 'Revisión: Overview' : 'Review: Overview'}
+                    sector={currentBrief?.sector}
+                    hasProof={!!currentBrief?.proof && currentBrief.proof.length > 0}
+                    brandKit={brandKit}
+                    language={language || 'es'}
+                  />
+                )}
+
+                {outputs && outputs.strategy && (
+                  <ContentSafetyReviewer
+                    content={outputs.strategy}
+                    title={language === 'es' ? 'Revisión: Estrategia' : 'Review: Strategy'}
+                    sector={currentBrief?.sector}
+                    hasProof={!!currentBrief?.proof && currentBrief.proof.length > 0}
+                    brandKit={brandKit}
+                    language={language || 'es'}
+                  />
+                )}
+
+                {outputs && outputs.paidPack && typeof outputs.paidPack === 'object' && (
+                  <ContentSafetyReviewer
+                    content={JSON.stringify(outputs.paidPack, null, 2)}
+                    title={language === 'es' ? 'Revisión: Paid Pack' : 'Review: Paid Pack'}
+                    sector={currentBrief?.sector}
+                    hasProof={!!currentBrief?.proof && currentBrief.proof.length > 0}
+                    brandKit={brandKit}
+                    language={language || 'es'}
+                  />
+                )}
+
+                {copyVariations && copyVariations.length > 0 && (
+                  <ContentSafetyReviewer
+                    content={copyVariations.map(v => `${v.hook}\n${v.promise}\n${v.cta}`).join('\n\n---\n\n')}
+                    title={language === 'es' ? 'Revisión: Variaciones de Copy' : 'Review: Copy Variations'}
+                    sector={currentBrief?.sector}
+                    hasProof={!!currentBrief?.proof && currentBrief.proof.length > 0}
+                    brandKit={brandKit}
+                    language={language || 'es'}
+                  />
+                )}
+
+                {(!outputs || Object.keys(outputs).length === 0) && (
+                  <div className="glass-panel p-12 text-center space-y-4">
+                    <ShieldCheck size={64} weight="duotone" className="mx-auto text-muted-foreground opacity-50" />
+                    <div>
+                      <h3 className="text-lg font-semibold mb-2">
+                        {language === 'es' ? 'No hay contenido para revisar' : 'No content to review'}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {language === 'es' 
+                          ? 'Genera una campaña primero para revisar la seguridad legal del contenido'
+                          : 'Generate a campaign first to review legal safety of content'}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>
