@@ -2,7 +2,9 @@ import React from 'react'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Calendar, TrendingUp, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Calendar, TrendingUp, AlertTriangle, CheckCircle2, Download } from 'lucide-react'
+import { toast } from 'sonner'
 import type { ContentCalendarItem } from '@/lib/types'
 
 interface ContentCalendarDisplayProps {
@@ -26,6 +28,48 @@ const FUNNEL_COLORS = {
 
 export function ContentCalendarDisplay({ items, language = 'es' }: ContentCalendarDisplayProps) {
   const isSpanish = language === 'es'
+
+  const exportToCSV = () => {
+    if (!items || items.length === 0) {
+      toast.error(isSpanish ? 'No hay datos para exportar' : 'No data to export')
+      return
+    }
+
+    const csvHeaders = ['date', 'channel', 'format', 'funnel_stage', 'objective', 'CTA', 'visual_idea', 'copy', 'KPI']
+    
+    const csvRows = items.map(item => {
+      return [
+        item.date || '',
+        item.canal || '',
+        item.formato || '',
+        item.funnelPhase || '',
+        (item.objetivo || '').replace(/"/g, '""'),
+        (item.cta || '').replace(/"/g, '""'),
+        (item.ideaVisual || '').replace(/"/g, '""'),
+        (item.copyBase || '').replace(/"/g, '""'),
+        item.kpiSugerido || ''
+      ].map(field => `"${field}"`).join(',')
+    })
+
+    const csvContent = [
+      csvHeaders.join(','),
+      ...csvRows
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    
+    link.setAttribute('href', url)
+    link.setAttribute('download', `content-calendar-${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+
+    toast.success(isSpanish ? 'CSV exportado correctamente' : 'CSV exported successfully')
+  }
 
   const calculateMixHealth = () => {
     if (!items || items.length === 0) {
@@ -249,9 +293,18 @@ export function ContentCalendarDisplay({ items, language = 'es' }: ContentCalend
           <h3 className="text-lg font-bold">
             {isSpanish ? 'Calendario de Contenido' : 'Content Calendar'}
           </h3>
-          <Badge variant="secondary" className="ml-auto">
+          <Badge variant="secondary" className="ml-2">
             {items.length} {isSpanish ? 'piezas' : 'pieces'}
           </Badge>
+          <Button
+            onClick={exportToCSV}
+            variant="outline"
+            size="sm"
+            className="ml-auto gap-2"
+          >
+            <Download className="w-4 h-4" />
+            {isSpanish ? 'Exportar CSV' : 'Export CSV'}
+          </Button>
         </div>
 
         <div className="space-y-4">
