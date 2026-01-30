@@ -15,6 +15,8 @@ import FlowsDisplay from '@/components/FlowsDisplay'
 import MeasurementUtmsDisplay from '@/components/MeasurementUtmsDisplay'
 import { RisksAssumptionsDisplay } from '@/components/RisksAssumptionsDisplay'
 import ExecutionChecklistDisplay from '@/components/ExecutionChecklistDisplay'
+import { EmptyState } from '@/components/EmptyState'
+import { getCopy } from '@/lib/premiumCopy'
 import { 
   Eye,
   Target,
@@ -27,7 +29,8 @@ import {
   Flask,
   ChartLineUp,
   Warning,
-  CheckSquare
+  CheckSquare,
+  Sparkle
 } from '@phosphor-icons/react'
 import type { CampaignOutput, ContentCalendarItem, CreativeRoute, FunnelPhase, PaidPackData, LandingKitData, FlowSequence, RisksAssumptionsData, ExecutionChecklistData } from '@/lib/types'
 
@@ -46,6 +49,7 @@ export function CampaignDashboard({
 }: CampaignDashboardProps) {
   const [activeTab, setActiveTab] = useState('overview')
   const [versions, setVersions] = useKV<Record<string, string[]>>('output-versions', {})
+  const copy = getCopy(language)
 
   const t = (es: string, en: string) => language === 'es' ? es : en
 
@@ -122,17 +126,12 @@ export function CampaignDashboard({
               language={language}
             />
           ) : (
-            <Card className="glass-panel p-12 border-2">
-              <div className="text-center">
-                <Eye size={48} weight="fill" className="mx-auto mb-4 text-muted-foreground/30" />
-                <p className="text-muted-foreground italic">
-                  {t(
-                    'Genera una campaña para ver el overview ejecutivo',
-                    'Generate a campaign to see the executive overview'
-                  )}
-                </p>
-              </div>
-            </Card>
+            <EmptyState
+              icon={<Sparkle size={56} weight="duotone" className="text-primary" />}
+              title={copy.campaignDashboard.emptyState.title}
+              subtitle={copy.campaignDashboard.emptyState.subtitle}
+              actionLabel={copy.campaignDashboard.emptyState.cta}
+            />
           )}
         </TabsContent>
 

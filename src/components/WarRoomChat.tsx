@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { ChatCircle, Sparkle, Lightning } from '@phosphor-icons/react'
+import { getCopy } from '@/lib/premiumCopy'
 
 interface WarRoomChatProps {
   language: 'es' | 'en'
@@ -11,18 +12,19 @@ interface WarRoomChatProps {
 }
 
 const COMMANDS = [
-  { cmd: '/mejora-hooks', label: { es: 'Mejorar Hooks', en: 'Improve Hooks' } },
-  { cmd: '/más-premium', label: { es: 'Más Premium', en: 'More Premium' } },
-  { cmd: '/b2b', label: { es: 'Enfoque B2B', en: 'B2B Focus' } },
-  { cmd: '/reduce-riesgo', label: { es: 'Reducir Riesgo', en: 'Reduce Risk' } },
-  { cmd: '/regenera-bloque', label: { es: 'Regenerar Bloque', en: 'Regenerate Block' } },
-  { cmd: '/crea-landing', label: { es: 'Crear Landing', en: 'Create Landing' } },
-  { cmd: '/paid-pack', label: { es: 'Pack Paid Media', en: 'Paid Pack' } },
-  { cmd: '/flow-email', label: { es: 'Flow Email', en: 'Email Flow' } }
+  { cmd: '/mejora-hooks', key: 'mejoraHooks' as const },
+  { cmd: '/más-premium', key: 'masPremium' as const },
+  { cmd: '/b2b', key: 'b2b' as const },
+  { cmd: '/reduce-riesgo', key: 'reduceRiesgo' as const },
+  { cmd: '/regenera-bloque', key: 'regeneraBloque' as const },
+  { cmd: '/crea-landing', key: 'creaLanding' as const },
+  { cmd: '/paid-pack', key: 'paidPack' as const },
+  { cmd: '/flow-email', key: 'flowEmail' as const }
 ]
 
 export function WarRoomChat({ language, onCommand }: WarRoomChatProps) {
   const [showCommands, setShowCommands] = useState(false)
+  const copy = getCopy(language)
 
   return (
     <Card className="glass-panel h-full flex flex-col overflow-hidden border-2 marketing-shine">
@@ -30,15 +32,15 @@ export function WarRoomChat({ language, onCommand }: WarRoomChatProps) {
         <div className="flex items-center gap-2 mb-2">
           <ChatCircle size={28} weight="fill" className="text-secondary float-animate" />
           <h2 className="text-lg font-bold uppercase tracking-tight bg-gradient-to-r from-secondary via-primary to-secondary bg-clip-text text-transparent">
-            {language === 'es' ? 'War Room' : 'War Room'}
+            {copy.warRoom.title}
           </h2>
           <Badge variant="outline" className="ml-auto text-xs">
             <Lightning size={12} weight="fill" className="mr-1" />
-            {language === 'es' ? 'IA Premium' : 'Premium AI'}
+            {copy.warRoom.premiumAI}
           </Badge>
         </div>
         <p className="text-xs text-muted-foreground font-medium">
-          {language === 'es' ? 'Comandos rápidos para optimizar tu campaña' : 'Quick commands to optimize your campaign'}
+          {copy.warRoom.subtitle}
         </p>
         
         <Button
@@ -48,9 +50,7 @@ export function WarRoomChat({ language, onCommand }: WarRoomChatProps) {
           onClick={() => setShowCommands(!showCommands)}
         >
           <Sparkle size={14} weight="fill" className="mr-1" />
-          {showCommands 
-            ? (language === 'es' ? 'Ocultar Comandos' : 'Hide Commands')
-            : (language === 'es' ? 'Ver Comandos' : 'Show Commands')}
+          {showCommands ? copy.warRoom.hideCommands : copy.warRoom.showCommands}
         </Button>
       </div>
       
@@ -67,7 +67,7 @@ export function WarRoomChat({ language, onCommand }: WarRoomChatProps) {
                   onClick={() => onCommand?.(item.cmd)}
                 >
                   <span className="text-primary font-bold mr-2">{item.cmd}</span>
-                  <span className="text-muted-foreground">{item.label[language]}</span>
+                  <span className="text-muted-foreground">{copy.warRoom.commands[item.key]}</span>
                 </Button>
               ))}
             </div>
