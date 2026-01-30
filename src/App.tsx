@@ -1030,12 +1030,17 @@ Audiencia: ${briefData.audience}
 ${isSpanish ? 'Crea 3 variaciones para cada ángulo: beneficio, urgencia, autoridad, emoción, objeciones.' : 'Create 3 variations for each angle: benefit, urgency, authority, emotion, objections.'}
 
 ${isSpanish ? 'Para CADA variación incluye:' : 'For EACH variation include:'}
+- channel: "Ads"
+- objective: "leads"
 - angle: ${isSpanish ? '"beneficio" | "urgencia" | "autoridad" | "emocion" | "objeciones"' : '"beneficio" | "urgencia" | "autoridad" | "emocion" | "objeciones"'}
+- hookType: ${isSpanish ? '"curiosidad" | "beneficio" | "autoridad" | "urgencia" | "objecion"' : '"curiosidad" | "beneficio" | "autoridad" | "urgencia" | "objecion"'}
 - hook: ${isSpanish ? '(titular impactante, max 12 palabras)' : '(impactful headline, max 12 words)'}
 - promise: ${isSpanish ? '(qué obtiene el cliente, 1-2 oraciones)' : '(what the customer gets, 1-2 sentences)'}
-- proof: ${isSpanish ? '(evidencia o dato que respalda, 1 oración)' : '(evidence or data that supports, 1 sentence)'}
+- proof: ${isSpanish ? '(evidencia o dato que respalda, o "TBD" si no hay)' : '(evidence or data that supports, or "TBD" if none)'}
 - cta: ${isSpanish ? '(llamado a la acción, max 5 palabras)' : '(call to action, max 5 words)'}
 - risk: ${isSpanish ? '"bajo" | "medio" | "alto" (nivel de riesgo del claim)' : '"bajo" | "medio" | "alto" (claim risk level)'}
+- riskReason: ${isSpanish ? '(breve explicación del nivel de riesgo)' : '(brief explanation of risk level)'}
+- tone: "${brandKit?.tone || 'profesional'}"
 
 ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que contenga el array de 15 objetos.' : 'Return a JSON object with a "variations" property containing the array of 15 objects.'}`
 
@@ -1120,12 +1125,17 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
         const parsed = JSON.parse(variationsJson)
         parsedVariations = (parsed.variations || []).map((v: any, idx: number) => ({
           id: `var-${idx}`,
+          channel: v.channel || 'Ads',
+          objective: v.objective || 'leads',
           angle: v.angle || 'beneficio',
+          hookType: v.hookType || 'beneficio',
           hook: v.hook || '',
           promise: v.promise || '',
-          proof: v.proof || '',
+          proof: v.proof || 'TBD',
           cta: v.cta || '',
-          risk: v.risk || 'medio'
+          risk: v.risk || 'medio',
+          riskReason: v.riskReason || 'Sin información suficiente',
+          tone: v.tone || brandKit?.tone || 'profesional'
         }))
       } catch (e) {
         console.error('Failed to parse variations', e)

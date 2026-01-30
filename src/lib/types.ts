@@ -45,14 +45,27 @@ export interface CampaignBriefData {
   margin?: string
 }
 
+export type HookType = 'curiosidad' | 'beneficio' | 'autoridad' | 'urgencia' | 'objecion'
+
+export type CopyAngle = 'beneficio' | 'urgencia' | 'autoridad' | 'emocion' | 'objeciones'
+
+export type VariationChannel = 'LinkedIn' | 'Instagram' | 'Reels' | 'Ads' | 'Email' | 'Landing'
+
+export type VariationObjective = 'leads' | 'ventas'
+
 export interface CopyVariation {
   id: string
-  angle: 'beneficio' | 'urgencia' | 'autoridad' | 'emocion' | 'objeciones'
+  channel: VariationChannel
+  objective: VariationObjective
+  angle: CopyAngle
+  hookType: HookType
   hook: string
   promise: string
   proof: string
   cta: string
   risk: 'bajo' | 'medio' | 'alto'
+  riskReason: string
+  tone?: 'cercano' | 'profesional' | 'premium' | 'canalla' | 'tech'
 }
 
 export interface ContentCalendarItem {
