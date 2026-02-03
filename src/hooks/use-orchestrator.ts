@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { orchestratorClient, type ThreadMessage, type AgentThread, type ThreadRun } from '@/lib/orchestrator'
+import { orchestrator, type ThreadMessage, type AgentThread, type ThreadRun } from '@/lib/orchestrator'
 
 export interface UseOrchestratorOptions {
   agentId?: string
@@ -20,7 +20,7 @@ export function useOrchestrator(options: UseOrchestratorOptions = {}) {
   const [error, setError] = useState<Error | null>(null)
 
   const createThread = useCallback((metadata?: Record<string, unknown>) => {
-    const newThread = orchestratorClient.createThread(metadata)
+    const newThread = orchestrator.createThread(metadata)
     setThread(newThread)
     setMessages([])
     setError(null)
@@ -39,7 +39,7 @@ export function useOrchestrator(options: UseOrchestratorOptions = {}) {
     setError(null)
 
     try {
-      const userMessage = orchestratorClient.createMessage(
+      const userMessage = orchestrator.createMessage(
         thread.id,
         'user',
         content
@@ -47,14 +47,14 @@ export function useOrchestrator(options: UseOrchestratorOptions = {}) {
 
       setMessages(prev => [...prev, userMessage])
 
-      const run = await orchestratorClient.createRun(thread.id, agentId)
+      const run = orchestrator.createRun(thread.id, agentId)
 
-      const completedRun = await orchestratorClient.waitForCompletion(
+      const completedRun = await orchestrator.waitForRun(
         thread.id,
         run.id
       )
 
-      const updatedMessages = orchestratorClient.getMessages(thread.id)
+      const updatedMessages = orchestrator.listMessages(thread.id)
       setMessages(updatedMessages)
 
       const assistantMessage = updatedMessages[updatedMessages.length - 1]
@@ -75,10 +75,10 @@ export function useOrchestrator(options: UseOrchestratorOptions = {}) {
   }, [thread, agentId, onMessageReceived, onError])
 
   const loadThread = useCallback((threadId: string) => {
-    const existingThread = orchestratorClient.getThread(threadId)
+    const existingThread = orchestrator.getThread(threadId)
     if (existingThread) {
       setThread(existingThread)
-      const threadMessages = orchestratorClient.getMessages(threadId)
+      const threadMessages = orchestrator.listMessages(threadId)
       setMessages(threadMessages)
       return existingThread
     }
@@ -87,7 +87,7 @@ export function useOrchestrator(options: UseOrchestratorOptions = {}) {
 
   const clearThread = useCallback(() => {
     if (thread) {
-      orchestratorClient.deleteThread(thread.id)
+      orchestrator.deleteThread(thread.id)
     }
     setThread(null)
     setMessages([])
