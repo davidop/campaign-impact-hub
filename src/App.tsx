@@ -9,7 +9,8 @@ import { CampaignDashboard } from '@/components/CampaignDashboard'
 import { VariationLab } from '@/components/VariationLab'
 import { WarRoomChat } from '@/components/WarRoomChat'
 import { ContentSafetyReviewer } from '@/components/ContentSafetyReviewer'
-import { FileText, Palette, Sparkle, Lightning, ShieldCheck } from '@phosphor-icons/react'
+import { OrchestratorDemo } from '@/components/OrchestratorDemo'
+import { FileText, Palette, Sparkle, Lightning, ShieldCheck, Robot } from '@phosphor-icons/react'
 import type { Language } from '@/lib/i18n'
 import type { CampaignBriefData, CampaignOutput, CopyVariation, BrandKit, FlowSequence, ContentCalendarItem } from '@/lib/types'
 
@@ -1431,6 +1432,10 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
                 <Lightning size={18} weight="fill" className="mr-2" />
                 {language === 'es' ? 'Campaña' : 'Campaign'}
               </TabsTrigger>
+              <TabsTrigger value="orchestrator" className="text-sm font-bold rounded-lg px-6 py-2 data-[state=active]:neon-glow">
+                <Robot size={18} weight="fill" className="mr-2" />
+                {language === 'es' ? 'Orquestador' : 'Orchestrator'}
+              </TabsTrigger>
               <TabsTrigger value="brandkit" className="text-sm font-bold rounded-lg px-6 py-2 data-[state=active]:neon-glow">
                 <Palette size={18} weight="fill" className="mr-2" />
                 {language === 'es' ? 'Brand Kit' : 'Brand Kit'}
@@ -1475,6 +1480,10 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
                   />
                 </div>
               </div>
+            </TabsContent>
+
+            <TabsContent value="orchestrator" className="mt-0">
+              <OrchestratorDemo />
             </TabsContent>
 
             <TabsContent value="brandkit" className="mt-0">
