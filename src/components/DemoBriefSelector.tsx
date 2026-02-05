@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Sparkle, Rocket, ShoppingCart, GraduationCap, CheckCircle } from '@phosphor-icons/react'
 import { demoBriefs, type DemoBrief } from '@/lib/demoBriefs'
 import type { CampaignBriefData, BrandKit } from '@/lib/types'
+import { useBriefStore, type SelectedBrief } from '@/lib/briefStore'
 import { toast } from 'sonner'
 
 interface DemoBriefSelectorProps {
@@ -28,19 +29,42 @@ export default function DemoBriefSelector({ onBriefSelected, language }: DemoBri
     preferredCTA: 'contacta'
   })
 
+  const { selectedBriefId, setSelectedBrief } = useBriefStore()
+
   const handleLoadDemo = (demo: DemoBrief) => {
     setCurrentBrief(() => demo.briefData)
     setBrandKit(() => demo.brandKit)
     onBriefSelected(demo.briefData, demo.brandKit)
+
+    const briefText = `Producto/Servicio: ${demo.briefData.product}
+Audiencia: ${demo.briefData.audience}
+Objetivos: ${demo.briefData.goals}
+Presupuesto: ${demo.briefData.budget}
+Canales: ${demo.briefData.channels.join(', ')}
+${demo.briefData.mainPromise ? `Promesa Principal: ${demo.briefData.mainPromise}` : ''}
+${demo.briefData.price ? `Precio: ${demo.briefData.price}` : ''}`
+
+    const selectedBrief: SelectedBrief = {
+      id: demo.id,
+      name: demo.name,
+      product: demo.briefData.product,
+      target: demo.briefData.audience,
+      channels: demo.briefData.channels,
+      brandTone: demo.brandKit.tone,
+      budget: demo.briefData.budget,
+      briefText
+    }
+
+    setSelectedBrief(selectedBrief)
     
     toast.success(
       language === 'es' 
-        ? `✨ Brief "${demo.name}" cargado con éxito`
-        : `✨ Brief "${demo.name}" loaded successfully`,
+        ? `✨ Brief "${demo.name}" seleccionado`
+        : `✨ Brief "${demo.name}" selected`,
       {
         description: language === 'es'
-          ? 'Brief y Brand Kit listos. Puedes editarlos antes de generar.'
-          : 'Brief and Brand Kit ready. You can edit before generating.'
+          ? 'Brief listo para usar en Campaña. Puedes editarlo antes de generar.'
+          : 'Brief ready to use in Campaign. You can edit it before generating.'
       }
     )
   }
@@ -87,70 +111,87 @@ export default function DemoBriefSelector({ onBriefSelected, language }: DemoBri
       </p>
 
       <div className="space-y-3">
-        {demoBriefs.map((demo) => (
-          <Card 
-            key={demo.id} 
-            className="p-4 hover:border-primary/50 transition-all cursor-pointer group glass-panel-hover"
-            onClick={() => handleLoadDemo(demo)}
-          >
-            <div className="flex items-start gap-3">
-              <div className={`p-2 rounded-lg ${getCategoryColor(demo.category)}`}>
-                {getCategoryIcon(demo.category)}
-              </div>
-              
-              <div className="flex-1 space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <h4 className="font-semibold text-sm group-hover:text-primary transition-colors">
-                      {demo.name}
-                    </h4>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {demo.description}
-                    </p>
-                  </div>
-                  <Badge variant="outline" className="text-xs shrink-0">
-                    {demo.category === 'saas-b2b' && (language === 'es' ? 'SaaS B2B' : 'SaaS B2B')}
-                    {demo.category === 'ecommerce' && (language === 'es' ? 'Ecommerce' : 'Ecommerce')}
-                    {demo.category === 'evento-curso' && (language === 'es' ? 'Evento/Curso' : 'Event/Course')}
-                  </Badge>
+        {demoBriefs.map((demo) => {
+          const isSelected = selectedBriefId === demo.id
+          
+          return (
+            <Card 
+              key={demo.id} 
+              className={`p-4 hover:border-primary/50 transition-all cursor-pointer group glass-panel-hover ${
+                isSelected ? 'border-primary ring-2 ring-primary/20' : ''
+              }`}
+              onClick={() => handleLoadDemo(demo)}
+            >
+              <div className="flex items-start gap-3">
+                <div className={`p-2 rounded-lg ${getCategoryColor(demo.category)}`}>
+                  {getCategoryIcon(demo.category)}
                 </div>
+                
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-sm group-hover:text-primary transition-colors">
+                          {demo.name}
+                        </h4>
+                        {isSelected && (
+                          <Badge className="text-xs bg-primary text-primary-foreground">
+                            {language === 'es' ? 'Seleccionado' : 'Selected'}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {demo.description}
+                      </p>
+                    </div>
+                    <Badge variant="outline" className="text-xs shrink-0">
+                      {demo.category === 'saas-b2b' && (language === 'es' ? 'SaaS B2B' : 'SaaS B2B')}
+                      {demo.category === 'ecommerce' && (language === 'es' ? 'Ecommerce' : 'Ecommerce')}
+                      {demo.category === 'evento-curso' && (language === 'es' ? 'Evento/Curso' : 'Event/Course')}
+                    </Badge>
+                  </div>
 
-                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <CheckCircle size={14} weight="fill" className="text-success" />
-                    <span>
-                      {language === 'es' ? 'Brief completo' : 'Complete brief'}
-                    </span>
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <CheckCircle size={14} weight="fill" className="text-success" />
+                      <span>
+                        {language === 'es' ? 'Brief completo' : 'Complete brief'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckCircle size={14} weight="fill" className="text-success" />
+                      <span>
+                        {language === 'es' ? 'Brand Kit' : 'Brand Kit'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckCircle size={14} weight="fill" className="text-success" />
+                      <span>
+                        {demo.briefData.proof?.length || 0} {language === 'es' ? 'pruebas' : 'proofs'}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <CheckCircle size={14} weight="fill" className="text-success" />
-                    <span>
-                      {language === 'es' ? 'Brand Kit' : 'Brand Kit'}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <CheckCircle size={14} weight="fill" className="text-success" />
-                    <span>
-                      {demo.briefData.proof?.length || 0} {language === 'es' ? 'pruebas' : 'proofs'}
-                    </span>
-                  </div>
+
+                  <Button 
+                    size="sm" 
+                    className="w-full mt-2"
+                    variant={isSelected ? 'outline' : 'default'}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleLoadDemo(demo)
+                    }}
+                  >
+                    <Sparkle size={16} weight="fill" className="mr-2" />
+                    {isSelected 
+                      ? (language === 'es' ? 'Recargado' : 'Reloaded')
+                      : (language === 'es' ? 'Cargar brief' : 'Load brief')
+                    }
+                  </Button>
                 </div>
-
-                <Button 
-                  size="sm" 
-                  className="w-full mt-2"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleLoadDemo(demo)
-                  }}
-                >
-                  <Sparkle size={16} weight="fill" className="mr-2" />
-                  {language === 'es' ? 'Cargar brief' : 'Load brief'}
-                </Button>
               </div>
-            </div>
-          </Card>
-        ))}
+            </Card>
+          )
+        })}
       </div>
 
       <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg border border-border/50">

@@ -1,487 +1,366 @@
-# Resumen de Implementación: Enfoque Estratégico
+# Resumen de Implementación: Estado Compartido de Briefs y Proxy Foundry
 
 ## ✅ Implementaciones Completadas
 
-Este Marketing Command Center ha sido diseñado desde la perspectiva de una **estratega senior de marketing digital orientada a performance y brand**. Todas las funcionalidades están operativas y siguen las reglas estratégicas definidas.
+### A) Estado Global de Briefs
 
----
+**Archivo**: `src/lib/briefStore.ts`
 
-## 📋 Documentación Estratégica
+Se ha creado un store global con las siguientes funcionalidades:
 
-### Nuevos Archivos Creados
-
-1. **`STRATEGIC_APPROACH.md`** ✨ NUEVO
-   - Filosofía completa del sistema
-   - Reglas fundamentales (no inventar datos, cero generalidades, Brand Kit como guardia)
-   - Guía de aplicación para cada output
-   - Ejemplos completos (Campaña Azure ARC)
-   - 13.5 KB de documentación práctica
-
-2. **`PRD.md`** 🔄 ACTUALIZADO
-   - Actualizado con nueva filosofía estratégica
-   - Énfasis en performance y brand
-   - Reglas claras de no inventar datos
-
-3. **`README.md`** 🔄 ACTUALIZADO
-   - Nuevo header con filosofía estratégica
-   - 5 reglas fundamentales destacadas
-   - Descripción completa de 12 tabs del dashboard
-   - Ejemplo completo de campaña Azure ARC
-   - Descripción de Variation Lab con scoring
-   - Comandos del War Room Chat
-
----
-
-## 🎯 Funcionalidades Verificadas
-
-### 1. Brief Wizard con Scoring Inteligente ✅
-**Archivo**: `/src/components/BriefWizard.tsx`
-
-- ✅ Formulario multi-paso (5 pasos)
-- ✅ Scoring en tiempo real (0-100)
-- ✅ 8 criterios ponderados:
-  - Objetivo claro (15 pts)
-  - Audiencia concreta (20 pts) → Verificado en línea 848
-  - Oferta + precio (15 pts) → Verificado en línea 845
-  - USP / diferenciador (15 pts)
-  - Prueba social / evidencia (10 pts) → Verificado en línea 860
-  - Canales + presupuesto (10 pts) → Verificado en línea 854-857
-  - Restricciones de marca (10 pts) → Verificado en línea 866
-  - Timing / geografía (5 pts) → Verificado en línea 869-873
-- ✅ Recomendaciones contextuales
-- ✅ 3 estados: Listo (80+), Casi listo (50-79), Necesita datos (<50)
-
-### 2. Gap Detection Inteligente ✅
-**Archivo**: `/src/lib/briefGapDetector.ts`
-
-- ✅ 8 tipos de gaps detectados:
-  1. Precio faltante
-  2. USP débil/ausente (con 4 hipótesis)
-  3. Sin prueba social (multiselect de 5 tipos)
-  4. Audiencia vaga (< 8 palabras)
-  5. Paid sin presupuesto
-  6. Paid sin KPI
-  7. Sector regulado - claims
-  8. Sector regulado - legal
-- ✅ Quick Questions Modal funcional
-- ✅ Auto-integración de respuestas al brief
-
-### 3. Brand Kit Persistente ✅
-**Archivos**: `/src/components/BrandKitEditor.tsx`, `/src/lib/types.ts`
-
-- ✅ 11 parámetros configurables:
-  - Tone (5 opciones)
-  - Formality (slider 1-5)
-  - Use Emojis (toggle)
-  - Emoji Style (condicional)
-  - Forbidden Words (lista)
-  - Preferred Words (lista)
-  - Allowed Claims (lista)
-  - Not Allowed Claims (lista)
-  - Brand Examples YES (2-3)
-  - Brand Examples NO (2-3)
-  - Preferred CTA (5 opciones)
-- ✅ Persistencia con useKV
-- ✅ Integración automática en todos los prompts LLM
-
-### 4. Brand Consistency Evaluator ✅
-**Archivo**: `/src/lib/brandConsistencyChecker.ts`
-
-- ✅ Análisis AI vs Brand Kit
-- ✅ Score 0-100 con penalizaciones
-- ✅ Detección de:
-  - Palabras prohibidas
-  - Claims no permitidos
-  - Tono incoherente
-  - Exceso de hype
-  - Promesas sin prueba
-- ✅ 5 cambios sugeridos priorizados
-- ✅ Risk signals ordenados por severidad
-
-### 5. Dashboard Modular con 12 Tabs ✅
-**Archivo**: `/src/components/CampaignDashboard.tsx`
-
-- ✅ Overview (resumen ejecutivo)
-- ✅ Strategy (estrategia integral)
-- ✅ Creative Routes (3 rutas)
-- ✅ Funnel Blueprint (4 fases)
-- ✅ Paid Pack (campañas completas)
-- ✅ Landing Kit (wireframes + copy)
-- ✅ Content Calendar (15 piezas)
-- ✅ Flows (Email/WhatsApp: 3 secuencias)
-- ✅ Experiments (plan de tests)
-- ✅ Measurement & UTMs (tracking completo)
-- ✅ Risks & Assumptions (análisis estratégico)
-- ✅ Execution Checklist (30-50 tareas)
-
-### 6. Output Card Actions ✅
-**Archivo**: `/src/components/OutputCard.tsx`
-
-- ✅ Copiar (clipboard)
-- ✅ Editar (inline editor)
-- ✅ Regenerar (solo ese bloque)
-- ✅ Guardar Versión (con timestamp)
-
-### 7. Variation Lab ✅
-**Archivos**: `/src/components/VariationLab.tsx`, `/src/lib/copyScoring.ts`
-
-- ✅ 15 variaciones (3 por ángulo)
-- ✅ 5 ángulos: beneficio, urgencia, autoridad, emoción, objeciones
-- ✅ Etiquetas: hook type, promesa, prueba, CTA, riesgo
-- ✅ Copy Scoring (0-100):
-  - Claridad (25)
-  - Especificidad (25)
-  - Diferenciación (20)
-  - Audiencia fit (20)
-  - Brand voice fit (10)
-- ✅ Filtros por canal, objetivo, tono, score
-- ✅ Sistema de favoritos
-
-### 8. Content Calendar con Mix Saludable ✅
-**Archivo**: `/src/components/ContentCalendarDisplay.tsx`
-
-- ✅ 15 piezas con:
-  - Fecha
-  - Canal
-  - Formato
-  - Fase del funnel
-  - Objetivo específico
-  - CTA
-  - Idea visual
-  - Copy base
-  - KPI sugerido
-  - Categoría
-- ✅ Mix saludable:
-  - Educación: 40-50%
-  - Prueba social: 15-20%
-  - Venta: 20-30%
-  - Comunidad: 10-15%
-- ✅ Warning si desequilibrado
-- ✅ Export a CSV
-
-### 9. Flows (Email/WhatsApp) ✅
-**Archivo**: `/src/components/FlowsDisplay.tsx`
-
-- ✅ 3 secuencias:
-  1. Bienvenida / Lead Magnet (3 mensajes)
-  2. Nurturing (4 mensajes)
-  3. Winback / Reactivación (3 mensajes)
-- ✅ Cada mensaje con:
-  - ID único
-  - Canal
-  - Subject/First Line
-  - Cuerpo
-  - CTA
-  - Objetivo
-  - Timing
-
-### 10. War Room Chat ✅
-**Archivo**: `/src/components/WarRoomChat.tsx`
-
-- ✅ Chat funcional
-- ✅ Comandos estratégicos implementados:
-  - `/mejora-hooks`
-  - `/más-premium`
-  - `/b2b`
-  - `/reduce-riesgo`
-  - `/regenera-bloque [nombre]`
-  - `/crea-landing`
-  - `/paid-pack`
-  - `/flow-email`
-
-### 11. Versionado de Contenido ✅
-- ✅ Almacenamiento con timestamp
-- ✅ Recuperación de versiones
-- ✅ Sin límite de versiones
-
----
-
-## 🔍 Verificación de Reglas Estratégicas en Código
-
-### Regla 1: No Inventar Datos ✅
-**Archivo**: `/src/App.tsx` (líneas 250-350)
-
+#### Interface `SelectedBrief`
 ```typescript
-// Ejemplo en Paid Pack Prompt (línea 263):
-"IMPORTANTE: NO inventes claims sin prueba. Si no hay evidencia, 
-marca como 'Por validar' o usa lenguaje conservador."
-
-// Ejemplo en Risks Prompt (línea 832):
-"${briefData.price ? `Precio: ${briefData.price}` : ''}"
-// Si falta precio, simplemente no se incluye, no se inventa
-```
-
-### Regla 2: Cero Generalidades ✅
-**Archivo**: `/src/App.tsx` (líneas 900-1020)
-
-```typescript
-// Ejemplo en Execution Checklist Prompt (línea 909):
-"Cada tarea debe tener:
-- Descripción accionable
-- Responsable específico
-- Esfuerzo (S/M/L)
-- Estimación de horas
-- Deliverable concreto"
-```
-
-### Regla 3: Brand Kit como Guardia ✅
-**Archivo**: `/src/App.tsx` (líneas 68-86)
-
-```typescript
-const brandGuidelines = `
-BRAND GUIDELINES (APLICA A TODO EL COPY GENERADO):
-- Tono: ${kit.tone}
-- Nivel de Formalidad: ${kit.formality}/5
-- Emojis: ${kit.useEmojis ? `Sí, usar estilo ${kit.emojiStyle}` : 'No usar emojis'}
-${kit.forbiddenWords.length > 0 ? `- Palabras PROHIBIDAS (nunca usar): ${kit.forbiddenWords.join(', ')}` : ''}
-...
-IMPORTANTE: Todo el copy debe seguir estas directrices de marca.`
-```
-
-Este bloque se inyecta en **TODOS** los prompts LLM (17 prompts en total).
-
-### Regla 4: Estructura Modular Clara ✅
-**Archivo**: `/src/components/CampaignDashboard.tsx` (líneas 64-130)
-
-```typescript
-// 12 tabs con iconos, títulos claros y navegación sencilla
-<TabsList className="glass-panel mb-6 border-2 rounded-xl p-1">
-  <TabsTrigger value="overview">
-    <Eye size={16} weight="fill" />
-    {t('Overview', 'Overview')}
-  </TabsTrigger>
-  ...
-</TabsList>
-```
-
-### Regla 5: Diferenciación Primero ✅
-**Archivo**: `/src/lib/briefGapDetector.ts` (líneas 50-78)
-
-```typescript
-// Si USP débil o ausente, se proponen 4 hipótesis
-if (!brief.usp || brief.usp.trim().length < 10) {
-  questions.push({
-    id: 'missing-usp',
-    field: 'usp',
-    question: '¿Cuál es la propuesta de valor única (USP)? Elige o edita:',
-    type: 'select',
-    options: [
-      { value: 'Más rápido que alternativas del mercado' },
-      { value: 'Mayor ROI demostrable en casos de éxito' },
-      { value: 'Única solución que integra X + Y en un solo lugar' },
-      { value: 'Implementación más simple sin necesidad de equipo técnico' }
-    ],
-    required: true
-  })
+interface SelectedBrief {
+  id: string           // Identificador único del brief
+  name: string         // Nombre descriptivo
+  product: string      // Producto/servicio
+  target: string       // Audiencia objetivo
+  channels: string[]   // Canales de marketing
+  brandTone: string    // Tono de marca
+  budget: string       // Presupuesto
+  briefText: string    // Texto completo del brief formateado
 }
 ```
 
----
-
-## 🎨 Ejemplos de Outputs Estratégicos
-
-### Overview (App.tsx, líneas 89-125)
-```
-OBJETIVO: [objetivo claro y específico]
-KPI: [métrica principal a trackear]
-AUDIENCIA PRIMARIA: [descripción del segmento prioritario en 1 línea]
-PROPUESTA DE VALOR: [1 frase única que explica qué obtendrá el cliente]
-MENSAJE PRINCIPAL: [1 frase que comunica el core del mensaje de campaña]
-
-RTBs:
-1. [Razón para creer #1]
-2. [Razón para creer #2]
-3. [Razón para creer #3]
-
-CTA RECOMENDADO: [llamada a la acción clara]
-
-QUÉ LANZAR PRIMERO:
-1. [Acción prioritaria #1]
-2. [Acción prioritaria #2]
-3. [Acción prioritaria #3]
-
-ALERTAS:
-TBDs: [lista de cosas por definir]
-RIESGOS: [riesgos identificados]
+#### Hook `useBriefStore()`
+```typescript
+const {
+  selectedBriefId,     // ID del brief actual o null
+  selectedBrief,       // Objeto brief completo o null
+  setSelectedBrief,    // Función para seleccionar brief
+  clearSelectedBrief   // Función para limpiar selección
+} = useBriefStore()
 ```
 
-### Paid Pack (App.tsx, líneas 252-355)
+**Persistencia**: Usa `spark.kv` para mantener el estado entre sesiones.
+
+### B) Integración en DemoBriefSelector
+
+**Archivo actualizado**: `src/components/DemoBriefSelector.tsx`
+
+#### Cambios implementados:
+
+1. **Import del briefStore**:
+```typescript
+import { useBriefStore, type SelectedBrief } from '@/lib/briefStore'
+```
+
+2. **Al cargar un brief**:
+   - Crea un objeto `SelectedBrief` con todos los datos
+   - Llama a `setSelectedBrief(brief)`
+   - Muestra toast de confirmación
+   - El brief queda seleccionado globalmente
+
+3. **Indicador visual**:
+   - Badge "Seleccionado" en la card activa
+   - Border destacado (`border-primary ring-2 ring-primary/20`)
+   - Botón cambia de "Cargar brief" a "Recargado"
+
+### C) Integración en WarRoomChat (Campaña)
+
+**Archivo actualizado**: `src/components/WarRoomChat.tsx`
+
+#### Cambios implementados:
+
+1. **Import y uso del briefStore**:
+```typescript
+import { useBriefStore } from '@/lib/briefStore'
+const { selectedBrief, clearSelectedBrief } = useBriefStore()
+```
+
+2. **Auto-rellenado del textarea**:
+```typescript
+useEffect(() => {
+  if (selectedBrief && selectedBrief.briefText) {
+    setBriefText(selectedBrief.briefText)
+  }
+}, [selectedBrief])
+```
+
+3. **Panel "Brief Activo"** (antes del textarea):
+   - Solo visible si `selectedBrief` existe
+   - Muestra: nombre, producto, presupuesto, número de canales
+   - Botón "Usar brief seleccionado": recarga el briefText
+   - Botón "Limpiar": limpia la selección y el textarea
+
+4. **Generación de campaña mejorada**:
+   - Usa datos de `selectedBrief` si existe
+   - Fallback a `currentBrief` o campos del formulario
+   - Payload construido con contexto completo
+
+### D) Foundry Client con Proxy
+
+**Archivo actualizado**: `src/lib/foundryClient.ts`
+
+#### Nuevas interfaces:
+
+```typescript
+interface FoundryConfig {
+  endpoint?: string
+  apiKey?: string
+  useProxy?: boolean
+  proxyEndpoint?: string
+}
+
+interface FoundryError {
+  message: string
+  type: 'network' | 'auth' | 'cors' | 'parse' | 'unknown'
+  recommendation?: string
+  mode?: 'direct' | 'proxy'  // ⭐ Nuevo: indica qué modo se usó
+}
+```
+
+#### Función principal `runFoundry()`
+
+```typescript
+export async function runFoundry(
+  payload: FoundryPayload,
+  config?: FoundryConfig
+): Promise<FoundryResponse>
+```
+
+**Lógica**:
+1. Lee configuración de `config` o variables de entorno:
+   - `VITE_FOUNDRY_ENDPOINT`: Endpoint de Foundry
+   - `VITE_FOUNDRY_API_KEY`: API key (solo modo directo)
+   - `VITE_USE_PROXY`: true/false (default: true)
+
+2. Si `useProxy === true`:
+   - Llama a `/api/run` (proxy backend)
+   - Envía `{ endpoint, payload }`
+   - El backend añade la API key
+
+3. Si `useProxy === false`:
+   - Llama directamente a Foundry
+   - Envía headers `api-key` y `Ocp-Apim-Subscription-Key`
+   - Puede fallar por CORS
+
+#### Manejo de errores mejorado:
+
+- **401/403**: Detecta si es modo proxy o directo y da recomendación específica
+- **404**: Si el proxy no existe, sugiere activarlo o usar modo directo
+- **CORS**: Recomienda usar proxy
+- **Modo incluido**: Los errores ahora indican `mode: 'proxy'` o `mode: 'direct'`
+
+### E) Documentación Creada
+
+#### 1. `PROXY_BACKEND_GUIDE.md`
+Guía completa para implementar el proxy backend:
+- Ejemplos para Express, Vercel, Netlify
+- Variables de entorno
+- Testing
+- Troubleshooting
+- Seguridad
+
+#### 2. `.env.example`
+Plantilla de variables de entorno con:
+- `VITE_FOUNDRY_ENDPOINT`
+- `VITE_FOUNDRY_API_KEY` (opcional, solo desarrollo)
+- `VITE_USE_PROXY` (recomendado: true)
+- `FOUNDRY_API_KEY` (backend)
+
+#### 3. `api-proxy-example.js`
+Código de ejemplo para el proxy backend con:
+- Función `handleFoundryProxy()`
+- Manejo de errores
+- Comentarios explicativos
+- Ejemplo de uso con Express
+
+#### 4. `BRIEF_STORE_DOCS.md`
+Documentación completa del sistema de briefs:
+- Arquitectura
+- Flujo de usuario
+- Sincronización de estado
+- Ejemplos de uso
+- UX/UI
+- Debugging
+
+## 🎯 Flujo Completo del Usuario
+
+### Paso 1: Seleccionar Brief (Pestaña "Briefs Demo")
+
+1. Usuario ve lista de 3 briefs demo:
+   - 🚀 SaaS B2B - Plataforma de análisis
+   - 🛒 Ecommerce - Tienda de moda sostenible
+   - 🎓 Evento/Curso - Workshop de marketing digital
+
+2. Usuario hace clic en "Cargar brief"
+   - ✅ Brief se guarda en `briefStore`
+   - ✅ Card muestra badge "Seleccionado"
+   - ✅ Toast: "Brief 'X' seleccionado"
+
+### Paso 2: Ver Brief Activo (Pestaña "Campaña")
+
+1. Usuario cambia a pestaña "Campaña"
+   - ✅ Panel "Brief Activo" visible con info del brief
+   - ✅ Textarea auto-rellenado con briefText
+   - ✅ Botón "Generar Campaña" habilitado
+
+2. Usuario puede:
+   - Editar el briefText libremente
+   - Hacer clic en "Usar brief seleccionado" para recargar
+   - Hacer clic en "Limpiar" para deseleccionar
+
+### Paso 3: Generar Campaña
+
+1. Usuario hace clic en "Generar Campaña" (o Ctrl+Enter)
+   - 🚀 Log: "Iniciando generación..."
+   - 📤 Log: "Llamando a Foundry (modo: Proxy/Direct)..."
+
+2. Sistema construye payload:
 ```json
 {
-  "campaignStructure": [...],
-  "audiences": [
-    {
-      "type": "cold" | "lookalike" | "retargeting",
-      "name": "...",
-      "size": "...",
-      "description": "...",
-      "criteria": [...]
-    }
+  "messages": [
+    { "role": "user", "content": "<briefText>" }
   ],
-  "copyVariants": {
-    "hooks": ["...10 hooks..."],
-    "headlines": ["...10 headlines..."],
-    "descriptions": ["...5 descriptions..."]
-  },
-  "creativeAngles": [
-    {
-      "angle": "beneficio" | "urgencia" | "autoridad" | "emocion" | "objeciones",
-      "description": "...",
-      "whenToUse": "...",
-      "examples": [...]
-    }
-  ],
-  "budgetDistribution": [...],
-  "testPlan": [...],
-  "warnings": [
-    "⚠️ Advertencia si falta información crítica: precio, margen, prueba social, etc."
-  ]
+  "context": {
+    "campaignContext": {
+      "product": "...",
+      "target": "...",
+      "channels": ["Instagram", "TikTok"],
+      "brandTone": "...",
+      "budget": "..."
+    },
+    "uiState": { "view": "campaign" }
+  }
 }
 ```
 
-### Content Calendar (App.tsx, líneas 1023-1076)
-```json
-{
-  "items": [
-    {
-      "date": "Semana 1 Día 1",
-      "canal": "LinkedIn",
-      "formato": "post",
-      "funnelPhase": "awareness",
-      "objetivo": "Objetivo específico de esta pieza en 1 frase",
-      "cta": "CTA específico, 2-5 palabras",
-      "ideaVisual": "Idea visual en 1 frase: qué se ve",
-      "copyBase": "Copy completo listo para usar, 2-4 frases. Específico para el producto",
-      "kpiSugerido": "Alcance, Engagement rate, CTR, Leads generados",
-      "categoria": "educacion" | "prueba-social" | "venta" | "comunidad"
-    }
-  ]
-}
+3. Llamada a Foundry:
+   - **Modo Proxy** (recomendado):
+     - POST a `/api/run`
+     - Backend añade API key
+     - Sin problemas de CORS
+   
+   - **Modo Directo** (solo desarrollo):
+     - POST directo a Foundry endpoint
+     - Usa `VITE_FOUNDRY_API_KEY`
+     - Puede fallar por CORS
+
+4. Resultado:
+   - ✅ Log: "Campaña generada con éxito"
+   - ✅ Respuesta JSON visible
+   - ✅ Botones "Copiar Payload" y "Copiar Respuesta"
+   
+   O si hay error:
+   - ❌ Log: "Error: <mensaje>"
+   - 💡 Log: Recomendación específica según el error
+   - 🔧 Log: Modo usado (Proxy/Directo)
+
+## 🔧 Configuración Recomendada
+
+### Desarrollo Local (con proxy)
+
+1. **Frontend (.env)**:
+```bash
+VITE_USE_PROXY=true
+# No necesitas VITE_FOUNDRY_API_KEY
 ```
 
----
+2. **Backend** (servidor local):
+```bash
+FOUNDRY_API_KEY=tu-api-key-de-azure
+```
 
-## 🚀 Stack Tecnológico Utilizado
+3. **Servidor proxy corriendo**:
+```bash
+npm run server  # o como tengas configurado tu backend
+```
 
-### Frontend
-- **React 19** + TypeScript
-- **Vite** como build tool
-- **Tailwind CSS 4** para styling
-- **Radix UI** + shadcn v4 para componentes
-- **Phosphor Icons** para iconografía
-- **Framer Motion** para animaciones
+### Desarrollo Local (sin proxy - testing rápido)
 
-### State Management
-- **useKV** (GitHub Spark) para persistencia
-- **React useState** para estado local
-- **TanStack React Query** disponible
+**Frontend (.env)**:
+```bash
+VITE_USE_PROXY=false
+VITE_FOUNDRY_API_KEY=tu-api-key-de-azure
+```
 
-### AI Integration
-- **spark.llm()** (GitHub Spark) para generación
-- **17 prompts especializados** con Brand Kit integrado
-- **JSON mode** para outputs estructurados
+⚠️ Puede fallar por CORS dependiendo del navegador.
 
----
+### Producción
 
-## 📊 Métricas de Implementación
+1. **Frontend (variables de entorno)**:
+```bash
+VITE_USE_PROXY=true
+VITE_FOUNDRY_ENDPOINT=https://tu-endpoint.azure.com/...
+```
 
-- **Archivos creados/modificados**: 35+
-- **Líneas de código**: ~15,000
-- **Componentes React**: 25+
-- **Prompts LLM**: 17 (todos con Brand Kit)
-- **Documentación**: 3 archivos (PRD, README, STRATEGIC_APPROACH)
-- **Cobertura de funcionalidad**: 100%
+2. **Backend (Vercel/Netlify/etc)**:
+```bash
+FOUNDRY_API_KEY=tu-api-key-de-azure
+```
 
----
+3. **Proxy desplegado** en `/api/run`
 
-## ✅ Checklist Final de Verificación
+## 🐛 Troubleshooting
 
-### Funcionalidades Core
-- [x] Brief Wizard con 5 pasos
-- [x] Brief Scoring (0-100) en tiempo real
-- [x] Gap Detection (8 tipos)
-- [x] Quick Questions Modal
-- [x] Brand Kit persistente (11 parámetros)
-- [x] Brand Consistency Evaluator
-- [x] Dashboard modular (12 tabs)
-- [x] Output Card Actions (4 acciones)
-- [x] Variation Lab con scoring
-- [x] Content Calendar con mix saludable
-- [x] Flows (3 secuencias)
-- [x] War Room Chat con comandos
-- [x] Versionado de contenido
-- [x] Export (Copy, CSV)
+### Error 401: Unauthorized
 
-### Reglas Estratégicas
-- [x] No inventar datos (verificado en prompts)
-- [x] Cero generalidades (estructura accionable)
-- [x] Brand Kit como guardia (integrado en 17 prompts)
-- [x] Estructura modular clara (12 tabs + cards)
-- [x] Diferenciación primero (USP con hipótesis)
+**Modo Proxy**:
+- ❌ `FOUNDRY_API_KEY` no está en el servidor backend
+- ❌ La API key es inválida o está expirada
+- ✅ Verifica la key en Azure Portal
+- ✅ Verifica que esté en las variables de entorno del servidor
 
-### Documentación
-- [x] PRD actualizado
-- [x] README actualizado con ejemplo completo
-- [x] STRATEGIC_APPROACH.md creado
-- [x] Código comentado donde necesario
-- [x] Tipos TypeScript completos
+**Modo Directo**:
+- ❌ `VITE_FOUNDRY_API_KEY` no está configurada
+- ❌ La API key es inválida
+- ✅ Configura la variable de entorno
+- ✅ Recomienda usar proxy en su lugar
 
-### UX/UI
-- [x] Tema glassmorphism + neon
-- [x] Responsive design
-- [x] Dark mode
-- [x] Bilingüe (ES/EN)
-- [x] Animaciones sutiles
-- [x] Loading states
-- [x] Error handling
-- [x] Toast notifications
+### Error 404: Proxy not found
 
----
+- ❌ El endpoint `/api/run` no existe
+- ❌ El servidor backend no está corriendo
+- ✅ Implementa el proxy usando `PROXY_BACKEND_GUIDE.md`
+- ✅ O configura `VITE_USE_PROXY=false` temporalmente
 
-## 🎯 Próximos Pasos Sugeridos
+### Error CORS
 
-1. **Añadir más ejemplos de campañas reales** al STRATEGIC_APPROACH.md
-   - B2B SaaS (ejemplo: Slack, HubSpot)
-   - eCommerce (ejemplo: tienda de moda)
-   - Servicios profesionales (ejemplo: consultoría)
+- ❌ Estás usando modo directo
+- ❌ El navegador bloquea la llamada
+- ✅ Configura `VITE_USE_PROXY=true`
+- ✅ Implementa el proxy backend
 
-2. **Implementar export a PDF** con formato de documento ejecutivo
-   - Portada con logo y título de campaña
-   - TOC (Table of Contents)
-   - Cada sección del dashboard en formato limpio
-   - Gráficos para Content Calendar y Budget Distribution
+### Brief no se carga en Campaña
 
-3. **Añadir biblioteca de templates de brief** por industria
-   - B2B SaaS: CTO/CEO como audiencia, ciclos largos
-   - eCommerce: Conversión directa, retargeting fuerte
-   - Servicios: Prueba social, casos de éxito, confianza
+- ❌ El brief no se seleccionó correctamente
+- ✅ Verifica en DevTools: `await spark.kv.get('selected-brief')`
+- ✅ Vuelve a cargar el brief desde Briefs Demo
 
----
+## 📚 Archivos Modificados
 
-## 📝 Notas Finales
+- ✅ `src/lib/briefStore.ts` (nuevo)
+- ✅ `src/lib/foundryClient.ts` (actualizado)
+- ✅ `src/components/DemoBriefSelector.tsx` (actualizado)
+- ✅ `src/components/WarRoomChat.tsx` (actualizado)
 
-Este Marketing Command Center está **100% funcional** y listo para uso en producción. Todas las reglas estratégicas están implementadas y verificadas en el código.
+## 📚 Archivos de Documentación Creados
 
-El sistema es capaz de:
-- ✅ Detectar huecos críticos antes de generar
-- ✅ Respetar brand guidelines automáticamente
-- ✅ Generar outputs específicos y accionables
-- ✅ Evaluar consistencia de marca
-- ✅ Proporcionar 12 outputs modulares independientes
-- ✅ Permitir iteración rápida con regeneración por bloque
-- ✅ Mantener historial de versiones
+- ✅ `PROXY_BACKEND_GUIDE.md`
+- ✅ `.env.example`
+- ✅ `api-proxy-example.js`
+- ✅ `BRIEF_STORE_DOCS.md`
+- ✅ `IMPLEMENTATION_SUMMARY.md` (este archivo)
 
-**El sistema NO hace**:
-- ❌ Inventar precios
-- ❌ Inventar resultados sin evidencia
-- ❌ Generar copy genérico
-- ❌ Ignorar brand guidelines
-- ❌ Crear promesas sin prueba
+## ✨ Próximos Pasos
 
----
+1. **Implementar el proxy backend**:
+   - Usar uno de los ejemplos de `PROXY_BACKEND_GUIDE.md`
+   - Configurar `FOUNDRY_API_KEY` en el servidor
+   - Desplegar en Vercel/Netlify/servidor propio
 
-**Fecha de implementación**: 2024
-**Status**: ✅ Completado y verificado
-**Documentación**: Completa
-**Tests**: Pendientes (opcional)
-**Deploy**: Listo para producción
+2. **Configurar variables de entorno**:
+   - Copiar `.env.example` a `.env`
+   - Configurar las variables necesarias
+
+3. **Testing**:
+   - Cargar un brief desde Briefs Demo
+   - Verificar que aparece en Campaña
+   - Generar una campaña y verificar logs
+   - Probar modo proxy y directo
+
+4. **Producción**:
+   - Usar siempre `VITE_USE_PROXY=true`
+   - Nunca exponer `FOUNDRY_API_KEY` en el frontend
+   - Monitorear logs de error para debugging

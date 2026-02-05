@@ -5,8 +5,9 @@ import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { PlugsConnected, Plug, Lightning, Copy, CheckCircle, WarningCircle } from '@phosphor-icons/react'
+import { PlugsConnected, Plug, Lightning, Copy, CheckCircle, WarningCircle, X, FileText } from '@phosphor-icons/react'
 import { runCampaignFlow, type FoundryPayload, type FoundryError } from '@/lib/foundryClient'
+import { useBriefStore } from '@/lib/briefStore'
 import type { CampaignBriefData } from '@/lib/types'
 import { toast } from 'sonner'
 
@@ -32,7 +33,14 @@ export function WarRoomChat({ language }: WarRoomChatProps) {
   const [currentBrief] = useKV<CampaignBriefData>('campaign-brief-data')
   const [copiedPayload, setCopiedPayload] = useState(false)
   const [copiedResponse, setCopiedResponse] = useState(false)
+  const { selectedBrief, clearSelectedBrief } = useBriefStore()
   const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (selectedBrief && selectedBrief.briefText) {
+      setBriefText(selectedBrief.briefText)
+    }
+  }, [selectedBrief])
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -51,7 +59,7 @@ export function WarRoomChat({ language }: WarRoomChatProps) {
   }
 
   const handleGenerateCampaign = async () => {
-    if (!briefText.trim() && !currentBrief) {
+    if (!briefText.trim() && !currentBrief && !selectedBrief) {
       toast.error(language === 'es' ? 'Por favor escribe un brief' : 'Please write a brief')
       return
     }
@@ -62,7 +70,7 @@ export function WarRoomChat({ language }: WarRoomChatProps) {
 
     addLog(language === 'es' ? '🚀 Iniciando generación...' : '🚀 Starting generation...', 'info')
 
-    const brief = briefText.trim() || buildBriefFromForm(currentBrief)
+    const brief = briefText.trim() || (selectedBrief ? selectedBrief.briefText : buildBriefFromForm(currentBrief))
     
     const payload: FoundryPayload = {
       messages: [
@@ -73,13 +81,13 @@ export function WarRoomChat({ language }: WarRoomChatProps) {
       ],
       context: {
         campaignContext: {
-          product: currentBrief?.product || '',
-          target: currentBrief?.audience || '',
-          channels: Array.isArray(currentBrief?.channels) 
+          product: selectedBrief?.product || currentBrief?.product || '',
+          target: selectedBrief?.target || currentBrief?.audience || '',
+          channels: selectedBrief?.channels || (Array.isArray(currentBrief?.channels) 
             ? currentBrief.channels 
-            : [],
-          brandTone: currentBrief?.tone || '',
-          budget: currentBrief?.budget || ''
+            : []),
+          brandTone: selectedBrief?.brandTone || currentBrief?.tone || '',
+          budget: selectedBrief?.budget || currentBrief?.budget || ''
         },
         uiState: {
           view: 'campaign'
@@ -88,7 +96,14 @@ export function WarRoomChat({ language }: WarRoomChatProps) {
     }
 
     setLastPayload(JSON.stringify(payload, null, 2))
-    addLog(language === 'es' ? '📤 Llamando a Foundry...' : '📤 Calling Foundry...', 'loading')
+    
+    const mode = import.meta.env.VITE_USE_PROXY !== 'false' ? 'Proxy' : 'Direct'
+    addLog(
+      language === 'es' 
+        ? `📤 Llamando a Foundry (modo: ${mode})...` 
+        : `📤 Calling Foundry (mode: ${mode})...`, 
+      'loading'
+    )
 
     try {
       const response = await runCampaignFlow(payload)
@@ -102,6 +117,15 @@ export function WarRoomChat({ language }: WarRoomChatProps) {
       
       addLog(`❌ Error: ${error.message}`, 'error')
       
+      if (error.mode) {
+        addLog(
+          language === 'es' 
+            ? `🔧 Modo usado: ${error.mode === 'proxy' ? 'Proxy' : 'Directo'}` 
+            : `🔧 Mode used: ${error.mode === 'proxy' ? 'Proxy' : 'Direct'}`,
+          'info'
+        )
+      }
+      
       if (error.recommendation) {
         addLog(`💡 ${error.recommendation}`, 'info')
       }
@@ -109,17 +133,26 @@ export function WarRoomChat({ language }: WarRoomChatProps) {
       if (error.type === 'cors') {
         addLog(
           language === 'es' 
-            ? '⚠️ CORS: El navegador bloquea la llamada directa. Necesitas un proxy backend.' 
-            : '⚠️ CORS: Browser blocks direct call. You need a backend proxy.',
+            ? '⚠️ CORS: El navegador bloquea la llamada directa. Usa VITE_USE_PROXY=true.' 
+            : '⚠️ CORS: Browser blocks direct call. Use VITE_USE_PROXY=true.',
           'error'
         )
       } else if (error.type === 'auth') {
-        addLog(
-          language === 'es' 
-            ? '⚠️ AUTH: Configura VITE_FOUNDRY_API_KEY en variables de entorno.' 
-            : '⚠️ AUTH: Set VITE_FOUNDRY_API_KEY in environment variables.',
-          'error'
-        )
+        if (error.mode === 'proxy') {
+          addLog(
+            language === 'es' 
+              ? '⚠️ AUTH: Configura FOUNDRY_API_KEY en el servidor backend.' 
+              : '⚠️ AUTH: Set FOUNDRY_API_KEY on backend server.',
+            'error'
+          )
+        } else {
+          addLog(
+            language === 'es' 
+              ? '⚠️ AUTH: Configura VITE_FOUNDRY_API_KEY o usa proxy con VITE_USE_PROXY=true.' 
+              : '⚠️ AUTH: Set VITE_FOUNDRY_API_KEY or use proxy with VITE_USE_PROXY=true.',
+            'error'
+          )
+        }
       }
 
       toast.error(error.message)
@@ -193,6 +226,54 @@ export function WarRoomChat({ language }: WarRoomChatProps) {
         </Badge>
 
         <div className="space-y-3">
+          {selectedBrief && (
+            <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileText size={16} weight="fill" className="text-primary" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-primary">
+                    {language === 'es' ? 'Brief Activo' : 'Active Brief'}
+                  </span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    clearSelectedBrief()
+                    setBriefText('')
+                    toast.info(language === 'es' ? 'Brief limpiado' : 'Brief cleared')
+                  }}
+                  className="h-6 px-2 text-xs"
+                >
+                  <X size={12} className="mr-1" />
+                  {language === 'es' ? 'Limpiar' : 'Clear'}
+                </Button>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-semibold">{selectedBrief.name}</p>
+                <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">
+                  <Badge variant="outline" className="text-xs">
+                    {selectedBrief.product}
+                  </Badge>
+                  <Badge variant="outline" className="text-xs">
+                    {selectedBrief.budget}
+                  </Badge>
+                  <Badge variant="outline" className="text-xs">
+                    {selectedBrief.channels.length} {language === 'es' ? 'canales' : 'channels'}
+                  </Badge>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setBriefText(selectedBrief.briefText)}
+                className="w-full text-xs"
+              >
+                {language === 'es' ? 'Usar brief seleccionado' : 'Use selected brief'}
+              </Button>
+            </div>
+          )}
+
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground block mb-2">
               {language === 'es' ? 'Brief de Campaña' : 'Campaign Brief'}
@@ -213,7 +294,7 @@ export function WarRoomChat({ language }: WarRoomChatProps) {
 
           <Button
             onClick={handleGenerateCampaign}
-            disabled={isGenerating || (!briefText.trim() && !currentBrief)}
+            disabled={isGenerating || (!briefText.trim() && !currentBrief && !selectedBrief)}
             className="w-full font-bold"
             size="lg"
           >
