@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\api",
+    "\\api\\CampaignImpactHubFunction",
+    "\\api\\FoundryAgentsFunction",
+    "\\api\\FoundryAgentsFunction\\FoundryAgentsFunction",
+    "\\api\\FoundryAgentsFunction\\FoundryAgentsFunction\\Properties"
+  ],
+  "PreviewInSolutionExplorer": false
+}
