@@ -173,7 +173,7 @@ Según STRATEGIC_APPROACH.md, ¿cómo debería redactar los prompts para evitar 
 Si necesitas **modificar las instrucciones del agent**, edita:
 
 ```
-.github/copilot-instructions.md
+.github/agents/campaign-impact-hub-expert.md
 ```
 
 Después de editar:
@@ -253,7 +253,7 @@ Un custom agent funciona bien cuando:
 1. **Prueba el agent** con los ejemplos de prompts de arriba
 2. **Experimenta** con diferentes tipos de preguntas (@workspace, específicas, debugging)
 3. **Itera** si las respuestas no son suficientemente específicas
-4. **Customiza** `.github/copilot-instructions.md` según las necesidades de tu equipo
+4. **Customiza** `.github/agents/campaign-impact-hub-expert.md` según las necesidades de tu equipo
 
 ---
 
