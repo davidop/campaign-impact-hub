@@ -7,6 +7,8 @@
     "dev": "vite",
     "proxy": "node server.js",
     "dev:all": "concurrently \"npm run dev\" \"npm run proxy\"",
+    "azure-agent": "python3 azure_agent_server.py",
+    "dev:azure": "concurrently \"npm run dev\" \"npm run azure-agent\"",
     "check": "node check-config.js",
     "test:proxy": "node test-proxy.js",
     "kill": "fuser -k 5000/tcp",

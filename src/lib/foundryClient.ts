@@ -42,12 +42,23 @@ export interface FoundryConfig {
   apiKey?: string
   useProxy?: boolean
   proxyEndpoint?: string
+  useAzureAgent?: boolean
+  azureAgentBackend?: string
 }
 
 export async function runFoundry(
   payload: FoundryPayload,
   config?: FoundryConfig
 ): Promise<FoundryResponse> {
+  const useAzureAgent = config?.useAzureAgent !== undefined 
+    ? config.useAzureAgent 
+    : (import.meta.env.VITE_USE_AZURE_AGENT === 'true')
+  
+  // If Azure Agent mode is enabled, use the Azure AI Agent backend
+  if (useAzureAgent) {
+    return await runViaAzureAgent(payload, config?.azureAgentBackend)
+  }
+  
   const endpoint = config?.endpoint || import.meta.env.VITE_FOUNDRY_ENDPOINT || 
     'https://tenerife-winter-resource.services.ai.azure.com/api/projects/tenerife-winter/applications/campaign-impact-hub/protocols/activityprotocol?api-version=2025-11-15-preview'
   
@@ -199,6 +210,112 @@ async function runDirect(
       message: err.message || 'Unknown error occurred',
       type: 'unknown',
       mode: 'direct',
+    }
+    throw unknownError
+  }
+}
+
+async function runViaAzureAgent(
+  payload: FoundryPayload,
+  backendUrl?: string
+): Promise<FoundryResponse> {
+  const azureBackend = backendUrl || 
+    import.meta.env.VITE_AZURE_AGENT_BACKEND || 
+    'http://localhost:5001'
+  
+  try {
+    // Create a thread
+    const threadResponse = await fetch(`${azureBackend}/api/azure-agent/thread/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!threadResponse.ok) {
+      const errorData = await threadResponse.json()
+      const error: FoundryError = {
+        message: `Failed to create Azure Agent thread: ${errorData.error || 'Unknown error'}`,
+        type: 'network',
+        mode: 'proxy',
+        recommendation: 'Make sure the Azure Agent backend server is running on port 5001 and Azure credentials are configured.'
+      }
+      throw error
+    }
+
+    const threadData = await threadResponse.json()
+    const threadId = threadData.thread_id
+
+    // Extract user message from payload
+    const userMessage = payload.messages.find(m => m.role === 'user')?.content || ''
+    
+    if (!userMessage) {
+      const error: FoundryError = {
+        message: 'No user message found in payload',
+        type: 'parse',
+        mode: 'proxy',
+      }
+      throw error
+    }
+
+    // Send message to Azure Agent
+    const messageResponse = await fetch(`${azureBackend}/api/azure-agent/message/send`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        thread_id: threadId,
+        content: userMessage,
+      }),
+    })
+
+    if (!messageResponse.ok) {
+      const errorData = await messageResponse.json()
+      const error: FoundryError = {
+        message: `Azure Agent error: ${errorData.error || 'Unknown error'}`,
+        type: 'network',
+        mode: 'proxy',
+      }
+      throw error
+    }
+
+    const messageData = await messageResponse.json()
+    
+    // Extract assistant response
+    const assistantMessages = messageData.messages.filter((m: any) => m.role === 'assistant')
+    const assistantResponse = assistantMessages.length > 0 
+      ? assistantMessages[assistantMessages.length - 1].content 
+      : 'No response from agent'
+
+    // Return in Foundry format
+    return {
+      summary: assistantResponse,
+      threadId: threadId,
+      runId: messageData.run_id,
+      runStatus: messageData.run_status,
+      messages: messageData.messages,
+    } as FoundryResponse
+
+  } catch (err: any) {
+    if (err.type) {
+      throw err
+    }
+
+    if (err.name === 'TypeError' && err.message.includes('fetch')) {
+      const error: FoundryError = {
+        message: 'Cannot connect to Azure Agent backend',
+        type: 'network',
+        mode: 'proxy',
+        recommendation: 'Start the Azure Agent backend server with: python3 azure_agent_server.py'
+      }
+      throw error
+    }
+
+    const unknownError: FoundryError = {
+      message: err.message || 'Unknown error via Azure Agent',
+      type: 'unknown',
+      mode: 'proxy',
     }
     throw unknownError
   }
