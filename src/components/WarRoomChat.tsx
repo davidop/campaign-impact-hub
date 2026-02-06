@@ -36,7 +36,7 @@ interface AgentResponse {
  * @returns Respuesta del agente con threadId, answer, status y error
  */
 async function sendToAgent(message: string, threadId?: string): Promise<AgentResponse> {
-  const url = 'https://fa-campaign-impact-hub.azurewebsites.net/api/chat'
+  const url = import.meta.env.VITE_AZURE_CHAT_ENDPOINT || 'https://fa-campaign-impact-hub.azurewebsites.net/api/chat'
   
   const response = await fetch(url, {
     method: 'POST',
@@ -51,7 +51,19 @@ async function sendToAgent(message: string, threadId?: string): Promise<AgentRes
 
   if (!response.ok) {
     const errorText = await response.text()
-    throw new Error(errorText || `Error ${response.status}: ${response.statusText}`)
+    
+    // Proporcionar mensajes de error más específicos según el código de estado
+    let errorMessage = errorText || `Error ${response.status}: ${response.statusText}`
+    
+    if (response.status === 401 || response.status === 403) {
+      errorMessage = 'Error de autenticación: no tienes permisos para acceder al servicio'
+    } else if (response.status === 429) {
+      errorMessage = 'Límite de solicitudes excedido: por favor intenta de nuevo en unos momentos'
+    } else if (response.status >= 500) {
+      errorMessage = 'Error del servidor: el servicio no está disponible temporalmente'
+    }
+    
+    throw new Error(errorMessage)
   }
 
   return response.json()
@@ -267,7 +279,7 @@ ${trimmedInput}`
         )}
 
         {threadId && (
-          <Badge variant="secondary" className="text-xs mb-3 w-full justify-center">
+          <Badge variant="secondary" className="text-xs mb-3 w-full justify-center" title={`Thread ID completo: ${threadId}`}>
             {language === 'es' ? 'Conversación activa' : 'Active conversation'} - Thread: {threadId.substring(0, 8)}...
           </Badge>
         )}
