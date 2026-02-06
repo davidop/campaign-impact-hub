@@ -282,8 +282,8 @@ async function runViaAzureAgent(
 
     const messageData = await messageResponse.json()
     
-    # Extract assistant response
-    assistantMessages = messageData.messages.filter((m: any) => m.role === 'assistant')
+    // Extract assistant response
+    const assistantMessages = messageData.messages.filter((m: any) => m.role === 'assistant')
     const assistantResponse = assistantMessages.length > 0 
       ? assistantMessages[assistantMessages.length - 1].content 
       : ''
