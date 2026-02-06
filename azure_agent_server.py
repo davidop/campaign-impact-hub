@@ -100,7 +100,7 @@ def send_message():
         
         # Check run status
         if run.status == "failed":
-            error_message = run.last_error if hasattr(run, 'last_error') else "Run failed"
+            error_message = run.last_error if hasattr(run, 'last_error') else "Unknown error - check Azure logs for details"
             print(f"Run failed: {error_message}")
             return jsonify({
                 'error': f'Run failed: {error_message}',

@@ -294,7 +294,7 @@ async function runViaAzureAgent(
 
     // Return in Foundry format
     return {
-      summary: assistantResponse || 'No response from agent (run status: ' + messageData.run_status + ')',
+      summary: assistantResponse || `No response from agent (run status: ${messageData.run_status})`,
       threadId: threadId,
       runId: messageData.run_id,
       runStatus: messageData.run_status,
