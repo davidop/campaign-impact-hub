@@ -2,7 +2,7 @@ import { useKV } from '@github/spark/hooks'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Sparkle, Rocket, ShoppingCart, GraduationCap, CheckCircle } from '@phosphor-icons/react'
+import { Sparkle, Rocket, ShoppingCart, GraduationCap, CheckCircle, Trash } from '@phosphor-icons/react'
 import { demoBriefs, type DemoBrief } from '@/lib/demoBriefs'
 import type { CampaignBriefData, BrandKit } from '@/lib/types'
 import { useBriefStore, type SelectedBrief } from '@/lib/briefStore'
@@ -29,7 +29,7 @@ export default function DemoBriefSelector({ onBriefSelected, language }: DemoBri
     preferredCTA: 'contacta'
   })
 
-  const { selectedBriefId, setSelectedBrief } = useBriefStore()
+  const { selectedBriefId, setSelectedBrief, clearSelectedBrief } = useBriefStore()
 
   const handleLoadDemo = (demo: DemoBrief) => {
     setCurrentBrief(() => demo.briefData)
@@ -69,6 +69,35 @@ ${demo.briefData.price ? `Precio: ${demo.briefData.price}` : ''}`
     )
   }
 
+  const handleClearBrief = () => {
+    setCurrentBrief(() => null)
+    setBrandKit(() => ({
+      tone: 'profesional',
+      formality: 3,
+      useEmojis: false,
+      emojiStyle: 'moderados',
+      forbiddenWords: [],
+      preferredWords: [],
+      allowedClaims: [],
+      notAllowedClaims: [],
+      brandExamplesYes: [],
+      brandExamplesNo: [],
+      preferredCTA: 'contacta'
+    }))
+    clearSelectedBrief()
+    
+    toast.info(
+      language === 'es' 
+        ? '🗑️ Brief limpiado'
+        : '🗑️ Brief cleared',
+      {
+        description: language === 'es'
+          ? 'Formulario reseteado. Puedes cargar un nuevo brief o crear uno desde cero.'
+          : 'Form reset. You can load a new brief or create one from scratch.'
+      }
+    )
+  }
+
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'saas-b2b':
@@ -97,11 +126,24 @@ ${demo.briefData.price ? `Precio: ${demo.briefData.price}` : ''}`
 
   return (
     <Card className="p-6 space-y-4 glass-panel">
-      <div className="flex items-center gap-2 mb-4">
-        <Sparkle size={20} weight="duotone" className="text-primary" />
-        <h3 className="text-lg font-bold">
-          {language === 'es' ? 'Briefs Demo' : 'Demo Briefs'}
-        </h3>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <Sparkle size={20} weight="duotone" className="text-primary" />
+          <h3 className="text-lg font-bold">
+            {language === 'es' ? 'Briefs Demo' : 'Demo Briefs'}
+          </h3>
+        </div>
+        {selectedBriefId && (
+          <Button 
+            size="sm" 
+            variant="ghost"
+            onClick={handleClearBrief}
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <Trash size={16} weight="fill" className="mr-2" />
+            {language === 'es' ? 'Limpiar' : 'Clear'}
+          </Button>
+        )}
       </div>
 
       <p className="text-sm text-muted-foreground">
