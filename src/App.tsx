@@ -11,6 +11,7 @@ import { WarRoomChat } from '@/components/WarRoomChat'
 import { WarRoomCommandCenter } from '@/components/WarRoomCommandCenter'
 import { ContentSafetyReviewer } from '@/components/ContentSafetyReviewer'
 import { OrchestratorDemo } from '@/components/OrchestratorDemo'
+import DemoBriefSelector from '@/components/DemoBriefSelector'
 import { FileText, Palette, Sparkle, Lightning, ShieldCheck, Robot, Crosshair } from '@phosphor-icons/react'
 import type { Language } from '@/lib/i18n'
 import type { CampaignBriefData, CampaignOutput, CopyVariation, BrandKit, FlowSequence, ContentCalendarItem } from '@/lib/types'
@@ -1461,7 +1462,13 @@ ${isSpanish ? 'Devuelve un objeto JSON con una propiedad "variations" que conten
 
             <TabsContent value="campaign" className="mt-0">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div className="lg:col-span-3">
+                <div className="lg:col-span-3 space-y-6">
+                  <DemoBriefSelector
+                    onBriefSelected={(briefData) => {
+                      setCurrentBrief(() => briefData)
+                    }}
+                    language={language || 'es'}
+                  />
                   <BriefWizard 
                     onGenerate={handleGenerateCampaign}
                     isGenerating={isGenerating}
