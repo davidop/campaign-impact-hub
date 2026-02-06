@@ -1,16 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useOrchestrator } from '@/hooks/use-orchestrator'
+import { useBriefStore } from '@/lib/briefStore'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { ChatCircle, PaperPlaneTilt, Trash, Plus, Robot, User } from '@phosphor-icons/react'
+import { Textarea } from '@/components/ui/textarea'
+import { ChatCircle, PaperPlaneTilt, Trash, Plus, Robot, User, FileText, Sparkle, Lightning } from '@phosphor-icons/react'
 import { toast } from 'sonner'
 
 export function OrchestratorDemo() {
   const [inputMessage, setInputMessage] = useState('')
+  const { selectedBrief } = useBriefStore()
 
   const {
     thread,
@@ -33,6 +36,16 @@ export function OrchestratorDemo() {
       })
     }
   })
+
+  useEffect(() => {
+    if (selectedBrief && !thread) {
+      createThread({
+        source: 'brief-loaded',
+        briefId: selectedBrief.id,
+        briefName: selectedBrief.name
+      })
+    }
+  }, [selectedBrief])
 
   const handleCreateThread = () => {
     createThread({
@@ -67,60 +80,97 @@ export function OrchestratorDemo() {
     })
   }
 
+  const handleGenerateCampaign = async () => {
+    if (!selectedBrief) {
+      toast.error('No brief loaded', {
+        description: 'Please load a brief first from the "Cargar brief" option'
+      })
+      return
+    }
+
+    if (!thread) {
+      const newThread = createThread({
+        source: 'campaign-generation',
+        briefId: selectedBrief.id,
+        briefName: selectedBrief.name
+      })
+      if (!newThread) {
+        toast.error('Failed to create thread')
+        return
+      }
+    }
+
+    const campaignPrompt = `Generate a complete marketing campaign based on this brief:
+
+${selectedBrief.briefText}
+
+Additional context:
+- Product/Service: ${selectedBrief.product}
+- Target Audience: ${selectedBrief.target}
+- Marketing Channels: ${selectedBrief.channels.join(', ')}
+- Brand Tone: ${selectedBrief.brandTone}
+- Budget: ${selectedBrief.budget}
+
+Please provide a comprehensive campaign strategy including creative routes, funnel blueprint, paid pack recommendations, content calendar, and execution checklist.`
+
+    await sendMessage(campaignPrompt)
+    toast.success('Campaign generation started', {
+      description: 'The orchestrator is creating your campaign...'
+    })
+  }
+
+  const isBriefLoaded = !!selectedBrief
+
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-4">
-      <Card className="glass-panel p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <Robot size={24} weight="duotone" className="text-primary" />
+    <div className="w-full space-y-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2">
+          <Card className="glass-panel p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Robot size={24} weight="duotone" className="text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold">Foundry Workflow</h2>
+                  <p className="text-xs text-muted-foreground">
+                    Microsoft Foundry Agent - Campaign Generation
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                {thread && (
+                  <Badge variant="secondary" className="font-mono text-xs">
+                    {thread.id.substring(0, 20)}...
+                  </Badge>
+                )}
+                
+                {thread && (
+                  <Button onClick={handleClearThread} size="sm" variant="outline">
+                    <Trash size={16} weight="bold" className="mr-1" />
+                    Clear
+                  </Button>
+                )}
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg font-bold">Marketing Orchestrator</h2>
-              <p className="text-xs text-muted-foreground">
-                Agent conversation interface (Microsoft Foundry pattern)
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {thread && (
-              <Badge variant="secondary" className="font-mono text-xs">
-                {thread.id.substring(0, 20)}...
-              </Badge>
-            )}
-            
-            {!thread ? (
-              <Button onClick={handleCreateThread} size="sm">
-                <Plus size={16} weight="bold" className="mr-1" />
-                New Thread
-              </Button>
+
+            <Separator className="mb-4" />
+
+            {!isBriefLoaded ? (
+              <div className="text-center py-12 space-y-3">
+                <FileText size={64} weight="duotone" className="mx-auto text-muted-foreground/50" />
+                <div>
+                  <h3 className="font-semibold text-lg mb-1">No brief loaded</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Load a brief from "Cargar brief" to enable campaign generation
+                  </p>
+                  <Badge variant="outline" className="text-xs">
+                    Campaign generation is disabled until a brief is loaded
+                  </Badge>
+                </div>
+              </div>
             ) : (
-              <Button onClick={handleClearThread} size="sm" variant="outline">
-                <Trash size={16} weight="bold" className="mr-1" />
-                Clear
-              </Button>
-            )}
-          </div>
-        </div>
-
-        <Separator className="mb-4" />
-
-        {!thread ? (
-          <div className="text-center py-12 space-y-3">
-            <ChatCircle size={64} weight="duotone" className="mx-auto text-muted-foreground/50" />
-            <div>
-              <h3 className="font-semibold text-lg mb-1">No active conversation</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Create a new thread to start chatting with the marketing orchestrator
-              </p>
-              <Button onClick={handleCreateThread}>
-                <Plus size={18} weight="bold" className="mr-2" />
-                Create Thread
-              </Button>
-            </div>
-          </div>
-        ) : (
           <div className="space-y-4">
             <ScrollArea className="h-[400px] pr-4">
               <div className="space-y-4">
@@ -190,19 +240,19 @@ export function OrchestratorDemo() {
             )}
 
             <div className="flex gap-2">
-              <Input
+              <Textarea
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyDown={handleKeyPress}
-                placeholder="Type your message..."
+                placeholder="Type your message or use 'Generar campaña' to start..."
                 disabled={isProcessing}
-                className="flex-1"
+                className="flex-1 min-h-[60px]"
               />
               <Button
                 onClick={handleSendMessage}
                 disabled={!inputMessage.trim() || isProcessing}
                 size="icon"
-                className="flex-shrink-0"
+                className="flex-shrink-0 h-[60px]"
               >
                 <PaperPlaneTilt size={18} weight="fill" />
               </Button>
@@ -214,6 +264,110 @@ export function OrchestratorDemo() {
           </div>
         )}
       </Card>
+        </div>
+
+        <div className="lg:col-span-1">
+          <Card className="glass-panel p-6 space-y-4">
+            <div>
+              <h3 className="font-bold text-sm mb-2 flex items-center gap-2">
+                <Lightning size={16} weight="fill" className="text-primary" />
+                Campaign Controls
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                Quick actions for campaign generation
+              </p>
+            </div>
+
+            <Separator />
+
+            {selectedBrief ? (
+              <div className="space-y-3">
+                <div className="bg-success/10 border border-success/20 rounded-lg p-3">
+                  <div className="flex items-start gap-2">
+                    <FileText size={18} weight="fill" className="text-success flex-shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-success mb-1">Brief Loaded</p>
+                      <p className="text-xs text-muted-foreground truncate">{selectedBrief.name}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Product:</span>
+                    <span className="font-medium truncate ml-2 max-w-[60%]">{selectedBrief.product}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Target:</span>
+                    <span className="font-medium truncate ml-2 max-w-[60%]">{selectedBrief.target}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Budget:</span>
+                    <span className="font-medium">{selectedBrief.budget}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Channels:</span>
+                    <span className="font-medium">{selectedBrief.channels.length}</span>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <Button 
+                  onClick={handleGenerateCampaign} 
+                  disabled={isProcessing}
+                  className="w-full"
+                  size="lg"
+                >
+                  {isProcessing ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-foreground border-t-transparent mr-2" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkle size={18} weight="fill" className="mr-2" />
+                      Generar campaña
+                    </>
+                  )}
+                </Button>
+
+                <p className="text-xs text-muted-foreground text-center">
+                  This will send the brief to Microsoft Foundry
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="bg-muted/50 border border-border rounded-lg p-3">
+                  <div className="flex items-start gap-2">
+                    <FileText size={18} weight="duotone" className="text-muted-foreground flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-semibold text-muted-foreground mb-1">No Brief Loaded</p>
+                      <p className="text-xs text-muted-foreground">
+                        Use "Cargar brief" to load campaign context
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <Button 
+                  disabled
+                  className="w-full"
+                  size="lg"
+                  variant="outline"
+                >
+                  <Sparkle size={18} weight="duotone" className="mr-2" />
+                  Generar campaña
+                </Button>
+
+                <p className="text-xs text-muted-foreground text-center">
+                  Load a brief first to enable generation
+                </p>
+              </div>
+            )}
+          </Card>
+        </div>
+      </div>
 
       <Card className="glass-panel p-4">
         <h3 className="font-bold text-sm mb-3">Code Example (TypeScript)</h3>

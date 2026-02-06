@@ -1,4 +1,5 @@
 import { useKV } from '@github/spark/hooks'
+import { useState, useEffect, useSyncExternalStore } from 'react'
 
 export interface SelectedBrief {
   id: string
@@ -52,12 +53,12 @@ export function useBriefStore() {
   const [selectedBriefId, setSelectedBriefId] = useKV<string | null>('selected-brief-id', null)
   const [selectedBrief, setSelectedBrief] = useKV<SelectedBrief | null>('selected-brief', null)
 
-  const selectBrief = (brief: SelectedBrief) => {
+  const handleSetSelectedBrief = (brief: SelectedBrief) => {
     setSelectedBriefId(() => brief.id)
     setSelectedBrief(() => brief)
   }
 
-  const clearBrief = () => {
+  const handleClearSelectedBrief = () => {
     setSelectedBriefId(() => null)
     setSelectedBrief(() => null)
   }
@@ -65,7 +66,7 @@ export function useBriefStore() {
   return {
     selectedBriefId,
     selectedBrief,
-    setSelectedBrief: selectBrief,
-    clearSelectedBrief: clearBrief
+    setSelectedBrief: handleSetSelectedBrief,
+    clearSelectedBrief: handleClearSelectedBrief
   }
 }
